@@ -1,3 +1,4 @@
+import { UpgradeShop } from './scenes/UpgradeShop';
 import { Boot } from './scenes/Boot';
 import { GameOver } from './scenes/GameOver';
 import { Game as MainGame } from './scenes/Game';
@@ -19,7 +20,8 @@ const config: Phaser.Types.Core.GameConfig = {
         Preloader,
         MainMenu,
         MainGame,
-        GameOver
+        GameOver,
+        UpgradeShop
     ]
 };
 
