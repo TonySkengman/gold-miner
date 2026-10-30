@@ -41,5 +41,9 @@ const BASE_LEVELS: readonly Omit<LevelConfig, 'layout'>[] = [
 ];
 
 export const LEVELS: readonly LevelConfig[] = BASE_LEVELS.map((level, index) => ({
-    ...level, layout: LAYOUT_ORDER[index % LAYOUT_ORDER.length]
+    ...level,
+    // More hazards should tighten shots, never turn the mine into a solid wall.
+    largeRocks: Math.min(3, level.largeRocks),
+    rocks: Math.min(level.rocks, 6 - Math.min(3, level.largeRocks)),
+    layout: LAYOUT_ORDER[index % LAYOUT_ORDER.length]
 }));

@@ -1,3 +1,4 @@
+import { findClearAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
 import { WORLD } from '../state/World';
 import { GameObjects, Scene } from 'phaser';
@@ -201,6 +202,9 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
     }
 }
 
+const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === 'largeRock';
+const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat';
+
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0]): Collectable[] {
     // Place the largest objects first; retry the whole layout if it becomes crowded.
     const kinds: OreKind[] = [
@@ -227,7 +231,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 const rock = kind === 'rock' || kind === 'largeRock';
                 if (level.layout === 'goldPocket') {
                     if (gold) x = 260 + Math.random() * 504;
-                    if (rock) y = 530 + Math.random() * 150;
+                    if (rock) y = 500 + Math.random() * 280;
                 } else if (level.layout === 'ratTunnels') {
                     if (kind === 'rat') y = RAT_LANE_Y + Math.random() * 8 - 4;
                     // Leave an actual open horizontal route for the nuisance rats.
@@ -253,7 +257,13 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 const dy = y - 210;
                 if (x - radius < 40 || x + radius > WORLD.width - 40 || y + radius > WORLD.floorY || Math.hypot(dx, dy) > WORLD.spawnRange - radius || Math.abs(Math.atan2(dx, dy)) > 1.05) continue;
                 if (positions.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + 18)) continue;
-                positions.push({ x, y, radius, kind });
+                const candidate = { x, y, radius, kind };
+                const hazards = positions.filter(other => isStaticHazard(other.kind));
+                if (isStaticHazard(kind)) {
+                    hazards.push(candidate);
+                    if (positions.some(other => needsAimingGap(other.kind) && findClearAim(other, hazards) === null)) continue;
+                } else if (needsAimingGap(kind) && findClearAim(candidate, hazards) === null) continue;
+                positions.push(candidate);
                 break;
             }
             if (positions.length < index + 1) break;

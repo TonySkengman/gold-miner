@@ -1,4 +1,4 @@
-import { emptyUpgrades, Upgrades } from './Upgrades';
+import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses } from './Upgrades';
 import { LEVELS, LevelConfig } from './Levels';
 
 export class RoundState {
@@ -6,12 +6,15 @@ export class RoundState {
     strengthRemaining = 0;
     dynamite: number;
     readonly upgrades: Upgrades;
+    readonly bonuses: LevelBonuses;
     remaining = 60;
     readonly level: number;
     readonly config: LevelConfig;
 
-    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3) {
+    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses()) {
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
+        this.bonuses = { ...bonuses };
+        this.remaining = bonuses.extraTime ? 75 : 60;
         this.upgrades = { ...upgrades };
         this.dynamite = startingDynamite;
         this.config = LEVELS[this.level - 1];

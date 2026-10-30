@@ -3,12 +3,13 @@ import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { drawShop, drawShopProduct } from '../art/drawShop';
 import { Scene } from 'phaser';
 import { LEVELS } from '../state/Levels';
-import { emptyUpgrades, purchaseUpgrade, upgradePrice, UPGRADE_INFO, UPGRADE_LIMIT, ShopItemKind, Upgrades } from '../state/Upgrades';
+import { emptyBonuses, isPermanentUpgrade, itemSoldOut, emptyUpgrades, purchaseUpgrade, upgradePrice, UPGRADE_INFO, UPGRADE_LIMIT, ShopItemKind, Upgrades } from '../state/Upgrades';
 
 export class UpgradeShop extends Scene {
     constructor() { super('UpgradeShop'); }
 
     create(data: { level: number; money: number; upgrades?: Upgrades; dynamite: number }): void {
+        let bonuses = emptyBonuses();
         let money = data.money;
         let dynamite = data.dynamite;
         let upgrades = { ...(data.upgrades ?? emptyUpgrades()) };
@@ -25,35 +26,37 @@ export class UpgradeShop extends Scene {
         const showDescription = () => {
             if (!hovered) {
                 descriptionTitle.setText('“Welcome, miner! Take a look at my wares.”');
-                description.setText('Hover over a product to learn more. Click to buy. Upgrades last for this run.');
+                description.setText('Hover to learn more; click to buy. Potions and extra time apply to the next level only.');
                 return;
             }
             const info = UPGRADE_INFO[hovered];
-            const maxed = hovered !== 'dynamite' && upgrades[hovered] >= UPGRADE_LIMIT;
+            const maxed = itemSoldOut(hovered, upgrades, bonuses);
             const price = upgradePrice(hovered, upgrades);
             descriptionTitle.setText(info.name);
-            description.setText(`${info.description}. ${maxed ? 'Fully upgraded!' : `${hovered === 'dynamite' ? 'One stick' : 'Next tier'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
+            description.setText(`${info.description}. ${maxed ? (isPermanentUpgrade(hovered) ? 'Fully upgraded!' : 'Ready for the next level!') : `${isPermanentUpgrade(hovered) ? 'Next tier' : 'Price'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
         };
         const stock = this.add.text(512, 115, '', { fontFamily: 'Arial', fontSize: 20, color: '#483126' }).setOrigin(0.5);
         const refreshers: (() => void)[] = [];
         const refresh = () => {
-            stock.setText(`Dynamite in your bag: ${dynamite}`);
+            stock.setText(`Dynamite: ${dynamite}${bonuses.luck ? '  •  Luck ready' : ''}${bonuses.extraTime ? '  •  +15s ready' : ''}`);
             balance.setText(`MONEY  $${money}`);
             refreshers.forEach(update => update());
             showDescription();
         };
         (Object.keys(UPGRADE_INFO) as ShopItemKind[]).forEach((kind, index) => {
-            const x = 422 + index * 201;
-            const card = this.add.rectangle(x, 456, 185, 266, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
-            drawShopProduct(this, x, 443, kind);
-            this.add.text(x, 350, UPGRADE_INFO[kind].name, { fontFamily: 'Arial', fontSize: 21, fontStyle: 'bold', color: '#483126', align: 'center', wordWrap: { width: 170 } }).setOrigin(0.5, 0);
-            const tier = this.add.text(x, 513, '', { fontFamily: 'Arial', fontSize: 18, color: '#70452a' }).setOrigin(0.5);
-            const priceTag = this.add.text(x, 552, '', { fontFamily: 'Arial', fontSize: 21, fontStyle: 'bold', color: '#ffffff', padding: { x: 14, y: 7 } }).setOrigin(0.5);
+            const x = 422 + (index % 3) * 201;
+            const y = index < 3 ? 412 : 603;
+            const card = this.add.rectangle(x, y, 185, 180, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
+            drawShopProduct(this, x, y - 8, kind, 0.6);
+            this.add.text(x, y - 78, UPGRADE_INFO[kind].name, { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#483126', align: 'center', wordWrap: { width: 170 } }).setOrigin(0.5, 0);
+            const tier = this.add.text(x, y + 37, '', { fontFamily: 'Arial', fontSize: 18, color: '#70452a' }).setOrigin(0.5);
+            const priceTag = this.add.text(x, y + 70, '', { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#ffffff', padding: { x: 14, y: 7 } }).setOrigin(0.5);
             refreshers.push(() => {
-                const maxed = kind !== 'dynamite' && upgrades[kind] >= UPGRADE_LIMIT;
+                const maxed = itemSoldOut(kind, upgrades, bonuses);
                 const price = upgradePrice(kind, upgrades);
-                tier.setText(kind === 'dynamite' ? `OWNED: ${dynamite}` : `TIER ${upgrades[kind]} / ${UPGRADE_LIMIT}`);
-                priceTag.setText(maxed ? 'MAXED' : `BUY $${price}`);
+                tier.setText(isPermanentUpgrade(kind) ? `TIER ${upgrades[kind]} / ${UPGRADE_LIMIT}`
+                    : kind === 'dynamite' ? `OWNED: ${dynamite}` : maxed ? 'NEXT LEVEL: READY' : 'NEXT LEVEL ONLY');
+                priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'BOUGHT') : `BUY $${price}`);
                 priceTag.setBackgroundColor(maxed || money < price ? '#827968' : '#547f3b');
             });
             card.on('pointerover', () => {
@@ -68,10 +71,11 @@ export class UpgradeShop extends Scene {
             });
             card.on('pointerdown', () => {
                 hovered = kind;
-                const purchase = purchaseUpgrade(kind, money, upgrades, dynamite);
+                const purchase = purchaseUpgrade(kind, money, upgrades, dynamite, bonuses);
                 if (purchase) {
                     soundEffects.unlock();
                     soundEffects.play('buy');
+                    bonuses = purchase.bonuses;
                     dynamite = purchase.dynamite;
                     money = purchase.money;
                     upgrades = purchase.upgrades;
@@ -80,7 +84,7 @@ export class UpgradeShop extends Scene {
             });
         });
         const next = this.add.text(512, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-        next.once('pointerdown', () => this.scene.start('Game', { level: data.level, money, upgrades, dynamite }));
+        next.once('pointerdown', () => this.scene.start('Game', { level: data.level, money, upgrades, dynamite, bonuses }));
         this.add.text(512, 926, `${LAYOUTS[LEVELS[data.level - 1].layout].name}  •  Target: $${LEVELS[data.level - 1].target}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
     }

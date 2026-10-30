@@ -2,7 +2,7 @@ import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { WORLD } from '../state/World';
-import { Upgrades } from '../state/Upgrades';
+import { LevelBonuses, Upgrades } from '../state/Upgrades';
 import { Scene, GameObjects } from 'phaser';
 import { Claw } from '../objects/Claw';
 import { Collectable, generateCollectables } from '../objects/Collectable';
@@ -25,10 +25,10 @@ export class Game extends Scene {
 
     constructor() { super('Game'); }
 
-    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number } = {}): void {
+    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses } = {}): void {
         this.ended = false;
         this.pausing = false;
-        this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite);
+        this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses);
         drawEnvironment(this, this.round.config.layout);
         this.miner = new MinerAnimator(this);
         this.objects = generateCollectables(this, this.round.config);
@@ -38,8 +38,10 @@ export class Game extends Scene {
                 this.showCollectionValue(0, 'STRENGTH x2!');
                 return;
             }
-            this.round.score += value;
-            this.showCollectionValue(value);
+            const earned = this.round.bonuses.luck && object.kind === 'moneyBag' ? Math.max(250, value) : value;
+            this.round.score += earned;
+            this.miner.reactTo(object.kind);
+            this.showCollectionValue(earned);
         }, 1 + this.round.upgrades.strength * 0.2, 1 + this.round.upgrades.diamonds * 0.25, () => this.round.strengthMultiplier);
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(512, 44, 1024, 88, 0x483126);
@@ -58,6 +60,10 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
             backgroundColor: '#253d29', padding: { x: 10, y: 6 }
         }).setVisible(false);
+        if (this.round.bonuses.luck) this.add.text(32, 251, 'LUCK: bags pay $250+', {
+            fontFamily: 'Arial', fontSize: 17, color: '#ecc4ff', backgroundColor: '#42304b',
+            padding: { x: 8, y: 5 }
+        });
         addSoundButton(this, 32, 166);
         this.add.text(512, 263, LAYOUTS[this.round.config.layout].name.toUpperCase(), {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#e5c58f',
@@ -166,6 +172,7 @@ export class Game extends Scene {
             return;
         }
         this.scene.start('GameOver', {
+            bonuses: this.round.bonuses,
             dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
             upgrades: this.round.upgrades,
             money: this.round.money, startingMoney: this.round.startingMoney,

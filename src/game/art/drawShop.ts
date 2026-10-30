@@ -44,9 +44,29 @@ export function drawShop(scene: Scene): void {
     g.fillStyle(0xd09a5e).fillRect(87, 591, 851, 6);
 }
 
-export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind): void {
-    const g = scene.add.graphics().setPosition(x, y);
-    if (kind === 'strength') {
+export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind, scale = 1): void {
+    const g = scene.add.graphics().setPosition(x, y).setScale(scale);
+    if (kind === 'luck') {
+        g.fillStyle(0xb7aacd).lineStyle(3, 0x59416f);
+        g.fillRoundedRect(-15, -46, 30, 30, 5).strokeRoundedRect(-15, -46, 30, 30, 5);
+        g.fillEllipse(0, 9, 74, 72).strokeEllipse(0, 9, 74, 72);
+        g.fillStyle(0x9e5dc3).fillEllipse(0, 16, 62, 48);
+        g.fillStyle(0xdba4ef).fillEllipse(-16, 7, 10, 23);
+        g.fillStyle(0xb68b4e).fillRoundedRect(-18, -54, 36, 14, 3);
+        g.fillStyle(0xffdf79).fillCircle(-5, 4, 8).fillCircle(7, 4, 8).fillCircle(-5, 16, 8).fillCircle(7, 16, 8);
+        g.lineStyle(3, 0xffdf79).lineBetween(1, 15, 4, 32);
+    } else if (kind === 'extraTime') {
+        g.fillStyle(0xb4833d).fillRoundedRect(-7, -56, 14, 18, 3).fillRoundedRect(-17, -60, 34, 9, 3);
+        g.fillStyle(0xdfb85e).lineStyle(4, 0x79552c).fillCircle(0, 0, 45).strokeCircle(0, 0, 45);
+        g.fillStyle(0xffedbb).fillCircle(0, 0, 36);
+        g.lineStyle(3, 0x79552c);
+        for (let i = 0; i < 12; i++) {
+            const a = i * Math.PI / 6;
+            g.lineBetween(Math.sin(a) * 29, Math.cos(a) * 29, Math.sin(a) * 33, Math.cos(a) * 33);
+        }
+        g.lineStyle(4, 0x483126).lineBetween(0, 0, 0, -24).lineBetween(0, 0, 19, 12);
+        g.fillStyle(0x79552c).fillCircle(0, 0, 4);
+    } else if (kind === 'strength') {
         g.fillStyle(0x6a4a31).fillRect(-47, 27, 94, 14).fillRect(-39, -14, 10, 45).fillRect(29, -14, 10, 45);
         g.fillStyle(0x414f56).fillCircle(-27, 0, 30).fillCircle(27, 0, 30);
         g.fillStyle(0xb58750).fillRect(-27, -24, 54, 48);

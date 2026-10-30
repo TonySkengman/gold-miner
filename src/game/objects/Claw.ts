@@ -1,3 +1,4 @@
+import { clawCollisionRadius } from './Aiming';
 import { soundEffects } from '../audio/SoundEffects';
 import { detonateBarrel, showBarrelExplosion } from './Explosions';
 import { WORLD } from '../state/World';
@@ -92,7 +93,7 @@ export class Claw {
                 const dy = object.y - this.origin.y;
                 const along = dx * Math.sin(this.angle) + dy * Math.cos(this.angle);
                 const across = Math.abs(dx * Math.cos(this.angle) - dy * Math.sin(this.angle));
-                const radius = object.radius * 0.9 + 6;
+                const radius = clawCollisionRadius(object.radius);
                 if (across > radius) continue;
                 const entry = along - Math.sqrt(radius * radius - across * across) - this.grabReach;
                 const exit = along + Math.sqrt(radius * radius - across * across) - this.grabReach;
