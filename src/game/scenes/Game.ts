@@ -1,3 +1,5 @@
+import { rollMysteryReward } from '../state/MysteryRewards';
+import { DynamiteInventory } from '../ui/DynamiteInventory';
 import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
@@ -19,7 +21,7 @@ export class Game extends Scene {
     private objects: Collectable[];
     private scoreText: GameObjects.Text;
     private progressText: GameObjects.Text;
-    private dynamiteText: GameObjects.Text;
+    private dynamiteInventory: DynamiteInventory;
     private strengthText: GameObjects.Text;
     private timeText: GameObjects.Text;
 
@@ -33,6 +35,10 @@ export class Game extends Scene {
         this.miner = new MinerAnimator(this);
         this.objects = generateCollectables(this, this.round.config);
         this.claw = new Claw(this, (value, object) => {
+            if (object.kind === 'mysteryBag') {
+                this.showCollectionValue(0, this.round.applyMysteryReward(rollMysteryReward()));
+                return;
+            }
             if (object.kind === 'strengthPotion') {
                 this.round.activateStrength();
                 this.showCollectionValue(0, 'STRENGTH x2!');
@@ -52,10 +58,7 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
         }).setOrigin(1, 0);
-        this.dynamiteText = this.add.text(32, 105, '', {
-            fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#483126',
-            backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
-        });
+        this.dynamiteInventory = new DynamiteInventory(this, 32, 100);
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
             backgroundColor: '#253d29', padding: { x: 10, y: 6 }
@@ -184,10 +187,7 @@ export class Game extends Scene {
     private updateHud(): void {
         this.strengthText.setVisible(this.round.strengthRemaining > 0);
         this.strengthText.setText(`STRENGTH x2  ${Math.ceil(this.round.strengthRemaining)}s`);
-        this.dynamiteText.setText(this.round.dynamite > 0
-            ? `DYNAMITE  ${this.round.dynamite}  [↑]`
-            : 'DYNAMITE  0  •  EMPTY');
-        this.dynamiteText.setColor(this.round.dynamite > 0 ? '#483126' : '#a1382a');
+        this.dynamiteInventory.update(this.round.dynamite);
         this.scoreText.setText(`MONEY  $${this.round.money}`);
         this.progressText.setText(`LEVEL GOLD  $${this.round.score} / $${this.round.target}`);
         this.timeText.setText(`TIME  ${Math.ceil(this.round.remaining)}s`);

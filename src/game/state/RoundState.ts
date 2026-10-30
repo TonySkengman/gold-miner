@@ -1,3 +1,4 @@
+import type { MysteryReward } from './MysteryRewards';
 import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses } from './Upgrades';
 import { LEVELS, LevelConfig } from './Levels';
 
@@ -18,6 +19,19 @@ export class RoundState {
         this.upgrades = { ...upgrades };
         this.dynamite = startingDynamite;
         this.config = LEVELS[this.level - 1];
+    }
+
+    applyMysteryReward(reward: MysteryReward): string {
+        if (reward.kind === 'money') {
+            this.score += reward.amount;
+            return `MYSTERY: +$${reward.amount}`;
+        }
+        if (reward.kind === 'dynamite') {
+            this.dynamite++;
+            return '+1 DYNAMITE!';
+        }
+        this.activateStrength();
+        return 'STRENGTH x2!';
     }
 
     activateStrength(): void { this.strengthRemaining = 15; }

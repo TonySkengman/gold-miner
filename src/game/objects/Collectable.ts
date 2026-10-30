@@ -1,11 +1,13 @@
+import { TNT_BLAST_RADIUS } from './Explosions';
 import { findClearAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
 import { WORLD } from '../state/World';
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'mysteryBag';
 const TYPES = {
+    mysteryBag: { radius: 30, value: 0, weight: 5, color: 0x837097 },
     strengthPotion: { radius: 19, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
     rat: { radius: 21, value: 2, weight: 0.1, color: 0x88766a },
@@ -98,31 +100,42 @@ export class Collectable {
                 .lineBetween(-r * 0.5, -r * 0.25, 0, r).lineBetween(r * 0.5, -r * 0.25, 0, r);
             return;
         }
-        if (kind === 'moneyBag') {
+        if (kind === 'moneyBag' || kind === 'mysteryBag') {
+            const mystery = kind === 'mysteryBag';
+            g.save().scaleCanvas(r / 22, r / 22);
             // Faceted canvas, dark contour and warm highlights match the ore art.
-            g.fillStyle(type.color).lineStyle(3, 0x73502c);
+            g.fillStyle(type.color).lineStyle(3, mystery ? 0x48364f : 0x73502c);
             g.beginPath().moveTo(-5, -10).lineTo(-13, -3).lineTo(-18, 8)
                 .lineTo(-14, 17).lineTo(-4, 20).lineTo(12, 18).lineTo(18, 11)
                 .lineTo(15, 0).lineTo(6, -10).closePath().fillPath().strokePath();
-            g.fillStyle(0xe2b66c);
+            g.fillStyle(mystery ? 0xb6a0c6 : 0xe2b66c);
             g.beginPath().moveTo(-5, -9).lineTo(-12, 0).lineTo(-13, 10)
                 .lineTo(-7, 15).lineTo(-5, 2).lineTo(0, -6).closePath().fillPath();
-            g.fillStyle(0xa37239);
+            g.fillStyle(mystery ? 0x675279 : 0xa37239);
             g.beginPath().moveTo(6, -8).lineTo(11, 5).lineTo(9, 14)
                 .lineTo(-4, 18).lineTo(11, 17).lineTo(16, 10).lineTo(13, 1).closePath().fillPath();
             // Gathered mouth and a knotted rope replace the old flat triangle.
-            g.fillStyle(0xc49450).lineStyle(2, 0x73502c);
+            g.fillStyle(type.color).lineStyle(2, mystery ? 0x48364f : 0x73502c);
             g.beginPath().moveTo(-5, -10).lineTo(-10, -20).lineTo(-2, -18)
                 .lineTo(6, -21).lineTo(9, -19).lineTo(5, -10).closePath().fillPath().strokePath();
             g.lineStyle(2, 0x9a6c35).lineBetween(-3, -17, -1, -11).lineBetween(5, -18, 3, -11);
             g.lineStyle(3, 0x66472a).lineBetween(-7, -10, 7, -10);
             g.lineStyle(2, 0xe4bf7b).lineBetween(-6, -11, 6, -11);
             g.lineStyle(2, 0x66472a).strokeEllipse(9, -10, 8, 5).lineBetween(7, -8, 12, -4);
+            if (mystery) {
+                g.lineStyle(3, 0xffedb7);
+                g.beginPath().moveTo(-6, 0).lineTo(-5, -4).lineTo(3, -5)
+                    .lineTo(7, -1).lineTo(6, 3).lineTo(0, 7).lineTo(0, 9).strokePath();
+                g.fillStyle(0xffedb7).fillCircle(0, 14, 1.7);
+                g.restore();
+                return;
+            }
             // A painted dollar sign identifies a cash sack; payout stays random.
             g.lineStyle(2.5, 0x67472a);
             g.beginPath().moveTo(6, -1).lineTo(-1, -2).lineTo(-5, 1).lineTo(-3, 5)
                 .lineTo(4, 7).lineTo(5, 10).lineTo(1, 13).lineTo(-6, 12).strokePath();
             g.lineBetween(0, -5, 0, 15);
+            g.restore();
             return;
         }
         const rock = kind === 'rock' || kind === 'largeRock';
@@ -190,11 +203,12 @@ export class Collectable {
 export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, number] {
     switch (kind) {
         case 'strengthPotion': return [Math.max(minimumDepth, 360), 480];
-        case 'tnt': return [450, 780];
+        case 'tnt': return [400, 820];
         case 'diamond':
         case 'diamondRat': return [800, 880];
         case 'giant': return [700, 840];
         case 'large': return [570, 730];
+        case 'mysteryBag': return [570, 800];
         case 'moneyBag': return [570, 820];
         case 'medium': return [Math.max(minimumDepth, 440), 620];
         case 'small': return [minimumDepth, 500];
@@ -214,7 +228,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         'medium', 'medium', 'medium',
         ...Array<OreKind>(level.moneyBags).fill('moneyBag'),
         ...Array<OreKind>(level.diamonds).fill('diamond'),
-        'small', 'small', 'small', 'small', 'strengthPotion',
+        'small', 'small', 'small', 'small', 'strengthPotion', 'mysteryBag',
         ...Array<OreKind>(level.rats).fill('rat'),
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')
     ];
@@ -257,6 +271,9 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 const dy = y - 210;
                 if (x - radius < 40 || x + radius > WORLD.width - 40 || y + radius > WORLD.floorY || Math.hypot(dx, dy) > WORLD.spawnRange - radius || Math.abs(Math.atan2(dx, dy)) > 1.05) continue;
                 if (positions.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + 18)) continue;
+                // Include the other barrel's hit radius, plus a gap beyond the blast edge.
+                if (kind === 'tnt' && positions.some(other => other.kind === 'tnt'
+                    && Math.hypot(x - other.x, y - other.y) < TNT_BLAST_RADIUS + Math.max(radius, other.radius) + 25)) continue;
                 const candidate = { x, y, radius, kind };
                 const hazards = positions.filter(other => isStaticHazard(other.kind));
                 if (isStaticHazard(kind)) {

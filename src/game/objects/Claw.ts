@@ -75,7 +75,7 @@ export class Claw {
 
     update(seconds: number, objects: Collectable[]): void {
         if (this.mode === 'idle') {
-            this.angle += this.swingDirection * seconds * 1.155;
+            this.angle += this.swingDirection * seconds * 1.2705;
             if (this.angle > 1.05 || this.angle < -1.05) {
                 this.angle = Math.max(-1.05, Math.min(1.05, this.angle));
                 this.swingDirection *= -1;

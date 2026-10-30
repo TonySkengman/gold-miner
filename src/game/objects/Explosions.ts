@@ -1,6 +1,6 @@
 import type { Scene } from 'phaser';
 import { soundEffects } from '../audio/SoundEffects';
-import { Collectable } from './Collectable';
+import type { Collectable } from './Collectable';
 
 export const TNT_BLAST_RADIUS = 125;
 

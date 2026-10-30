@@ -35,6 +35,7 @@ Money and unused dynamite carry over between levels, but each level requires fre
 
 - 20 levels with increasing targets and four cave layouts: Gold Pocket, Rat Tunnels, Explosive Cavern, and Deep Mine.
 - Different sizes of gold nuggets and rocks, diamonds, and mystery money bags.
+- Heavy purple mystery bags marked **?** that reveal $10–$800, one dynamite stick, or a 15-second strength boost when retrieved.
 - Moving rats worth $2 and diamond-carrying rats worth $2 plus the diamond’s value.
 - TNT barrels that destroy nearby objects and trigger chain reactions without awarding money.
 - Catchable strength potions that double retrieval speed for 15 seconds and stack with winch upgrades.
