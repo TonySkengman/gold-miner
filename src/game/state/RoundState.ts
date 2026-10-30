@@ -3,20 +3,23 @@ import { LEVELS, LevelConfig } from './Levels';
 
 export class RoundState {
     score = 0;
+    strengthRemaining = 0;
     dynamite: number;
     readonly upgrades: Upgrades;
     remaining = 60;
     readonly level: number;
     readonly config: LevelConfig;
 
-    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades()) {
+    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3) {
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
         this.upgrades = { ...upgrades };
-        this.dynamite = this.dynamiteCapacity;
+        this.dynamite = startingDynamite;
         this.config = LEVELS[this.level - 1];
     }
 
-    get dynamiteCapacity(): number { return 3 + this.upgrades.dynamite; }
+    activateStrength(): void { this.strengthRemaining = 15; }
+
+    get strengthMultiplier(): number { return this.strengthRemaining > 0 ? 2 : 1; }
 
     get money(): number { return this.startingMoney + this.score; }
 
@@ -27,6 +30,7 @@ export class RoundState {
     get won(): boolean { return this.score >= this.target; }
 
     update(seconds: number): void {
+        this.strengthRemaining = Math.max(0, this.strengthRemaining - seconds);
         this.remaining = Math.max(0, this.remaining - seconds);
     }
 }

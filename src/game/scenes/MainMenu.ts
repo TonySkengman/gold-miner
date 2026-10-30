@@ -1,32 +1,31 @@
-import { Scene, GameObjects } from 'phaser';
+import { Scene } from 'phaser';
+import { drawEnvironment } from '../art/drawEnvironment';
+import { MinerAnimator } from '../art/MinerAnimator';
+import { addSoundButton, soundEffects } from '../audio/SoundEffects';
+import { LEVELS } from '../state/Levels';
+import { menuButton } from '../ui/menuButton';
 
-export class MainMenu extends Scene
-{
-    background: GameObjects.Image;
-    logo: GameObjects.Image;
-    title: GameObjects.Text;
+export class MainMenu extends Scene {
+    constructor() { super('MainMenu'); }
 
-    constructor ()
-    {
-        super('MainMenu');
-    }
-
-    create ()
-    {
-        this.background = this.add.image(512, 384, 'background');
-
-        this.logo = this.add.image(512, 300, 'logo');
-
-        this.title = this.add.text(512, 460, 'Main Menu', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5);
-
-        this.input.once('pointerdown', () => {
-
-            this.scene.start('Game');
-
+    create(): void {
+        drawEnvironment(this);
+        new MinerAnimator(this);
+        this.add.rectangle(512, 570, 820, 640, 0x211f1d, 0.96).setStrokeStyle(4, 0xc29659);
+        this.add.text(512, 320, 'GOLD MINER', { fontFamily: 'Arial', fontSize: 64, fontStyle: 'bold', color: '#ffda69', stroke: '#483126', strokeThickness: 6 }).setOrigin(0.5);
+        this.add.text(512, 385, `${LEVELS.length} caves. One fortune to make.`, { fontFamily: 'Arial', fontSize: 25, color: '#fff3cc' }).setOrigin(0.5);
+        this.add.text(512, 450, 'HOW TO PLAY', { fontFamily: 'Arial', fontSize: 25, fontStyle: 'bold', color: '#ffda69' }).setOrigin(0.5);
+        this.add.text(512, 605,
+            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\nP / ESC    Pause or resume\n\nReach the level target before the 60 seconds run out.\nFinish Level ends the round early. Below target means a loss.\nMoney and unused dynamite carry over. Restock in the shop.\nWatch out for rats and TNT chain reactions!',
+            { fontFamily: 'Arial', fontSize: 21, color: '#fff3cc', align: 'center', lineSpacing: 10 }
+        ).setOrigin(0.5);
+        let starting = false;
+        menuButton(this, 512, 817, 'START NEW GAME', () => {
+            if (starting) return;
+            starting = true;
+            soundEffects.unlock();
+            this.scene.start('Game', { level: 1, money: 0, dynamite: 3 });
         });
+        addSoundButton(this, 32, 24);
     }
 }

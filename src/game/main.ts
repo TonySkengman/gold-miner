@@ -1,3 +1,5 @@
+import { PauseMenu } from './scenes/PauseMenu';
+import { WORLD } from './state/World';
 import { UpgradeShop } from './scenes/UpgradeShop';
 import { Boot } from './scenes/Boot';
 import { GameOver } from './scenes/GameOver';
@@ -10,8 +12,8 @@ import { Preloader } from './scenes/Preloader';
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: 1024,
-    height: 768,
+    width: WORLD.width,
+    height: WORLD.height,
     parent: 'game-container',
     backgroundColor: '#483126',
     scale: { mode: Scale.FIT, autoCenter: Scale.CENTER_BOTH },
@@ -21,7 +23,8 @@ const config: Phaser.Types.Core.GameConfig = {
         MainMenu,
         MainGame,
         GameOver,
-        UpgradeShop
+        UpgradeShop,
+        PauseMenu
     ]
 };
 

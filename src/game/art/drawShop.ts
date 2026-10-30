@@ -1,0 +1,75 @@
+import type { Scene } from 'phaser';
+import type { ShopItemKind } from '../state/Upgrades';
+
+/** Original shape-drawn trading stall and its shopkeeper. */
+export function drawShop(scene: Scene): void {
+    const g = scene.add.graphics();
+    g.fillStyle(0xb9dce0).fillRect(0, 0, 1024, 960);
+    g.fillStyle(0x91ad77).fillTriangle(0, 370, 190, 200, 430, 370).fillTriangle(680, 370, 880, 230, 1024, 370);
+    g.fillStyle(0xb99766).fillRect(0, 370, 1024, 590);
+    g.fillStyle(0xc9ac7b).fillEllipse(510, 670, 950, 130);
+    g.fillStyle(0x64442e).fillRect(66, 205, 18, 485).fillRect(940, 205, 18, 485);
+    g.fillStyle(0x936039).fillRect(83, 300, 858, 280);
+    g.lineStyle(2, 0x7b4f31);
+    for (let x = 100; x < 940; x += 60) g.lineBetween(x, 300, x, 580);
+    // Striped canvas awning.
+    for (let i = 0; i < 10; i++) {
+        g.fillStyle(i % 2 ? 0xffe6ad : 0xad4936).fillRect(57 + i * 91, 205, 91, 85);
+        g.fillRoundedRect(57 + i * 91, 270, 91, 35, 12);
+    }
+    g.fillStyle(0x513b2a).fillRoundedRect(310, 141, 404, 80, 8);
+    g.lineStyle(3, 0xcf9d55).strokeRoundedRect(316, 147, 392, 68, 5);
+    // Shopkeeper: hat, friendly face, moustache, rolled sleeves and apron.
+    g.fillStyle(0x4d4237).fillRoundedRect(148, 578, 48, 40, 8).fillRoundedRect(216, 578, 48, 40, 8);
+    g.fillStyle(0x719073).fillRoundedRect(140, 422, 128, 166, 20);
+    g.fillStyle(0xd2ac77).fillRoundedRect(160, 450, 89, 133, 7);
+    g.lineStyle(7, 0xc29560).lineBetween(170, 425, 180, 477).lineBetween(238, 425, 228, 477);
+    g.fillStyle(0x9f774d).fillRoundedRect(178, 505, 52, 38, 5);
+    g.lineStyle(23, 0x719073).lineBetween(144, 447, 127, 526).lineBetween(265, 449, 286, 520);
+    g.fillStyle(0xf2c392).fillCircle(126, 535, 13).fillCircle(287, 531, 13);
+    g.fillStyle(0xdba778).fillCircle(154, 381, 12).fillCircle(255, 381, 12);
+    g.fillStyle(0xf2c392).fillRoundedRect(157, 329, 96, 103, 30);
+    g.fillStyle(0x60422f).fillEllipse(183, 353, 25, 8).fillEllipse(226, 353, 25, 8);
+    g.fillStyle(0x342c25).fillCircle(185, 371, 4).fillCircle(225, 371, 4);
+    g.fillStyle(0xdba778).fillEllipse(205, 386, 20, 18);
+    g.fillStyle(0x60422f).fillEllipse(191, 399, 30, 13).fillEllipse(219, 399, 30, 13);
+    g.lineStyle(3, 0x9e6148).lineBetween(198, 414, 212, 414);
+    g.fillStyle(0x694c32).fillRoundedRect(151, 307, 106, 38, 13).fillRoundedRect(134, 335, 140, 13, 5);
+    g.fillStyle(0xd0a05a).fillRect(152, 327, 104, 8);
+    // Counter overlays the shopkeeper's lower body and supports the products.
+    g.fillStyle(0x573a28).fillRoundedRect(87, 592, 851, 24, 4);
+    g.fillStyle(0x9f6b3e).fillRect(99, 616, 827, 64);
+    g.lineStyle(2, 0x75492c);
+    for (let x = 111; x < 926; x += 80) g.lineBetween(x, 619, x, 678);
+    g.fillStyle(0xd09a5e).fillRect(87, 591, 851, 6);
+}
+
+export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind): void {
+    const g = scene.add.graphics().setPosition(x, y);
+    if (kind === 'strength') {
+        g.fillStyle(0x6a4a31).fillRect(-47, 27, 94, 14).fillRect(-39, -14, 10, 45).fillRect(29, -14, 10, 45);
+        g.fillStyle(0x414f56).fillCircle(-27, 0, 30).fillCircle(27, 0, 30);
+        g.fillStyle(0xb58750).fillRect(-27, -24, 54, 48);
+        g.lineStyle(3, 0x79542e);
+        for (let i = -22; i < 27; i += 7) g.lineBetween(i, -22, i, 22);
+        g.fillStyle(0x83969e).fillCircle(-27, 0, 23).fillCircle(27, 0, 23);
+        g.fillStyle(0x39464d).fillCircle(-27, 0, 6).fillCircle(27, 0, 6);
+        g.lineStyle(7, 0x39464d).lineBetween(27, 0, 61, 0).lineBetween(61, 0, 61, -25);
+        g.fillStyle(0x79512e).fillRoundedRect(52, -32, 18, 13, 4);
+    } else if (kind === 'diamonds') {
+        g.fillStyle(0x70e6f5).lineStyle(3, 0x287e9a);
+        g.beginPath().moveTo(-48, -15).lineTo(-26, -42).lineTo(26, -42)
+            .lineTo(48, -15).lineTo(0, 43).closePath().fillPath().strokePath();
+        g.fillStyle(0xe8ffff).fillTriangle(-48, -15, 0, -42, 0, 43);
+        g.lineStyle(2, 0x3196b1).lineBetween(-48, -15, 48, -15).lineBetween(-26, -15, 0, 43).lineBetween(26, -15, 0, 43);
+        g.lineStyle(3, 0xfff4c2).lineBetween(53, -42, 69, -42).lineBetween(61, -50, 61, -34);
+    } else {
+        g.fillStyle(0x69442c).fillRoundedRect(-56, 16, 112, 22, 4);
+        for (const x of [-28, 0, 28]) {
+            g.fillStyle(0xbd3e30).lineStyle(2, 0x793126).fillRoundedRect(x - 10, -38, 20, 67, 4).strokeRoundedRect(x - 10, -38, 20, 67, 4);
+            g.fillStyle(0xe1664a).fillRect(x - 6, -34, 4, 57);
+            g.lineStyle(2, 0x76532f).lineBetween(x, -38, x + 4, -49);
+        }
+        g.fillStyle(0xc29659).fillRect(-43, -6, 86, 10);
+    }
+}

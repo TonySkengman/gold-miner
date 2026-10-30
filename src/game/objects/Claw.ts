@@ -1,3 +1,6 @@
+import { soundEffects } from '../audio/SoundEffects';
+import { detonateBarrel, showBarrelExplosion } from './Explosions';
+import { WORLD } from '../state/World';
 import { GameObjects, Scene } from 'phaser';
 import { Collectable } from './Collectable';
 
@@ -17,17 +20,30 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private readonly origin = { x: 512, y: 210 };
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1) {
         this.graphic = scene.add.graphics().setDepth(5);
         this.draw();
     }
 
+    get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
+
+    get haulingWeight(): number { return this.isHauling ? this.caught!.weight : 0; }
+
+    get retrievalSpeed(): number {
+        return this.mode === 'retracting' && !this.dynamite
+            ? 360 * this.retrievalMultiplier * this.strengthBoost() / (1 + (this.caught?.weight ?? 0)) : 0;
+    }
+
     launch(): void {
-        if (this.mode === 'idle') this.mode = 'extending';
+        if (this.mode === 'idle') {
+            this.mode = 'extending';
+            soundEffects.play('launch');
+        }
     }
 
     throwDynamite(): boolean {
         if (this.mode !== 'retracting' || !this.caught || this.dynamite) return false;
+        soundEffects.play('throw');
         this.throwElapsed = 0;
         this.dynamite = this.scene.add.graphics().setDepth(6);
         this.dynamite.fillStyle(0xc43c2f).fillRoundedRect(-5, -12, 10, 24, 2);
@@ -48,6 +64,7 @@ export class Claw {
         this.dynamite = null;
         this.caught.destroy();
         this.caught = null;
+        soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);
         burst.fillStyle(0xffa32b).fillCircle(0, 0, 26);
@@ -64,8 +81,8 @@ export class Claw {
             }
         } else if (this.mode === 'extending') {
             const oldLength = this.length;
-            const edgeRange = Math.min(570, 530 / Math.cos(this.angle), 488 / Math.max(0.001, Math.abs(Math.sin(this.angle))));
-            this.length = Math.min(edgeRange, this.length + 440 * seconds);
+            const edgeRange = Math.min(WORLD.clawRange, (WORLD.floorY - this.origin.y) / Math.cos(this.angle), 488 / Math.max(0.001, Math.abs(Math.sin(this.angle))));
+            this.length = Math.min(edgeRange, this.length + 352 * seconds);
             // Swept segment collision prevents tunnelling even on slow frames.
             let first: Collectable | null = null;
             let hitLength = this.length;
@@ -86,6 +103,13 @@ export class Claw {
             }
             if (first) {
                 this.length = hitLength;
+                if (first.kind === 'tnt') {
+                    this.mode = 'retracting';
+                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y));
+                    this.draw();
+                    return;
+                }
+                soundEffects.play('catch');
                 this.caught = first;
                 // Preserve the contact position instead of snapping the ore's centre to the rope.
                 this.gripOffsetX = first.x - (this.origin.x + Math.sin(this.angle) * this.length);
@@ -99,10 +123,11 @@ export class Claw {
                 this.draw();
                 return;
             }
-            this.length = Math.max(30, this.length - 360 * this.retrievalMultiplier / (1 + (this.caught?.weight ?? 0)) * seconds);
+            this.length = Math.max(30, this.length - this.retrievalSpeed * seconds);
             if (this.length <= 30) {
                 if (this.caught) {
-                    this.onCollect(this.caught.collectionValue(this.diamondMultiplier));
+                    soundEffects.play('collect');
+                    this.onCollect(this.caught.collectionValue(this.diamondMultiplier), this.caught);
                     this.caught.destroy();
                     this.caught = null;
                 }
