@@ -32,7 +32,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 360 * this.retrievalMultiplier * this.strengthBoost() / (1 + (this.caught?.weight ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * this.strengthBoost() / (1 + (this.caught?.weight ?? 0)) : 0;
     }
 
     launch(): void {

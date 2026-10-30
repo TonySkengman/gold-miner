@@ -29,7 +29,19 @@ Reach each level’s earnings target before the 60-second timer runs out. Heavie
 
 **Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Clearing a level takes you straight to the shop.
 
-Money and unused dynamite carry over between levels, but each level requires fresh earnings toward its target. Start with three dynamite sticks; buy replacements in the shop. Retrying a failed level restores the money, dynamite, and purchased bonuses you had at its start.
+Money and unused dynamite carry over between levels, but each level requires fresh earnings toward its target. Start with three dynamite sticks; buy replacements in the shop. Retrying a failed level restores its original layout, object values, rat starting positions and movement settings, as well as the money, dynamite, and purchased bonuses you had at its start. Mystery bag rewards also stay the same on retries. New games generate fresh layouts.
+
+## Bonus milestones
+
+Keep mining after reaching the target to earn extra rewards:
+
+| Retrieved earnings | Bonus |
+| --- | --- |
+| 125% of the target | $150 |
+| 150% of the target | One dynamite stick |
+| 200% of the target | $400 |
+
+Each reward can be earned once per level. The HUD shows progress toward the next bonus. Bonus cash adds to your balance but does not count toward the target or other milestones. You can still use **Finish Level** whenever you want.
 
 ## Features
 
@@ -47,8 +59,8 @@ Money and unused dynamite carry over between levels, but each level requires fre
 
 | Item | Effect | Price |
 | --- | --- | --- |
-| Stronger winch | +20% retrieval speed per tier | $300 / $600 / $900 |
-| Diamond polish | +25% diamond value per tier | $400 / $800 / $1,200 |
+| Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
+| Diamond polish | +15% diamond value per tier | $1,250 / $2,500 / $3,750 |
 | Dynamite | One additional stick | $750 |
 | Luck potion | Money bags pay at least $250 in the next level | $500 |
 | Extra time | Adds 15 seconds to the next level | $600 |

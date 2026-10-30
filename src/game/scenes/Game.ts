@@ -1,3 +1,5 @@
+import { newLevelSeed, seededRandom } from '../state/Random';
+import { MilestoneProgress } from '../ui/MilestoneProgress';
 import { rollMysteryReward } from '../state/MysteryRewards';
 import { DynamiteInventory } from '../ui/DynamiteInventory';
 import { LAYOUTS } from '../state/Layouts';
@@ -13,12 +15,15 @@ import { LEVELS } from '../state/Levels';
 import { drawEnvironment } from '../art/drawEnvironment';
 
 export class Game extends Scene {
+    private levelSeed: number;
+    private rewardRandom: () => number;
     private ended = false;
     private pausing = false;
     private round: RoundState;
     private claw: Claw;
     private miner: MinerAnimator;
     private objects: Collectable[];
+    private milestoneProgress: MilestoneProgress;
     private scoreText: GameObjects.Text;
     private progressText: GameObjects.Text;
     private dynamiteInventory: DynamiteInventory;
@@ -27,16 +32,18 @@ export class Game extends Scene {
 
     constructor() { super('Game'); }
 
-    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses } = {}): void {
+    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number } = {}): void {
+        this.levelSeed = data.levelSeed ?? newLevelSeed();
+        this.rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
         this.ended = false;
         this.pausing = false;
         this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses);
         drawEnvironment(this, this.round.config.layout);
         this.miner = new MinerAnimator(this);
-        this.objects = generateCollectables(this, this.round.config);
+        this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
         this.claw = new Claw(this, (value, object) => {
             if (object.kind === 'mysteryBag') {
-                this.showCollectionValue(0, this.round.applyMysteryReward(rollMysteryReward()));
+                this.showCollectionValue(0, this.round.applyMysteryReward(rollMysteryReward(this.rewardRandom)));
                 return;
             }
             if (object.kind === 'strengthPotion') {
@@ -48,10 +55,11 @@ export class Game extends Scene {
             this.round.score += earned;
             this.miner.reactTo(object.kind);
             this.showCollectionValue(earned);
-        }, 1 + this.round.upgrades.strength * 0.2, 1 + this.round.upgrades.diamonds * 0.25, () => this.round.strengthMultiplier);
+        }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15, () => this.round.strengthMultiplier);
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(512, 44, 1024, 88, 0x483126);
         this.scoreText = this.add.text(32, 29, '', style);
+        this.milestoneProgress = new MilestoneProgress(this);
         this.progressText = this.add.text(512, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
         this.timeText = this.add.text(990, 29, '', style).setOrigin(1, 0);
         this.add.text(990, 112, `LEVEL ${this.round.level} / ${LEVELS.length}`, {
@@ -175,6 +183,7 @@ export class Game extends Scene {
             return;
         }
         this.scene.start('GameOver', {
+            levelSeed: this.levelSeed,
             bonuses: this.round.bonuses,
             dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
             upgrades: this.round.upgrades,
@@ -185,6 +194,16 @@ export class Game extends Scene {
     }
 
     private updateHud(): void {
+        const rewards = this.round.claimMilestones();
+        if (rewards.length) {
+            soundEffects.play('buy');
+            const popup = this.add.text(512, 305, `BONUS!  ${rewards.map(reward => reward.label).join('  •  ')}`, {
+                fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#bcf58b',
+                backgroundColor: '#253d29', padding: { x: 14, y: 8 }
+            }).setOrigin(0.5).setDepth(12);
+            this.tweens.add({ targets: popup, y: 291, alpha: 0, delay: 1400, duration: 450, onComplete: () => popup.destroy() });
+        }
+        this.milestoneProgress.update(this.round);
         this.strengthText.setVisible(this.round.strengthRemaining > 0);
         this.strengthText.setText(`STRENGTH x2  ${Math.ceil(this.round.strengthRemaining)}s`);
         this.dynamiteInventory.update(this.round.dynamite);

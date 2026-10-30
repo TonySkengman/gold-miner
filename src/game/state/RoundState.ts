@@ -1,9 +1,12 @@
+import { MILESTONES, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
 import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses } from './Upgrades';
 import { LEVELS, LevelConfig } from './Levels';
 
 export class RoundState {
     score = 0;
+    bonusMoney = 0;
+    private claimedMilestones = 0;
     strengthRemaining = 0;
     dynamite: number;
     readonly upgrades: Upgrades;
@@ -38,7 +41,30 @@ export class RoundState {
 
     get strengthMultiplier(): number { return this.strengthRemaining > 0 ? 2 : 1; }
 
-    get money(): number { return this.startingMoney + this.score; }
+    get money(): number { return this.startingMoney + this.score + this.bonusMoney; }
+
+    get nextMilestone(): Milestone | undefined { return MILESTONES[this.claimedMilestones]; }
+
+    get milestoneProgress(): number {
+        const next = this.nextMilestone;
+        if (!next) return 1;
+        const previous = this.claimedMilestones === 0 ? this.target
+            : Math.ceil(this.target * MILESTONES[this.claimedMilestones - 1].fraction);
+        const threshold = Math.ceil(this.target * next.fraction);
+        return Math.max(0, Math.min(1, (this.score - previous) / (threshold - previous)));
+    }
+
+    claimMilestones(): Milestone[] {
+        const earned: Milestone[] = [];
+        while (this.nextMilestone && this.score >= Math.ceil(this.target * this.nextMilestone.fraction)) {
+            const milestone = this.nextMilestone;
+            this.claimedMilestones++;
+            if (milestone.kind === 'money') this.bonusMoney += milestone.amount;
+            else this.dynamite += milestone.amount;
+            earned.push(milestone);
+        }
+        return earned;
+    }
 
     get target(): number { return this.config.target; }
     get finalLevel(): boolean { return this.level === LEVELS.length; }

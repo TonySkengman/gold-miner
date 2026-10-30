@@ -28,14 +28,15 @@ export class Collectable {
     readonly weight: number;
     readonly graphic: GameObjects.Graphics;
     available = true;
-    private direction = Math.random() < 0.5 ? -1 : 1;
+    private direction: number;
     private readonly speed: number;
 
-    constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1) {
-        this.speed = (80 + Math.random() * 30) * 0.85 * ratSpeed;
+    constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random) {
+        this.direction = random() < 0.5 ? -1 : 1;
+        this.speed = (80 + random() * 30) * 0.85 * ratSpeed;
         const type = TYPES[kind];
         this.radius = type.radius;
-        this.value = kind === 'moneyBag' ? 50 + Math.floor(Math.random() * 15) * 25 : type.value;
+        this.value = kind === 'moneyBag' ? 50 + Math.floor(random() * 15) * 25 : type.value;
         this.weight = type.weight;
         this.graphic = scene.add.graphics().setPosition(x, y);
         const r = this.radius;
@@ -204,8 +205,8 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
     switch (kind) {
         case 'strengthPotion': return [Math.max(minimumDepth, 360), 480];
         case 'tnt': return [400, 820];
-        case 'diamond':
-        case 'diamondRat': return [800, 880];
+        case 'diamond': return [800, 880];
+        case 'diamondRat': return [570, 700];
         case 'giant': return [700, 840];
         case 'large': return [570, 730];
         case 'mysteryBag': return [570, 800];
@@ -219,7 +220,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
 const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === 'largeRock';
 const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat';
 
-export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0]): Collectable[] {
+export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
     // Place the largest objects first; retry the whole layout if it becomes crowded.
     const kinds: OreKind[] = [
         'giant', ...Array<OreKind>(level.largeRocks).fill('largeRock'),
@@ -239,15 +240,15 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             const radius = TYPES[kind].radius;
             const [minY, maxY] = spawnDepthRange(kind, level.minimumDepth);
             for (let attempt = 0; attempt < 2000; attempt++) {
-                let x = 65 + Math.random() * 894;
-                let y = minY + Math.random() * (maxY - minY);
+                let x = 65 + random() * 894;
+                let y = minY + random() * (maxY - minY);
                 const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
                 const rock = kind === 'rock' || kind === 'largeRock';
                 if (level.layout === 'goldPocket') {
-                    if (gold) x = 260 + Math.random() * 504;
-                    if (rock) y = 500 + Math.random() * 280;
+                    if (gold) x = 260 + random() * 504;
+                    if (rock) y = 500 + random() * 280;
                 } else if (level.layout === 'ratTunnels') {
-                    if (kind === 'rat') y = RAT_LANE_Y + Math.random() * 8 - 4;
+                    if (kind === 'rat') y = RAT_LANE_Y + random() * 8 - 4;
                     // Leave an actual open horizontal route for the nuisance rats.
                     else if (y + radius > RAT_LANE_Y - 38 && y - radius < RAT_LANE_Y + 38) continue;
                 } else if (level.layout === 'explosiveCavern') {
@@ -255,9 +256,9 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                         ? position.kind === 'giant' || position.kind === 'large'
                         : position.kind === 'tnt');
                     if ((kind === 'tnt' || kind === 'diamond') && anchors.length && attempt < 300) {
-                        const anchor = anchors[Math.floor(Math.random() * anchors.length)];
-                        const angle = Math.random() * Math.PI * 2;
-                        const separation = radius + anchor.radius + 20 + Math.random() * 25;
+                        const anchor = anchors[Math.floor(random() * anchors.length)];
+                        const angle = random() * Math.PI * 2;
+                        const separation = radius + anchor.radius + 20 + random() * 25;
                         x = anchor.x + Math.cos(angle) * separation;
                         y = anchor.y + Math.sin(angle) * separation;
                         if (y < minY || y > maxY) continue;
@@ -265,7 +266,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 } else if (level.layout === 'deepMine' && (gold || kind === 'moneyBag')) {
                     const deeperMin = Math.min(860 - radius, minY + (kind === 'small' ? 80 : 55));
                     const deeperMax = Math.min(890 - radius, maxY + 55);
-                    y = deeperMin + Math.random() * (deeperMax - deeperMin);
+                    y = deeperMin + random() * (deeperMax - deeperMin);
                 }
                 const dx = x - 512;
                 const dy = y - 210;
@@ -286,7 +287,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             if (positions.length < index + 1) break;
         }
         if (positions.length === kinds.length) {
-            return positions.map(({ x, y, kind }) => new Collectable(scene, x, y, kind, level.ratSpeed));
+            return positions.map(({ x, y, kind }) => new Collectable(scene, x, y, kind, level.ratSpeed, random));
         }
     }
     throw new Error('Could not generate a complete mining layout.');

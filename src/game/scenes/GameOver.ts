@@ -4,7 +4,7 @@ import { addSoundButton } from '../audio/SoundEffects';
 import { LevelBonuses, Upgrades } from '../state/Upgrades';
 import { Scene } from 'phaser';
 
-interface Result { bonuses: LevelBonuses; dynamite: number; startingDynamite: number; upgrades: Upgrades; money: number; startingMoney: number; score: number; target: number; won: boolean; level: number; finalLevel: boolean; }
+interface Result { levelSeed: number; bonuses: LevelBonuses; dynamite: number; startingDynamite: number; upgrades: Upgrades; money: number; startingMoney: number; score: number; target: number; won: boolean; level: number; finalLevel: boolean; }
 
 export class GameOver extends Scene {
     constructor() { super('GameOver'); }
@@ -22,6 +22,7 @@ export class GameOver extends Scene {
         button.on('pointerover', () => button.setFillStyle(0x659b47));
         button.on('pointerout', () => button.setFillStyle(0x547f3b));
         button.once('pointerdown', () => this.scene.start(result.won && !result.finalLevel ? 'UpgradeShop' : 'Game', {
+            levelSeed: result.won ? undefined : result.levelSeed,
             bonuses: result.won ? undefined : result.bonuses,
             dynamite: result.won ? (result.finalLevel ? 3 : result.dynamite) : result.startingDynamite,
             upgrades: result.won && result.finalLevel ? undefined : result.upgrades,
