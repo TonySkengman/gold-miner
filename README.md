@@ -37,9 +37,9 @@ Keep mining after reaching the target to earn extra rewards:
 
 | Retrieved earnings | Bonus |
 | --- | --- |
-| 125% of the target | $150 |
-| 150% of the target | One dynamite stick |
-| 200% of the target | $400 |
+| 150% of the target | $150 |
+| 175% of the target | $400 |
+| 200% of the target | One dynamite stick |
 
 Each reward can be earned once per level. The HUD shows progress toward the next bonus. Bonus cash adds to your balance but does not count toward the target or other milestones. You can still use **Finish Level** whenever you want.
 
