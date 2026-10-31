@@ -1,3 +1,4 @@
+import { WORLD } from '../state/World';
 import type { OreKind } from '../objects/Collectable';
 import { GameObjects, Scene } from 'phaser';
 
@@ -12,10 +13,10 @@ export class MinerAnimator {
 
     constructor(scene: Scene) {
         // Boots stay planted while the upper body leans around the hips.
-        scene.add.graphics().setDepth(6).fillStyle(0x49372d)
+        scene.add.graphics().setPosition(WORLD.centerX - 512, 0).setData('responsiveAnchor', 'center').setDepth(6).fillStyle(0x49372d)
             .fillRoundedRect(484, 195, 26, 10, 3).fillRoundedRect(516, 195, 26, 10, 3);
         const g = scene.add.graphics().setPosition(-512, -195);
-        this.body = scene.add.container(512, 195, [g]).setDepth(6);
+        this.body = scene.add.container(WORLD.centerX, 195, [g]).setData('responsiveAnchor', 'center').setDepth(6);
         g.fillStyle(0x355e83).fillRoundedRect(491, 171, 42, 25, 5);
         g.fillStyle(0xb94d39).fillRoundedRect(489, 161, 46, 21, 7);
         g.fillStyle(0x477ca1).fillRect(500, 164, 6, 23).fillRect(520, 164, 6, 23).fillRect(499, 178, 28, 16);
@@ -35,7 +36,7 @@ export class MinerAnimator {
         g.fillStyle(0x687176).fillCircle(513, 129, 9);
         g.fillStyle(0xfff2bb).fillCircle(513, 129, 6);
 
-        this.mechanism = scene.add.graphics().setDepth(7);
+        this.mechanism = scene.add.graphics().setPosition(WORLD.centerX - 512, 0).setData('responsiveAnchor', 'center').setDepth(7);
         this.update(0, 0, false);
     }
 
@@ -60,7 +61,7 @@ export class MinerAnimator {
             + (disappointed ? Math.sin(this.reactionRemaining * 10) * 0.07 : 0);
         const crouch = this.effort * (2 + stroke * 3)
             + (celebrating ? -Math.abs(Math.sin(this.reactionRemaining * 7)) * 6 : disappointed ? 4 : 0);
-        this.body.setPosition(512, 195 + crouch).setRotation(lean);
+        this.body.setPosition(WORLD.centerX, 195 + crouch).setRotation(lean);
         const bodyPoint = (x: number, y: number) => ({
             x: 512 + (x - 512) * Math.cos(lean) - (y - 195) * Math.sin(lean),
             y: 195 + crouch + (x - 512) * Math.sin(lean) + (y - 195) * Math.cos(lean)

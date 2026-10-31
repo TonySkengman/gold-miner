@@ -2,7 +2,7 @@ import { GameObjects, Scene } from 'phaser';
 
 /** Five heart slots; spent lives remain visible as muted hearts. */
 export function drawLives(scene: Scene, x: number, y: number, lives: number): GameObjects.Graphics {
-    const g = scene.add.graphics();
+    const g = scene.add.graphics().setData('responsiveAnchor', 'center');
     for (let i = 0; i < 5; i++) {
         const filled = i < lives;
         g.fillStyle(filled ? 0xd94b52 : 0x8b796c);

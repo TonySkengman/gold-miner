@@ -1,3 +1,4 @@
+import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { catchFeedbackY } from '../objects/Aiming';
 import { BuffKind, drawBuffIcon } from '../ui/BuffIcon';
 import { drawLives } from '../ui/LivesDisplay';
@@ -113,31 +114,31 @@ export class Game extends Scene {
         }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15,
         () => this.round.strengthMultiplier, this.round.bonuses.lightweightGrip > 0,
         object => {
-            // Gem-studded deposits are neutral, including the combined gem-rock type.
-            const ordinaryRock = !object.gemDeposit
+            // Embedded gems advance the streak; deposits without a visible gem stay neutral.
+            const ordinaryRock = !object.gemDeposit && !object.mountedGem
                 && ['rock', 'mediumRock', 'heavyRock', 'largeRock'].includes(object.kind);
             if (ordinaryRock || object.kind === 'rat') this.round.missShot();
-            const bonus = this.round.latchStreak(object.kind);
+            const bonus = this.round.latchStreak(object.mountedGem?.kind ?? object.kind);
             streakBonuses.set(object, bonus);
             if (bonus > 0) this.showStreakCatch(object, bonus);
             return this.round.consumeCatch(object.kind);
         }, () => this.round.missShot());
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
-        this.add.rectangle(512, 44, 1024, 88, 0x483126);
+        this.add.rectangle(WORLD.centerX, 44, WORLD.width, 88, 0x483126).setData('responsiveFullWidth', true);
         this.scoreText = this.add.text(32, 29, '', style);
         this.milestoneProgress = new MilestoneProgress(this);
-        this.progressText = this.add.text(512, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
-        this.timeText = this.add.text(990, 29, '', style).setOrigin(1, 0);
-        this.add.text(990, 112, `LEVEL ${this.round.level} / ${LEVELS.length}`, {
+        this.progressText = this.add.text(WORLD.centerX, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
+        this.timeText = this.add.text(WORLD.width - 34, 29, '', style).setOrigin(1, 0);
+        this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
         }).setOrigin(1, 0);
-        this.streakText = this.add.text(990, 224, '', {
+        this.streakText = this.add.text(WORLD.width - 34, 224, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe06a',
             backgroundColor: '#483126', padding: { x: 10, y: 7 }, align: 'right'
         }).setOrigin(1, 0);
-        this.add.rectangle(690, 131, 190, 40, 0xffedbb);
-        this.livesIcons = drawLives(this, 690, 131, this.round.lives);
+        this.add.rectangle(WORLD.centerX + 178, 131, 190, 40, 0xffedbb);
+        this.livesIcons = drawLives(this, WORLD.centerX + 178, 131, this.round.lives);
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100);
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
@@ -166,7 +167,7 @@ export class Game extends Scene {
         buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
         addSoundButton(this, 32, 166);
-        this.add.text(512, 263, LAYOUTS[this.round.config.layout].name.toUpperCase(), {
+        this.add.text(WORLD.centerX, 263, LAYOUTS[this.round.config.layout].name.toUpperCase(), {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#e5c58f',
             backgroundColor: '#302e2b', padding: { x: 12, y: 6 }
         }).setOrigin(0.5);
@@ -184,7 +185,7 @@ export class Game extends Scene {
             event.stopPropagation();
             pause();
         });
-        const finishButton = this.add.text(990, 166, 'Finish Level', {
+        const finishButton = this.add.text(WORLD.width - 34, 166, 'Finish Level', {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
             backgroundColor: '#547f3b', padding: { x: 16, y: 10 }
         }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
@@ -196,8 +197,8 @@ export class Game extends Scene {
             event.stopPropagation();
             this.finishLevel();
         });
-        this.add.rectangle(512, WORLD.footerY, 1024, 46, 0x483126);
-        this.add.text(512, WORLD.footerY, '↓ / CLICK: drop claw   •   ↑: dynamite (gem-studded rocks release treasure)', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
+        this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
+        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: drop claw   •   ↑: dynamite (gem-studded rocks release treasure)', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
         const launch = () => { soundEffects.unlock(); if (!this.ended && !this.round.finished) this.claw.launch(); };
         const keyboard = this.input.keyboard;
         const onKey = (event: KeyboardEvent) => { if (!event.repeat) launch(); };
@@ -229,11 +230,18 @@ export class Game extends Scene {
             this.events.off('resume', onResume);
             this.input.off('pointerdown', launch);
         });
-        this.depositHint = this.add.text(512, 320, '', {
+        this.depositHint = this.add.text(WORLD.centerX, 320, '', {
             fontFamily: 'Arial', fontSize: 19, fontStyle: 'bold', color: '#9ef5ff',
             backgroundColor: '#302e2b', align: 'center', padding: { x: 12, y: 8 }
         }).setOrigin(0.5, 1).setDepth(11).setVisible(false);
         this.updateHud();
+        responsiveLayout(this, oldWidth => {
+            for (const object of this.objects) {
+                if (object.isMountedGem) continue;
+                object.moveTo(65 + (object.x - 65) * (WORLD.width - 130) / (oldWidth - 130), object.y);
+            }
+            this.claw.resize(oldWidth);
+        });
     }
 
     update(_time: number, delta: number): void {
@@ -285,7 +293,7 @@ export class Game extends Scene {
     }
 
     private showCollectionValue(value: number, label = `+$${value}`): void {
-        const popup = this.add.text(565, 195, label, {
+        const popup = this.add.text(WORLD.centerX + 53, 195, label, {
             fontFamily: 'Arial', fontSize: 28, fontStyle: 'bold', color: '#ffe06a',
             stroke: '#483126', strokeThickness: 4
         }).setOrigin(0, 0.5).setDepth(10);
@@ -324,7 +332,7 @@ export class Game extends Scene {
     private updateHud(): void {
         if (this.displayedLives !== this.round.lives) {
             this.livesIcons.destroy();
-            this.livesIcons = drawLives(this, 690, 131, this.round.lives);
+            this.livesIcons = drawLives(this, WORLD.centerX + 178, 131, this.round.lives);
             this.displayedLives = this.round.lives;
         }
         const deposit = this.claw.hauledDeposit;
@@ -348,7 +356,7 @@ export class Game extends Scene {
         const rewards = this.round.claimMilestones();
         if (rewards.length) {
             soundEffects.play('buy');
-            const popup = this.add.text(512, 305, `BONUS!  ${rewards.map(reward => reward.label).join('  •  ')}`, {
+            const popup = this.add.text(WORLD.centerX, 305, `BONUS!  ${rewards.map(reward => reward.label).join('  •  ')}`, {
                 fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#bcf58b',
                 backgroundColor: '#253d29', padding: { x: 14, y: 8 }
             }).setOrigin(0.5).setDepth(12);

@@ -12,7 +12,7 @@ import { LEVELS, LevelConfig } from '../state/Levels';
 
 export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
-    ruby: { radius: 15, value: 700, weight: 2, color: 0xe83864 },
+    ruby: { radius: 15, value: 650, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
     goldRush: { radius: 30, value: 0, weight: 0.2, color: 0xffc52e },
     streakVial: { radius: 30, value: 0, weight: 0.2, color: 0xa75ae0 },
@@ -21,14 +21,14 @@ const TYPES = {
     strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
     rat: { radius: 21, value: 1, weight: 0.1, color: 0x88766a },
-    diamondRat: { radius: 24, value: 501, weight: 0.2, color: 0x88766a },
-    rubyRat: { radius: 24, value: 701, weight: 0.2, color: 0x88766a },
-    diamond: { radius: 17, value: 500, weight: 0.4, color: 0x70e6f5 },
+    diamondRat: { radius: 24, value: 451, weight: 0.2, color: 0x88766a },
+    rubyRat: { radius: 24, value: 651, weight: 0.2, color: 0x88766a },
+    diamond: { radius: 17, value: 450, weight: 0.4, color: 0x70e6f5 },
     moneyBag: { radius: 30, value: 0, weight: 1.2, color: 0xc49450 },
-    small: { radius: 15, value: 70, weight: 0.6, color: 0xffdf49 },
-    medium: { radius: 32, value: 140, weight: 1.5, color: 0xffca28 },
-    large: { radius: 48, value: 250, weight: 3, color: 0xf5b51b },
-    giant: { radius: 72, value: 400, weight: 4.8, color: 0xf0b21d },
+    small: { radius: 15, value: 50, weight: 0.6, color: 0xffdf49 },
+    medium: { radius: 32, value: 100, weight: 1.5, color: 0xffca28 },
+    large: { radius: 48, value: 200, weight: 3, color: 0xf5b51b },
+    giant: { radius: 72, value: 350, weight: 4.8, color: 0xf0b21d },
     mediumRock: { radius: 40, value: 16, weight: 4.4, color: 0x838e97 },
     heavyRock: { radius: 51, value: 18, weight: 4.95, color: 0x808c95 },
     largeRock: { radius: 62, value: 20, weight: 5.5, color: 0x7e8993 },
@@ -74,10 +74,10 @@ export class Collectable {
         this.speed = (80 + random() * 30) * 0.85 * ratSpeed;
         const type = TYPES[kind];
         this.radius = type.radius;
-        this.value = kind === 'moneyBag' ? 40 + Math.floor(random() * 15) * 20 : type.value;
+        this.value = kind === 'moneyBag' ? 150 + Math.floor(random() * 26) * 10 : type.value;
         this.baseWeight = type.weight;
         if (kind === 'treasureChest') this.treasureReward = rollTreasureReward(random);
-        this.graphic = scene.add.graphics().setPosition(x, y);
+        this.graphic = scene.add.graphics().setData('responsiveIgnore', true).setPosition(x, y);
         const r = this.radius;
         const g = this.graphic;
         if (kind === 'treasureChest') {
@@ -484,10 +484,11 @@ export class Collectable {
     update(seconds: number, objects: Collectable[]): void {
         if (!this.available || !this.isRat) return;
         const nextX = this.x + this.direction * this.speed * seconds;
-        const dx = nextX - 512;
-        const dy = this.y - 210;
-        const blocked = Math.hypot(dx, dy) > WORLD.spawnRange - this.radius
-            || Math.abs(Math.atan2(dx, dy)) > 1.05
+        const dx = nextX - WORLD.centerX;
+        const dy = this.y - WORLD.pivotY;
+        const blocked = nextX - this.radius < 40 || nextX + this.radius > WORLD.width - 40
+            || Math.hypot(dx, dy) > WORLD.spawnRange - this.radius
+            || Math.abs(Math.atan2(dx, dy)) > WORLD.maxAngle
             || objects.some(other => other !== this && other.available
                 && Math.hypot(nextX - other.x, this.y - other.y) < this.radius + other.radius + 4);
         if (blocked) this.direction *= -1;
@@ -503,12 +504,13 @@ export class Collectable {
         this.catchGlow?.setPosition(x, y);
         this.depositCracks?.setPosition(x, y);
         if (this.treasureLabel) {
+            this.treasureLabel.setData('responsiveIgnore', true);
             const iconSpace = this.lensIcon ? 24 : 0;
             const halfWidth = (this.treasureLabel.width + iconSpace) / 2;
             const centerX = Math.max(halfWidth + 16, Math.min(WORLD.width - halfWidth - 16, x));
             const labelY = y + (this.kind === 'treasureChest' ? 29 : this.radius + 3);
             this.treasureLabel.setPosition(centerX + iconSpace / 2, labelY);
-            this.lensIcon?.setPosition(centerX - halfWidth + 8, labelY + this.treasureLabel.height / 2 - 1);
+            this.lensIcon?.setData('responsiveIgnore', true).setPosition(centerX - halfWidth + 8, labelY + this.treasureLabel.height / 2 - 1);
         }
     }
 
@@ -564,7 +566,7 @@ const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === '
 const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat' && kind !== 'rubyRat';
 
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
-    // Roll once per seeded level, not on placement retries. At most one rare chest.
+    // Roll once per seeded level, not on placement retries. Chests remain a seeded rarity.
     const hasGemRock = random() < 0.5;
     const hasChest = random() < 0.5;
     const hasRuby = random() < 0.35;
@@ -575,16 +577,45 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         'large', ...Array.from({ length: level.rocks }, (_, index): OreKind => index === 0 ? 'mediumRock' : 'rock'),
         ...(hasChest ? ['treasureChest' as const] : []),
         ...Array<OreKind>(level.tnt).fill('tnt'),
-        'medium', 'medium', 'medium',
+        'medium', 'medium', 'medium', 'medium',
         ...Array<OreKind>(level.moneyBags).fill('moneyBag'),
         ...Array<OreKind>(level.diamonds).fill('diamond'),
         ...(hasRuby ? ['ruby' as const] : []),
-        'small', 'small', 'small', 'small', 'strengthPotion', 'goldRush', 'timeVial', 'streakVial', 'mysteryBag',
+        'rock', 'small', 'small', 'small', 'small', 'small', 'small', 'strengthPotion', 'goldRush', 'timeVial', 'streakVial', 'mysteryBag',
         ...Array<OreKind>(level.rats).fill('rat'),
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')
     ];
+    // Populate the extra screen area, then add up to 45% more catches across the full mix.
+    // Large treasure and both gems are included even in the first density cycle.
+    const widthExtra = Math.max(0, Math.round((WORLD.width / 1024 - 1) * 12));
+    // Narrow windows need fewer additions to keep deep, large objects placeable.
+    const density = Math.min(0.45, 0.10 + (WORLD.width / 1024 - 1) * 0.7);
+    const densityExtra = Math.max(5, Math.ceil((kinds.length + widthExtra) * density));
+    const widthAdditions: OreKind[] = ['small', 'medium', 'rock', 'small', 'moneyBag', 'medium', 'heavyRock', 'diamond'];
+    for (let i = 0; i < widthExtra; i++) kinds.push(widthAdditions[i % widthAdditions.length]);
+    const additions: OreKind[] = [
+        'large', 'moneyBag', 'diamond', 'ruby', 'giant', 'mediumRock',
+        'mysteryBag', 'medium', 'largeRock', 'small', 'heavyRock', 'moneyBag',
+        'diamond', 'ruby', 'large', 'rock', 'strengthPotion', 'goldRush',
+        'timeVial', 'streakVial',
+        ...(hasChest ? ['treasureChest' as const] : []),
+        ...(level.rats > 0 ? ['rat' as const] : []),
+        ...(level.diamondRats > 0 ? ['diamondRat' as const, 'rubyRat' as const] : []),
+        ...(level.tnt > 0 ? ['tnt' as const] : [])
+    ];
+    for (let i = 0; i < densityExtra; i++) kinds.push(additions[i % additions.length]);
+    const densityHazards = additions.slice(0, Math.min(densityExtra, additions.length)).filter(isStaticHazard);
     kinds.sort((a, b) => TYPES[b].radius - TYPES[a].radius);
     for (let layout = 0; layout < 300; layout++) {
+        // If extra blockers hide too many shots, keep the density by replacing
+        // those added rocks with similarly sized gold rather than dropping catches.
+        if (layout === 50) {
+            for (const kind of densityHazards) {
+                const index = kinds.lastIndexOf(kind);
+                if (index >= 0) kinds[index] = kind === 'largeRock' ? 'large' : kind === 'heavyRock' ? 'large' : 'medium';
+            }
+            kinds.sort((a, b) => TYPES[b].radius - TYPES[a].radius);
+        }
         // Crowded seeds may need one fewer small obstacle to retain clear shots.
         // Keep the new rock size and all treasure; retries use the same seeded fallback.
         if (layout === 150) {
@@ -594,15 +625,22 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         const positions: { x: number; y: number; radius: number; kind: OreKind }[] = [];
         for (const [index, kind] of kinds.entries()) {
             const radius = TYPES[kind].radius;
-            const [minY, maxY] = spawnDepthRange(kind, level.minimumDepth);
+            const [baseMinY, maxY] = spawnDepthRange(kind, level.minimumDepth);
+            let minY = baseMinY;
+            // Dense layouts can spread large gold through the deeper middle too.
+            if (layout >= 100) {
+                if (kind === 'giant') minY -= 80;
+                else if (kind === 'large') minY -= 150;
+                else if (kind === 'moneyBag' || kind === 'mysteryBag' || kind === 'treasureChest') minY -= 180;
+            }
             for (let attempt = 0; attempt < 2000; attempt++) {
-                let x = 65 + random() * 894;
+                let x = 65 + random() * (WORLD.width - 130);
                 let y = minY + random() * (maxY - minY);
                 const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
                 const rock = kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
                 if (level.layout === 'goldPocket') {
-                    if (gold) x = 260 + random() * 504;
-                    if (rock) y = 500 + random() * 280;
+                    if (gold) x = WORLD.centerX - (WORLD.width - 160) * 0.45 + random() * (WORLD.width - 160) * 0.9;
+                    if (rock) y = 380 + random() * 470;
                 } else if (level.layout === 'ratTunnels') {
                     if (kind === 'rat') y = RAT_LANE_Y + random() * 8 - 4;
                     // Leave an actual open horizontal route for the nuisance rats.
@@ -624,10 +662,10 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                     const deeperMax = Math.min(890 - radius, maxY + 55);
                     y = deeperMin + random() * (deeperMax - deeperMin);
                 }
-                const dx = x - 512;
-                const dy = y - 210;
-                if (x - radius < 40 || x + radius > WORLD.width - 40 || y + radius > WORLD.floorY || Math.hypot(dx, dy) > WORLD.spawnRange - radius || Math.abs(Math.atan2(dx, dy)) > 1.05) continue;
-                if (positions.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + 18)) continue;
+                const dx = x - WORLD.centerX;
+                const dy = y - WORLD.pivotY;
+                if (x - radius < 40 || x + radius > WORLD.width - 40 || y + radius > WORLD.floorY || Math.hypot(dx, dy) > WORLD.spawnRange - radius || Math.abs(Math.atan2(dx, dy)) > WORLD.maxAngle) continue;
+                if (positions.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + (layout < 50 ? 18 : 10))) continue;
                 // Include the other barrel's hit radius, plus a gap beyond the blast edge.
                 if (kind === 'tnt' && positions.some(other => other.kind === 'tnt'
                     && Math.hypot(x - other.x, y - other.y) < TNT_BLAST_RADIUS + Math.max(radius, other.radius) + 25)) continue;

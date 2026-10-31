@@ -31,7 +31,7 @@ export class RoundState {
 
     missShot(): void { this.catchStreak = 0; }
 
-    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * 25 * this.streakMultiplier; }
+    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * 20 * this.streakMultiplier; }
 
     bonusMoney = 0;
     private claimedMilestones = 0;

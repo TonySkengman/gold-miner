@@ -20,14 +20,14 @@ export function releaseGemDeposit(scene: Scene, deposit: Collectable, objects: C
             }
         }
         for (let y = 340; y < 880; y += 36) {
-            for (let x = 65; x < 960; x += 36) candidates.push({ x, y });
+            for (let x = 65; x < WORLD.width - 65; x += 36) candidates.push({ x, y });
         }
         const obstacles = objects.filter(object => object !== deposit && (object.available || released.includes(object)));
         for (const candidate of candidates) {
             const { x, y } = candidate;
             if (x < radius + 40 || x > WORLD.width - radius - 40 || y < 320
-                || y + radius > WORLD.floorY || Math.hypot(x - 512, y - 210) > WORLD.spawnRange - radius
-                || Math.abs(Math.atan2(x - 512, y - 210)) > 1.05) continue;
+                || y + radius > WORLD.floorY || Math.hypot(x - WORLD.centerX, y - WORLD.pivotY) > WORLD.spawnRange - radius
+                || Math.abs(Math.atan2(x - WORLD.centerX, y - WORLD.pivotY)) > WORLD.maxAngle) continue;
             if (obstacles.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + 10)) continue;
             const target = { x, y, radius };
             // Other treasure can be caught first; only fixed rocks must leave an aiming gap.
@@ -49,7 +49,7 @@ export function releaseGemDeposit(scene: Scene, deposit: Collectable, objects: C
         scene.tweens.add({ targets: drop.graphic, x: position.x, y: position.y, scale: 1, alpha: 1,
             duration: 350, ease: 'Cubic.easeOut', onComplete: () => { drop.available = true; } });
     }
-    const label = scene.add.text(Math.max(180, Math.min(844, deposit.x)), Math.max(320, deposit.y - 65),
+    const label = scene.add.text(Math.max(180, Math.min(WORLD.width - 180, deposit.x)), Math.max(320, deposit.y - 65),
         released.length > 0 ? 'GEM DEPOSIT!\nCatch the scattered treasure'
             : 'DEPOSIT CRUMBLED!\nNothing left inside.', {
             fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#9ef5ff',

@@ -25,10 +25,10 @@ export class Claw {
     private dynamite: GameObjects.Graphics | null = null;
     private throwElapsed = 0;
     private readonly graphic: GameObjects.Graphics;
-    private readonly origin = { x: 512, y: 210 };
+    private get origin(): { x: number; y: number } { return { x: WORLD.centerX, y: WORLD.pivotY }; }
 
     constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly lightweightGrip = false, private readonly onCatch: (object: Collectable) => number = () => 1, private readonly onMiss: () => void = () => {}) {
-        this.graphic = scene.add.graphics().setDepth(5);
+        this.graphic = scene.add.graphics().setData('responsiveIgnore', true).setDepth(5);
         this.draw();
     }
 
@@ -46,6 +46,15 @@ export class Claw {
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
             ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
+    }
+
+    resize(oldWidth: number): void {
+        const dx = Math.sin(this.angle) * this.length * (WORLD.width - 130) / (oldWidth - 130);
+        const dy = Math.cos(this.angle) * this.length;
+        this.angle = Math.atan2(dx, dy);
+        this.length = Math.hypot(dx, dy);
+        this.gripOffsetX *= (WORLD.width - 130) / (oldWidth - 130);
+        this.draw();
     }
 
     launch(): void {
@@ -93,13 +102,13 @@ export class Claw {
     update(seconds: number, objects: Collectable[]): void {
         if (this.mode === 'idle') {
             this.angle += this.swingDirection * seconds * 1.2705;
-            if (this.angle > 1.05 || this.angle < -1.05) {
-                this.angle = Math.max(-1.05, Math.min(1.05, this.angle));
+            if (this.angle > WORLD.maxAngle || this.angle < -WORLD.maxAngle) {
+                this.angle = Math.max(-WORLD.maxAngle, Math.min(WORLD.maxAngle, this.angle));
                 this.swingDirection *= -1;
             }
         } else if (this.mode === 'extending') {
             const oldLength = this.length;
-            const edgeRange = Math.min(WORLD.clawRange, (WORLD.floorY - this.origin.y) / Math.cos(this.angle), 488 / Math.max(0.001, Math.abs(Math.sin(this.angle))));
+            const edgeRange = Math.min(WORLD.clawRange, (WORLD.floorY - this.origin.y) / Math.cos(this.angle), WORLD.sideReach / Math.max(0.001, Math.abs(Math.sin(this.angle))));
             this.length = Math.min(edgeRange, this.length + 352 * seconds);
             // Swept segment collision prevents tunnelling even on slow frames.
             let first: Collectable | null = null;

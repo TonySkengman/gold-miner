@@ -1,9 +1,16 @@
+import { WORLD } from '../state/World';
 import type { Scene, GameObjects } from 'phaser';
 import type { ShopItemKind } from '../state/Upgrades';
 
 /** Original shape-drawn trading stall and its shopkeeper. */
 export function drawShop(scene: Scene): void {
     const g = scene.add.graphics();
+    const draw = () => {
+    g.clear();
+    g.save();
+    g.fillStyle(0xb9dce0).fillRect(0, 0, WORLD.width, WORLD.height);
+    g.fillStyle(0xb99766).fillRect(0, 370, WORLD.width, WORLD.height - 370);
+    g.translateCanvas(WORLD.centerX - 512, 0);
     g.fillStyle(0xb9dce0).fillRect(0, 0, 1024, 960);
     g.fillStyle(0x91ad77).fillTriangle(0, 370, 190, 200, 430, 370).fillTriangle(680, 370, 880, 230, 1024, 370);
     g.fillStyle(0xb99766).fillRect(0, 370, 1024, 590);
@@ -42,6 +49,10 @@ export function drawShop(scene: Scene): void {
     g.lineStyle(2, 0x75492c);
     for (let x = 111; x < 926; x += 80) g.lineBetween(x, 619, x, 678);
     g.fillStyle(0xd09a5e).fillRect(87, 591, 851, 6);
+    g.restore();
+    };
+    g.setData('responsiveRedraw', draw);
+    draw();
 }
 
 export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind | 'streakVial', scale = 1): GameObjects.Graphics {

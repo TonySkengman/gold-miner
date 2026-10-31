@@ -1,3 +1,5 @@
+import { responsiveLayout } from '../ui/ResponsiveLayout';
+import { WORLD } from '../state/World';
 import { drawLives } from '../ui/LivesDisplay';
 import { Scene } from 'phaser';
 import { drawEnvironment } from '../art/drawEnvironment';
@@ -28,15 +30,15 @@ export class LevelBriefing extends Scene {
         const layout = LAYOUTS[config.layout];
         const bonuses = { ...emptyBonuses(), ...data.bonuses };
         drawEnvironment(this, config.layout);
-        this.add.rectangle(512, 480, 840, 820, 0x211f1d, 0.97).setStrokeStyle(4, 0xc29659);
+        this.add.rectangle(WORLD.centerX, 480, 840, 820, 0x211f1d, 0.97).setStrokeStyle(4, 0xc29659);
         const text = (y: number, label: string, size = 22, color = '#fff3cc') =>
-            this.add.text(512, y, label, {
+            this.add.text(WORLD.centerX, y, label, {
                 fontFamily: 'Arial', fontSize: size, color, align: 'center',
                 wordWrap: { width: 740 }, lineSpacing: 8
             }).setOrigin(0.5);
 
         text(131, `LEVEL ${level} / ${LEVELS.length}`, 26, '#e5c58f');
-        drawLives(this, 800, 131, data.lives ?? 3);
+        drawLives(this, WORLD.centerX + 288, 131, data.lives ?? 3);
         text(186, layout.name.toUpperCase(), 38, '#ffda69').setFontStyle('bold');
         text(257, 'GOLD TARGET', 21, '#e5c58f');
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
@@ -56,7 +58,7 @@ export class LevelBriefing extends Scene {
         const cardHeight = 136;
         const spacing = Math.min(190, 760 / prepared.length);
         prepared.forEach((item, index) => {
-            const x = 512 + (index - (prepared.length - 1) / 2) * spacing;
+            const x = WORLD.centerX + (index - (prepared.length - 1) / 2) * spacing;
             this.add.rectangle(x, cardTop + cardHeight / 2, spacing - 14, cardHeight, 0x3c3329).setStrokeStyle(1, 0x8e603c);
             this.add.text(x, cardTop + 18, item.name, {
                 fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffda69'
@@ -70,12 +72,13 @@ export class LevelBriefing extends Scene {
         text(775, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
         let starting = false;
-        menuButton(this, 512, 840, 'START MINING', () => {
+        menuButton(this, WORLD.centerX, 840, 'START MINING', () => {
             if (starting) return;
             starting = true;
             soundEffects.unlock();
             this.scene.start('Game', { ...data, level });
         });
         addSoundButton(this, 32, 24);
+        responsiveLayout(this);
     }
 }

@@ -1,3 +1,5 @@
+import { responsiveLayout } from '../ui/ResponsiveLayout';
+import { WORLD } from '../state/World';
 import type { Result } from './GameOver';
 import { LAYOUTS } from '../state/Layouts';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
@@ -18,13 +20,13 @@ export class UpgradeShop extends Scene {
         let hovered: ShopItemKind | null = null;
         drawShop(this);
         addSoundButton(this, 32, 16);
-        this.add.text(512, 80, data.failed ? `LEVEL ${data.level} FAILED — RESTOCK & RETRY` : data.result?.finalLevel ? 'ALL LEVELS CLEARED!' : `LEVEL ${data.level - 1} CLEARED!`, { fontFamily: 'Arial', fontSize: 30, fontStyle: 'bold', color: '#483126' }).setOrigin(0.5);
-        this.add.text(512, 180, 'MINER’S SUPPLIES', { fontFamily: 'Arial', fontSize: 32, fontStyle: 'bold', color: '#ffe5ac' }).setOrigin(0.5);
-        const balance = this.add.text(990, 33, '', { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#483126' }).setOrigin(1, 0);
-        this.add.text(203, 642, 'OLD BILL', { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#ffe5ac' }).setOrigin(0.5);
-        this.add.rectangle(512, 757, 850, 123, 0xffedbb).setStrokeStyle(3, 0x8e603c);
-        const descriptionTitle = this.add.text(115, 716, '', { fontFamily: 'Arial', fontSize: 24, fontStyle: 'bold', color: '#483126' });
-        const description = this.add.text(115, 753, '', { fontFamily: 'Arial', fontSize: 20, color: '#70452a', wordWrap: { width: 790 } });
+        this.add.text(WORLD.centerX, 80, data.failed ? `LEVEL ${data.level} FAILED — RESTOCK & RETRY` : data.result?.finalLevel ? 'ALL LEVELS CLEARED!' : `LEVEL ${data.level - 1} CLEARED!`, { fontFamily: 'Arial', fontSize: 30, fontStyle: 'bold', color: '#483126' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, 180, 'MINER’S SUPPLIES', { fontFamily: 'Arial', fontSize: 32, fontStyle: 'bold', color: '#ffe5ac' }).setOrigin(0.5);
+        const balance = this.add.text(WORLD.width - 34, 33, '', { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#483126' }).setOrigin(1, 0);
+        this.add.text(WORLD.centerX - 309, 642, 'OLD BILL', { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#ffe5ac' }).setOrigin(0.5).setData('responsiveAnchor', 'center');
+        this.add.rectangle(WORLD.centerX, 757, 850, 123, 0xffedbb).setStrokeStyle(3, 0x8e603c);
+        const descriptionTitle = this.add.text(WORLD.centerX - 397, 716, '', { fontFamily: 'Arial', fontSize: 24, fontStyle: 'bold', color: '#483126' }).setData('responsiveAnchor', 'center');
+        const description = this.add.text(WORLD.centerX - 397, 753, '', { fontFamily: 'Arial', fontSize: 20, color: '#70452a', wordWrap: { width: 790 } }).setData('responsiveAnchor', 'center');
         const showDescription = () => {
             if (!hovered) {
                 descriptionTitle.setText('“Welcome, miner! Take a look at my wares.”');
@@ -37,7 +39,7 @@ export class UpgradeShop extends Scene {
             descriptionTitle.setText(info.name);
             description.setText(`${info.description}. ${maxed ? (isPermanentUpgrade(hovered) ? 'Fully upgraded!' : 'Lives full (5 / 5)!') : `${isPermanentUpgrade(hovered) ? 'Next tier' : 'Price'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
         };
-        const stock = this.add.text(512, 115, '', { fontFamily: 'Arial', fontSize: 15, color: '#483126' }).setOrigin(0.5);
+        const stock = this.add.text(WORLD.centerX, 115, '', { fontFamily: 'Arial', fontSize: 15, color: '#483126' }).setOrigin(0.5);
         const refreshers: (() => void)[] = [];
         const refresh = () => {
             stock.setText(`Lives: ${lives}/5  •  Streak x2: ${bonuses.streakVial}  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Lightweight Grip: ${bonuses.lightweightGrip}`);
@@ -48,7 +50,7 @@ export class UpgradeShop extends Scene {
             showDescription();
         };
         (Object.keys(UPGRADE_INFO) as ShopItemKind[]).forEach((kind, index) => {
-            const x = 418 + (index % 3) * 216;
+            const x = WORLD.centerX - 94 + (index % 3) * 216;
             const y = 360 + Math.floor(index / 3) * 130;
             const card = this.add.rectangle(x, y, 206, 122, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
             drawShopProduct(this, x, y - 6, kind, 0.34);
@@ -88,7 +90,7 @@ export class UpgradeShop extends Scene {
                 refresh();
             });
         });
-        const next = this.add.text(512, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        const next = this.add.text(WORLD.centerX, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
         next.once('pointerdown', () => {
             if (data.result && (lives === 0 || (data.result.won && data.result.finalLevel))) {
                 this.scene.start('GameOver', { ...data.result, lives, money, upgrades, dynamite });
@@ -98,7 +100,8 @@ export class UpgradeShop extends Scene {
                 lives, level: data.level, money, upgrades, dynamite, bonuses, levelSeed: data.levelSeed
             });
         });
-        this.add.text(512, 926, `${LAYOUTS[LEVELS[data.level - 1].layout].name}  •  Target: $${LEVELS[data.level - 1].target}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, 926, `${LAYOUTS[LEVELS[data.level - 1].layout].name}  •  Target: $${LEVELS[data.level - 1].target}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
+        responsiveLayout(this);
     }
 }

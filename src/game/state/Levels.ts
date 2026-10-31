@@ -41,9 +41,16 @@ const BASE_LEVELS: readonly Omit<LevelConfig, 'layout' | 'heavyRocks'>[] = [
     })
 ];
 
+/** Raise the previous rounded targets to match the denser mine. */
+function densityAdjustedTarget(baseTarget: number, index: number): number {
+    const previousTarget = Math.round(baseTarget * 0.9 * 1.1 / 50) * 50;
+    const multiplier = index < 3 ? 1.25 : index < 10 ? 1.35 : 1.4;
+    return Math.round(previousTarget * multiplier / 50) * 50;
+}
+
 export const LEVELS: readonly LevelConfig[] = BASE_LEVELS.map((level, index) => ({
     ...level,
-    target: Math.round(level.target * 0.9 * 1.1 / 50) * 50,
+    target: densityAdjustedTarget(level.target, index),
     // More hazards should tighten shots, never turn the mine into a solid wall.
     largeRocks: Math.min(3, level.largeRocks),
     rocks: Math.min(level.rocks, 6 - Math.min(3, level.largeRocks))

@@ -1,6 +1,6 @@
 import { PauseMenu } from './scenes/PauseMenu';
 import { LevelBriefing } from './scenes/LevelBriefing';
-import { WORLD } from './state/World';
+import { resizeWorld } from './state/World';
 import { UpgradeShop } from './scenes/UpgradeShop';
 import { Boot } from './scenes/Boot';
 import { GameOver } from './scenes/GameOver';
@@ -11,13 +11,15 @@ import { Preloader } from './scenes/Preloader';
 
 //  Find out more information about the Game Config at:
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
+resizeWorld(window.innerWidth, window.innerHeight);
+
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
-    width: WORLD.width,
-    height: WORLD.height,
+    width: window.innerWidth,
+    height: window.innerHeight,
     parent: 'game-container',
     backgroundColor: '#483126',
-    scale: { mode: Scale.FIT, autoCenter: Scale.CENTER_BOTH },
+    scale: { mode: Scale.RESIZE, autoCenter: Scale.CENTER_BOTH },
     scene: [
         Boot,
         Preloader,
