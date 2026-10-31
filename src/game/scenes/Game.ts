@@ -236,12 +236,15 @@ export class Game extends Scene {
     }
 
     update(_time: number, delta: number): void {
-        if (this.ended || this.round.finished) return;
-        const seconds = Math.min(delta / 1000, this.round.remaining);
+        if (this.ended) return;
+        const seconds = delta / 1000;
         // Small simulation steps keep movement and collisions stable across frame rates.
         let pending = seconds;
         while (pending > 0) {
-            const step = Math.min(pending, 1 / 120);
+            // At zero, only an already hooked catch may finish. No late launches or latches.
+            if (this.round.finished && !this.claw.hasPendingCatch) break;
+            const step = Math.min(pending, 1 / 120,
+                this.round.remaining > 0 ? this.round.remaining : Infinity);
             for (const object of this.objects) object.update(step, this.objects);
             this.claw.update(step, this.objects);
             this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight);
@@ -249,7 +252,7 @@ export class Game extends Scene {
             pending -= step;
         }
         this.updateHud();
-        if (this.round.finished) this.finishLevel();
+        if (this.round.finished && !this.claw.hasPendingCatch) this.finishLevel();
     }
 
     private showStreakCatch(object: Collectable, bonus: number): void {
@@ -372,7 +375,8 @@ export class Game extends Scene {
         this.dynamiteInventory.update(this.round.dynamite);
         this.scoreText.setText(`MONEY  $${this.round.money}`);
         this.progressText.setText(`LEVEL GOLD  $${this.round.score} / $${this.round.target}`);
-        this.timeText.setText(`TIME  ${Math.ceil(this.round.remaining)}s`);
+        this.timeText.setText(this.round.finished && this.claw.hasPendingCatch
+            ? 'FINAL HAUL!' : `TIME  ${Math.ceil(this.round.remaining)}s`);
         this.timeText.setColor(this.round.remaining <= 10 ? '#ff9b7c' : '#fff3cc');
     }
 

@@ -30,6 +30,9 @@ export class Claw {
         this.draw();
     }
 
+    /** Includes a haul with dynamite already in flight. */
+    get hasPendingCatch(): boolean { return this.caught !== null; }
+
     get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
 
     get hauledDeposit(): Collectable | null {
