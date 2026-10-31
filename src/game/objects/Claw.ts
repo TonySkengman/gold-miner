@@ -25,7 +25,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private readonly origin = { x: 512, y: 210 };
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false, private readonly onCatch: (object: Collectable) => number = () => 1) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false, private readonly onCatch: (object: Collectable) => number = () => 1, private readonly onMiss: () => void = () => {}) {
         this.graphic = scene.add.graphics().setDepth(5);
         this.draw();
     }
@@ -142,7 +142,10 @@ export class Claw {
                 first.available = false;
                 first.hideTreasureLabel();
                 this.mode = 'retracting';
-            } else if (this.length >= edgeRange) this.mode = 'retracting';
+            } else if (this.length >= edgeRange) {
+                this.mode = 'retracting';
+                this.onMiss();
+            }
         } else {
             if (this.dynamite) {
                 this.updateDynamite(seconds, objects);

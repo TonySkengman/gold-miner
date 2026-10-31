@@ -2,7 +2,7 @@ import { BuffKind, drawBuffIcon } from '../ui/BuffIcon';
 import { drawLives } from '../ui/LivesDisplay';
 import { newLevelSeed, seededRandom } from '../state/Random';
 import { MilestoneProgress } from '../ui/MilestoneProgress';
-import { rollMysteryReward } from '../state/MysteryRewards';
+import { MysteryReward, rollMysteryReward } from '../state/MysteryRewards';
 import { DynamiteInventory } from '../ui/DynamiteInventory';
 import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
@@ -18,7 +18,7 @@ import { drawEnvironment } from '../art/drawEnvironment';
 
 export class Game extends Scene {
     private levelSeed: number;
-    private rewardRandom: () => number;
+    private mysteryRewards = new Map<Collectable, MysteryReward>();
     private ended = false;
     private pausing = false;
     private round: RoundState;
@@ -27,6 +27,7 @@ export class Game extends Scene {
     private objects: Collectable[];
     private milestoneProgress: MilestoneProgress;
     private scoreText: GameObjects.Text;
+    private streakText: GameObjects.Text;
     private progressText: GameObjects.Text;
     private dynamiteInventory: DynamiteInventory;
     private strengthText: GameObjects.Text;
@@ -42,7 +43,8 @@ export class Game extends Scene {
 
     create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number } = {}): void {
         this.levelSeed = data.levelSeed ?? newLevelSeed();
-        this.rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
+        const rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
+        this.mysteryRewards = new Map();
         this.displayedLives = -1;
         this.ended = false;
         this.pausing = false;
@@ -52,39 +54,67 @@ export class Game extends Scene {
         drawEnvironment(this, this.round.config.layout);
         this.miner = new MinerAnimator(this);
         this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
+        for (const object of this.objects) {
+            if (this.round.bonuses.prospectorsLens && object.kind === 'treasureChest') {
+                object.revealTreasureReward(this);
+            }
+            if (this.round.bonuses.prospectorsLens && object.kind === 'moneyBag') {
+                const amount = this.round.bonuses.luck ? Math.max(250, object.value) : object.value;
+                object.revealMysteryReward(this, { kind: 'money', amount });
+            }
+            if (object.kind !== 'mysteryBag') continue;
+            const reward = rollMysteryReward(rewardRandom);
+            this.mysteryRewards.set(object, reward);
+            if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, reward);
+        }
+        const streakBonuses = new WeakMap<Collectable, number>();
         this.claw = new Claw(this, (value, object) => {
+            const streakBonus = streakBonuses.get(object) ?? 0;
+            streakBonuses.delete(object);
+            this.round.score += streakBonus;
+            const showValue = (amount: number, label = `+$${amount}`) => this.showCollectionValue(amount,
+                streakBonus > 0 ? `${label}\nSTREAK ${this.round.catchStreak}  +$${streakBonus}` : label);
             if (object.kind === 'treasureChest' && object.treasureReward) {
-                this.showCollectionValue(0, this.round.applyTreasureReward(object.treasureReward));
+                showValue(0, this.round.applyTreasureReward(object.treasureReward));
                 this.miner.reactTo(object.kind);
                 return;
             }
             if (object.kind === 'goldRush') {
                 this.round.activateGoldRush();
-                this.showCollectionValue(0, 'GOLD RUSH! 2 GOLD NUGGETS');
+                showValue(0, 'GOLD RUSH! 3 GOLD NUGGETS');
                 return;
             }
             if (object.kind === 'timeVial') {
                 this.round.addTime();
-                this.showCollectionValue(0, '+8 SECONDS!');
+                showValue(0, '+8 SECONDS!');
                 return;
             }
             if (object.kind === 'mysteryBag') {
-                this.showCollectionValue(0, this.round.applyMysteryReward(rollMysteryReward(this.rewardRandom)));
+                showValue(0, this.round.applyMysteryReward(this.mysteryRewards.get(object)!));
                 return;
             }
             if (object.kind === 'strengthPotion') {
                 this.round.activateStrength();
-                this.showCollectionValue(0, 'STRENGTH x2 • 2 CATCHES!');
+                showValue(0, 'STRENGTH x2 • 3 CATCHES!');
                 return;
             }
             const earned = this.round.bonuses.luck && object.kind === 'moneyBag'
                 ? Math.max(250, value) : value;
             this.round.score += earned;
             this.miner.reactTo(object.kind);
-            this.showCollectionValue(earned);
+            showValue(earned);
         }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15,
         () => this.round.strengthMultiplier, this.round.bonuses.rockPolish > 0,
-        object => this.round.consumeCatch(object.kind));
+        object => {
+            // Gem-studded deposits are neutral, including the combined gem-rock type.
+            const ordinaryRock = !object.gemDeposit
+                && ['rock', 'mediumRock', 'heavyRock', 'largeRock'].includes(object.kind);
+            if (ordinaryRock || object.kind === 'rat') this.round.missShot();
+            const bonus = this.round.latchStreak(object.kind);
+            streakBonuses.set(object, bonus);
+            if (bonus > 0) this.showStreakCatch(object, bonus);
+            return this.round.consumeCatch(object.kind);
+        }, () => this.round.missShot());
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(512, 44, 1024, 88, 0x483126);
         this.scoreText = this.add.text(32, 29, '', style);
@@ -94,6 +124,10 @@ export class Game extends Scene {
         this.add.text(990, 112, `LEVEL ${this.round.level} / ${LEVELS.length}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
+        }).setOrigin(1, 0);
+        this.streakText = this.add.text(990, 224, '', {
+            fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe06a',
+            backgroundColor: '#483126', padding: { x: 10, y: 7 }, align: 'right'
         }).setOrigin(1, 0);
         this.add.rectangle(690, 131, 190, 40, 0xffedbb);
         this.livesIcons = drawLives(this, 690, 131, this.round.lives);
@@ -206,6 +240,34 @@ export class Game extends Scene {
         if (this.round.finished) this.finishLevel();
     }
 
+    private showStreakCatch(object: Collectable, bonus: number): void {
+        const streak = this.round.catchStreak;
+        const intensity = Math.min(1, (streak - 3) / 9);
+        const color = streak >= 10 ? '#ffad65' : '#ffe06a';
+        const label = this.add.text(0, 0, `STREAK ${streak}!\n+$${bonus} ON DELIVERY`, {
+            fontFamily: 'Arial', fontSize: 25 + Math.round(intensity * 5), fontStyle: 'bold',
+            color, align: 'center', stroke: '#483126', strokeThickness: 5
+        }).setOrigin(0.5).setDepth(14).setScale(0.55);
+        // Keep feedback readable at the edges and above the bottom controls.
+        const halfWidth = label.width * 1.15 / 2 + 16;
+        label.setPosition(Math.max(halfWidth, Math.min(WORLD.width - halfWidth, object.x)),
+            Math.max(350, Math.min(WORLD.footerY - 75, object.y - object.radius - 30)));
+        this.tweens.add({ targets: label, scale: 1, duration: 240, ease: 'Back.easeOut' });
+        this.tweens.add({ targets: label, y: label.y - 35, alpha: 0, delay: 550,
+            duration: 450, ease: 'Sine.easeOut', onComplete: () => label.destroy() });
+        const burst = this.add.graphics().setPosition(object.x, object.y).setDepth(13);
+        const radius = object.radius + 12;
+        burst.lineStyle(3, 0xffdf65, 0.85).strokeCircle(0, 0, radius);
+        for (let i = 0; i < 8; i++) {
+            const angle = i * Math.PI / 4;
+            burst.lineStyle(3, i % 2 ? 0xffffff : 0xffc45c)
+                .lineBetween(Math.cos(angle) * (radius + 5), Math.sin(angle) * (radius + 5),
+                    Math.cos(angle) * (radius + 15), Math.sin(angle) * (radius + 15));
+        }
+        this.tweens.add({ targets: burst, scale: 1.4 + intensity * 0.3, alpha: 0,
+            duration: 350, ease: 'Cubic.easeOut', onComplete: () => burst.destroy() });
+    }
+
     private showCollectionValue(value: number, label = `+$${value}`): void {
         const popup = this.add.text(565, 195, label, {
             fontFamily: 'Arial', fontSize: 28, fontStyle: 'bold', color: '#ffe06a',
@@ -254,7 +316,7 @@ export class Game extends Scene {
         if (deposit) {
             this.depositHint.setText(this.round.dynamite > 0
                 ? (deposit.depositIntegrity?.stage === 2
-                    ? 'BREAKING APART! Gems at risk!\n↑ Blast now to save the remaining treasure!'
+                    ? 'BREAKING APART! Hidden treasure is crumbling!\n↑ Blast now to save the remaining treasure!'
                     : deposit.depositIntegrity?.stage === 1
                         ? 'CRACKING! Gold is falling out!\n↑ Blast now to preserve the treasure.'
                         : 'INTACT — full reward\n↑ Blast now, or haul closer and risk losing treasure.')
@@ -291,6 +353,7 @@ export class Game extends Scene {
             icon.setPosition(48, buffY + text.height / 2);
             buffY += text.height + 5;
         }
+        this.streakText.setText(`CATCH STREAK  ${this.round.catchStreak}\nCurrent bonus: +$${this.round.currentStreakBonus}`);
         this.dynamiteInventory.update(this.round.dynamite);
         this.scoreText.setText(`MONEY  $${this.round.money}`);
         this.progressText.setText(`LEVEL GOLD  $${this.round.score} / $${this.round.target}`);

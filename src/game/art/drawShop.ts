@@ -46,7 +46,18 @@ export function drawShop(scene: Scene): void {
 
 export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind, scale = 1): GameObjects.Graphics {
     const g = scene.add.graphics().setPosition(x, y).setScale(scale);
-    if (kind === 'rockPolish') {
+    if (kind === 'prospectorsLens') {
+        g.lineStyle(15, 0x79512e).lineBetween(20, 22, 48, 50);
+        g.fillStyle(0x92dce8).lineStyle(7, 0xc79949).fillCircle(-5, -6, 33).strokeCircle(-5, -6, 33);
+        g.lineStyle(4, 0xe9ffff).lineBetween(-24, -7, -8, -23).lineBetween(-12, 5, 7, -14);
+    } else if (kind === 'lifeVial') {
+        g.fillStyle(0xf1c9cc).lineStyle(3, 0x793341);
+        g.fillRoundedRect(-24, -25, 48, 65, 14).strokeRoundedRect(-24, -25, 48, 65, 14);
+        g.fillStyle(0xd94b52).fillRoundedRect(-18, -5, 36, 38, 9);
+        g.fillStyle(0xb68b4e).fillRoundedRect(-15, -42, 30, 20, 4);
+        g.fillStyle(0xffe8e8).fillCircle(-7, 5, 9).fillCircle(7, 5, 9).fillTriangle(-16, 7, 16, 7, 0, 25);
+        g.lineStyle(3, 0xffffff).lineBetween(-15, -17, -15, -8);
+    } else if (kind === 'rockPolish') {
         g.fillStyle(0x8a969f).lineStyle(3, 0x414952);
         g.beginPath().moveTo(-43, 19).lineTo(-34, -10).lineTo(-5, -23)
             .lineTo(24, -8).lineTo(32, 23).lineTo(-9, 34).closePath().fillPath().strokePath();

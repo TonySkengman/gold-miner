@@ -11,6 +11,7 @@ export class UpgradeShop extends Scene {
     create(data: { lives: number; level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses }): void {
         let bonuses = { ...emptyBonuses(), ...data.bonuses };
         let money = data.money;
+        let lives = data.lives;
         let dynamite = data.dynamite;
         let upgrades = { ...(data.upgrades ?? emptyUpgrades()) };
         let hovered: ShopItemKind | null = null;
@@ -30,33 +31,33 @@ export class UpgradeShop extends Scene {
                 return;
             }
             const info = UPGRADE_INFO[hovered];
-            const maxed = itemSoldOut(hovered, upgrades);
+            const maxed = itemSoldOut(hovered, upgrades, lives);
             const price = upgradePrice(hovered, upgrades);
             descriptionTitle.setText(info.name);
-            description.setText(`${info.description}. ${maxed ? (isPermanentUpgrade(hovered) ? 'Fully upgraded!' : 'Ready for the next level!') : `${isPermanentUpgrade(hovered) ? 'Next tier' : 'Price'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
+            description.setText(`${info.description}. ${maxed ? (isPermanentUpgrade(hovered) ? 'Fully upgraded!' : 'Lives full (5 / 5)!') : `${isPermanentUpgrade(hovered) ? 'Next tier' : 'Price'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
         };
-        const stock = this.add.text(512, 115, '', { fontFamily: 'Arial', fontSize: 20, color: '#483126' }).setOrigin(0.5);
+        const stock = this.add.text(512, 115, '', { fontFamily: 'Arial', fontSize: 17, color: '#483126' }).setOrigin(0.5);
         const refreshers: (() => void)[] = [];
         const refresh = () => {
-            stock.setText(`Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Rock polish: ${bonuses.rockPolish}`);
+            stock.setText(`Lives: ${lives}/5  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Rock polish: ${bonuses.rockPolish}`);
             balance.setText(`MONEY  $${money}`);
             refreshers.forEach(update => update());
             showDescription();
         };
         (Object.keys(UPGRADE_INFO) as ShopItemKind[]).forEach((kind, index) => {
-            const x = 422 + (index % 3) * 201;
-            const y = index < 3 ? 412 : 603;
-            const card = this.add.rectangle(x, y, 185, 180, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
-            drawShopProduct(this, x, y - 8, kind, 0.6);
-            this.add.text(x, y - 78, UPGRADE_INFO[kind].name, { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#483126', align: 'center', wordWrap: { width: 170 } }).setOrigin(0.5, 0);
+            const x = 412 + (index % 4) * 153;
+            const y = index < 4 ? 412 : 603;
+            const card = this.add.rectangle(x, y, 145, 180, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
+            drawShopProduct(this, x, y - 8, kind, 0.5);
+            this.add.text(x, y - 78, UPGRADE_INFO[kind].name, { fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#483126', align: 'center', wordWrap: { width: 137 } }).setOrigin(0.5, 0);
             const tier = this.add.text(x, y + 37, '', { fontFamily: 'Arial', fontSize: 18, color: '#70452a' }).setOrigin(0.5);
             const priceTag = this.add.text(x, y + 70, '', { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#ffffff', padding: { x: 14, y: 7 } }).setOrigin(0.5);
             refreshers.push(() => {
-                const maxed = itemSoldOut(kind, upgrades);
+                const maxed = itemSoldOut(kind, upgrades, lives);
                 const price = upgradePrice(kind, upgrades);
                 tier.setText(isPermanentUpgrade(kind) ? `TIER ${upgrades[kind]} / ${UPGRADE_LIMIT}`
-                    : kind === 'dynamite' ? `OWNED: ${dynamite}` : `ROUNDS: ${bonuses[kind]}`);
-                priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'BOUGHT') : `BUY $${price}`);
+                    : kind === 'lifeVial' ? `LIVES: ${lives} / 5` : kind === 'dynamite' ? `OWNED: ${dynamite}` : `ROUNDS: ${bonuses[kind]}`);
+                priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'FULL') : `BUY $${price}`);
                 priceTag.setBackgroundColor(maxed || money < price ? '#827968' : '#547f3b');
             });
             card.on('pointerover', () => {
@@ -71,10 +72,11 @@ export class UpgradeShop extends Scene {
             });
             card.on('pointerdown', () => {
                 hovered = kind;
-                const purchase = purchaseUpgrade(kind, money, upgrades, dynamite, bonuses);
+                const purchase = purchaseUpgrade(kind, money, upgrades, dynamite, bonuses, lives);
                 if (purchase) {
                     soundEffects.unlock();
                     soundEffects.play('buy');
+                    lives = purchase.lives;
                     bonuses = purchase.bonuses;
                     dynamite = purchase.dynamite;
                     money = purchase.money;
@@ -84,7 +86,7 @@ export class UpgradeShop extends Scene {
             });
         });
         const next = this.add.text(512, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-        next.once('pointerdown', () => this.scene.start('LevelBriefing', { lives: data.lives, level: data.level, money, upgrades, dynamite, bonuses }));
+        next.once('pointerdown', () => this.scene.start('LevelBriefing', { lives, level: data.level, money, upgrades, dynamite, bonuses }));
         this.add.text(512, 926, `${LAYOUTS[LEVELS[data.level - 1].layout].name}  •  Target: $${LEVELS[data.level - 1].target}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
     }

@@ -36,6 +36,10 @@ export function releaseGemDeposit(scene: Scene, deposit: Collectable, objects: C
             position = target;
             break;
         }
+        // The visible gem must survive even if no clear scattering spot exists.
+        if (!position && (kind === 'diamond' || kind === 'ruby')) {
+            position = { x: deposit.x, y: deposit.y, radius };
+        }
         if (!position) continue;
         const drop = new Collectable(scene, position.x, position.y, kind);
         objects.push(drop);

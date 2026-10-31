@@ -9,6 +9,20 @@ export class RoundState {
     lives: number;
     readonly startingLives: number;
     score = 0;
+    catchStreak = 0;
+
+    /** Register a latch immediately; the returned bonus is paid only on delivery. */
+    latchStreak(kind: OreKind): number {
+        if (!['small', 'medium', 'large', 'giant', 'diamond', 'ruby', 'moneyBag', 'mysteryBag', 'treasureChest'].includes(kind)) return 0;
+        this.catchStreak++;
+        const bonus = Math.max(0, this.catchStreak - 2) * 25;
+        return bonus;
+    }
+
+    missShot(): void { this.catchStreak = 0; }
+
+    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * 25; }
+
     bonusMoney = 0;
     private claimedMilestones = 0;
     strengthCatches = 0;
@@ -24,7 +38,7 @@ export class RoundState {
     constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses(), lives = 3) {
         this.lives = this.startingLives = Math.max(1, Math.min(5, Math.floor(lives)));
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
-        this.bonuses = { ...bonuses };
+        this.bonuses = { ...emptyBonuses(), ...bonuses };
         this.remaining = bonuses.extraTime ? 75 : 60;
         this.upgrades = { ...upgrades };
         this.dynamite = startingDynamite;
@@ -41,10 +55,10 @@ export class RoundState {
             return '+1 DYNAMITE!';
         }
         this.activateStrength();
-        return 'STRENGTH x2 • 2 CATCHES!';
+        return 'STRENGTH x2 • 3 CATCHES!';
     }
 
-    activateStrength(): void { this.strengthCatches = 2; }
+    activateStrength(): void { this.strengthCatches = 3; }
 
     applyTreasureReward(reward: TreasureReward): string {
         if (reward.kind === 'life') {
@@ -61,10 +75,10 @@ export class RoundState {
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
         return { luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
-            rockPolish: stock.rockPolish + this.collectedBonuses.rockPolish };
+            prospectorsLens: stock.prospectorsLens, rockPolish: stock.rockPolish + this.collectedBonuses.rockPolish };
     }
 
-    activateGoldRush(): void { this.goldRushCatches = 2; }
+    activateGoldRush(): void { this.goldRushCatches = 3; }
 
     /** Strength uses every latch; gold rush uses only boosted gold nugget catches. */
     consumeCatch(kind: OreKind): number {

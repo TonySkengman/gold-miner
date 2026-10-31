@@ -1,3 +1,5 @@
+import { drawShopProduct } from '../art/drawShop';
+import type { MysteryReward } from '../state/MysteryRewards';
 import { DepositIntegrity } from '../state/DepositIntegrity';
 import { DepositRewardKind, rollDepositRewards } from '../state/DepositRewards';
 import { TNT_BLAST_RADIUS } from './Explosions';
@@ -11,26 +13,26 @@ import { LEVELS, LevelConfig } from '../state/Levels';
 
 export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
-    ruby: { radius: 15, value: 1000, weight: 2, color: 0xe83864 },
+    ruby: { radius: 15, value: 700, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
     goldRush: { radius: 30, value: 0, weight: 0.2, color: 0xffc52e },
     timeVial: { radius: 30, value: 0, weight: 0.2, color: 0x66d9fa },
     mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
     strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
-    rat: { radius: 21, value: 2, weight: 0.1, color: 0x88766a },
-    diamondRat: { radius: 24, value: 602, weight: 0.2, color: 0x88766a },
-    rubyRat: { radius: 24, value: 1002, weight: 0.2, color: 0x88766a },
-    diamond: { radius: 17, value: 600, weight: 0.4, color: 0x70e6f5 },
+    rat: { radius: 21, value: 1, weight: 0.1, color: 0x88766a },
+    diamondRat: { radius: 24, value: 501, weight: 0.2, color: 0x88766a },
+    rubyRat: { radius: 24, value: 701, weight: 0.2, color: 0x88766a },
+    diamond: { radius: 17, value: 500, weight: 0.4, color: 0x70e6f5 },
     moneyBag: { radius: 30, value: 0, weight: 1.2, color: 0xc49450 },
-    small: { radius: 15, value: 90, weight: 0.6, color: 0xffdf49 },
-    medium: { radius: 32, value: 180, weight: 1.5, color: 0xffca28 },
-    large: { radius: 48, value: 300, weight: 3, color: 0xf5b51b },
-    giant: { radius: 72, value: 500, weight: 4.8, color: 0xf0b21d },
-    mediumRock: { radius: 40, value: 20, weight: 4.4, color: 0x838e97 },
-    heavyRock: { radius: 51, value: 23, weight: 4.95, color: 0x808c95 },
-    largeRock: { radius: 62, value: 25, weight: 5.5, color: 0x7e8993 },
-    rock: { radius: 30, value: 15, weight: 3.8, color: 0x89939b }
+    small: { radius: 15, value: 70, weight: 0.6, color: 0xffdf49 },
+    medium: { radius: 32, value: 140, weight: 1.5, color: 0xffca28 },
+    large: { radius: 48, value: 250, weight: 3, color: 0xf5b51b },
+    giant: { radius: 72, value: 400, weight: 4.8, color: 0xf0b21d },
+    mediumRock: { radius: 40, value: 16, weight: 4.4, color: 0x838e97 },
+    heavyRock: { radius: 51, value: 18, weight: 4.95, color: 0x808c95 },
+    largeRock: { radius: 62, value: 20, weight: 5.5, color: 0x7e8993 },
+    rock: { radius: 30, value: 12, weight: 3.8, color: 0x89939b }
 };
 
 export class Collectable {
@@ -40,26 +42,35 @@ export class Collectable {
     mountedGem?: Collectable;
     private supportingRock?: Collectable;
     private gemOffset = { x: 0, y: 0 };
+    get isMountedGem(): boolean { return this.supportingRock !== undefined; }
     get weight(): number { return this.baseWeight + (this.mountedGem?.weight ?? 0); }
     readonly graphic: GameObjects.Graphics;
     available = true;
     private chestOpened = false;
     readonly treasureReward?: TreasureReward;
-    readonly depositIntegrity?: DepositIntegrity;
+    depositIntegrity?: DepositIntegrity;
+    private combinedGemRock = false;
+    private blastedGem?: 'diamond' | 'ruby';
+    get gemDeposit(): boolean { return this.depositIntegrity !== undefined; }
     private depositCracks?: GameObjects.Graphics;
-    get depositRewards(): readonly DepositRewardKind[] { return this.depositIntegrity?.rewards ?? []; }
+    get depositRewards(): readonly DepositRewardKind[] {
+        const gem = this.combinedGemRock ? this.blastedGem ?? this.mountedGem?.kind : undefined;
+        return [...(gem === 'diamond' || gem === 'ruby' ? [gem] as DepositRewardKind[] : []),
+            ...(this.depositIntegrity?.rewards ?? [])];
+    }
     private treasureLabel?: GameObjects.Text;
+    private lensIcon?: GameObjects.Graphics;
     private direction: number;
     private readonly speed: number;
     private catchGlow?: GameObjects.Graphics;
 
-    constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random, readonly gemDeposit = false) {
+    constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random, gemDeposit = false) {
         if (gemDeposit) this.depositIntegrity = new DepositIntegrity(rollDepositRewards(random, kind === 'largeRock'), random);
         this.direction = random() < 0.5 ? -1 : 1;
         this.speed = (80 + random() * 30) * 0.85 * ratSpeed;
         const type = TYPES[kind];
         this.radius = type.radius;
-        this.value = kind === 'moneyBag' ? 50 + Math.floor(random() * 15) * 25 : type.value;
+        this.value = kind === 'moneyBag' ? 40 + Math.floor(random() * 15) * 20 : type.value;
         this.baseWeight = type.weight;
         if (kind === 'treasureChest') this.treasureReward = rollTreasureReward(random);
         this.graphic = scene.add.graphics().setPosition(x, y);
@@ -222,22 +233,25 @@ export class Collectable {
             g.beginPath().moveTo(-0.1 * r, -0.5 * r).lineTo(0.12 * r, -0.12 * r)
                 .lineTo(-0.12 * r, 0.2 * r).lineTo(0.1 * r, 0.5 * r).strokePath();
             g.fillStyle(0x58636c).fillEllipse(-0.5 * r, 0.3 * r, 5, 3).fillEllipse(0.5 * r, -0.35 * r, 4, 3);
-            if (this.gemDeposit) {
-                // Bright crystals protrude from the rock, signalling its hidden contents.
-                for (const [fx, fy] of [[-0.4, -0.25], [0.3, -0.35], [0.05, 0.35]]) {
-                    const x = fx * r;
-                    const y = fy * r;
-                    g.fillStyle(0x70e6f5).lineStyle(2, 0x287e9a);
-                    g.beginPath().moveTo(x - 7, y - 3).lineTo(x, y - 11)
-                        .lineTo(x + 7, y - 3).lineTo(x, y + 8).closePath().fillPath().strokePath();
-                    g.lineStyle(1, 0xe8ffff).lineBetween(x, y - 8, x - 3, y);
-                }
-            }
+
+            if (this.gemDeposit) this.drawDepositCrystals();
         } else {
             g.lineStyle(2, 0xfff6c7);
             const x = -0.36 * r;
             const y = -0.33 * r;
             g.lineBetween(x - 4, y, x + 4, y).lineBetween(x, y - 4, x, y + 4);
+        }
+    }
+
+    private drawDepositCrystals(): void {
+        const g = this.graphic;
+        for (const [fx, fy] of [[-0.4, -0.25], [0.3, -0.35], [0.05, 0.35]]) {
+            const x = fx * this.radius;
+            const y = fy * this.radius;
+            g.fillStyle(0x70e6f5).lineStyle(2, 0x287e9a);
+            g.beginPath().moveTo(x - 7, y - 3).lineTo(x, y - 11)
+                .lineTo(x + 7, y - 3).lineTo(x, y + 8).closePath().fillPath().strokePath();
+            g.lineStyle(1, 0xe8ffff).lineBetween(x, y - 8, x - 3, y);
         }
     }
 
@@ -250,7 +264,15 @@ export class Collectable {
         if (this.mountedGem) this.mountedGem.available = false;
     }
 
-    mountGem(gem: Collectable): void {
+    mountGem(gem: Collectable, random: () => number = Math.random, combined = false): void {
+        if (combined) {
+            this.combinedGemRock = true;
+            // Combined rocks guarantee the visible gem; hidden contents contain only gold.
+            const gold = rollDepositRewards(random, this.kind === 'largeRock')
+                .filter(kind => kind === 'small' || kind === 'medium');
+            this.depositIntegrity = new DepositIntegrity(gold, random);
+            this.drawDepositCrystals();
+        }
         this.mountedGem = gem;
         gem.supportingRock = this;
         this.gemOffset = { x: gem.x - this.x, y: gem.y - this.y };
@@ -289,23 +311,45 @@ export class Collectable {
     hideTreasureLabel(): void {
         this.treasureLabel?.destroy();
         this.treasureLabel = undefined;
+        this.lensIcon?.destroy();
+        this.lensIcon = undefined;
     }
 
     private drawChest(): void {
         const g = this.graphic.clear();
         const opened = this.chestOpened;
+        // Original rounded silhouette, with light from the upper left.
         g.fillStyle(0x6b3e24).lineStyle(3, 0x432b20);
         g.fillRoundedRect(-30, -4, 60, 29, 4).strokeRoundedRect(-30, -4, 60, 29, 4);
         g.fillStyle(0xb77736).fillRect(-26, 0, 52, 21);
-        g.lineStyle(2, 0x85502c).lineBetween(-25, 8, 25, 8).lineBetween(-25, 17, 25, 17);
-        g.fillStyle(0x98602e).lineStyle(3, 0x432b20);
+        g.fillStyle(0xd09550).fillRect(-26, 0, 7, 19);
+        g.fillStyle(0x8d572e).fillRect(21, 0, 5, 21);
+        g.fillStyle(0x704329, 0.5).fillRect(-26, 17, 52, 4);
+        g.lineStyle(1.5, 0x85502c).lineBetween(-25, 8, 25, 8).lineBetween(-25, 17, 25, 17);
+        g.lineStyle(1, 0xe0a461).lineBetween(-24, 2, -9, 2).lineBetween(-13, 10, 8, 10);
+        g.lineStyle(1, 0x89542e).lineBetween(-12, 5, -4, 5).lineBetween(2, 14, 12, 14);
+        g.strokeEllipse(-9, 13, 5, 2);
         const lidY = opened ? -28 : -18;
+        // Shadow beneath the lid and a narrow highlight along its rounded top.
+        g.fillStyle(0x432b20, 0.35).fillRect(-27, opened ? -3 : 0, 54, 4);
+        g.fillStyle(0x98602e).lineStyle(3, 0x432b20);
         g.fillRoundedRect(-30, lidY, 60, 20, 6).strokeRoundedRect(-30, lidY, 60, 20, 6);
-        g.fillStyle(0xe3b956).fillRect(-23, lidY + 2, 7, 17).fillRect(16, lidY + 2, 7, 17)
-            .fillRect(-23, 0, 7, 23).fillRect(16, 0, 7, 23);
+        g.fillStyle(0xb67b3c).fillRoundedRect(-27, lidY + 2, 53, 8, 4);
+        g.fillStyle(0x754627).fillRect(-26, lidY + 14, 52, 4);
+        g.lineStyle(1.5, 0xd9a360).lineBetween(-23, lidY + 3, 22, lidY + 3);
+        g.lineStyle(1, 0x81502a).lineBetween(-13, lidY + 10, 10, lidY + 10);
+        // Brass bands retain their original placement, with edges and small rivets.
+        for (const x of [-23, 16]) {
+            g.fillStyle(0xe3b956).fillRect(x, lidY + 2, 7, 17).fillRect(x, 0, 7, 23);
+            g.fillStyle(0xa87935).fillRect(x + 5, lidY + 3, 2, 15).fillRect(x + 5, 1, 2, 21);
+            g.lineStyle(1, 0xffe6a0).lineBetween(x + 1, lidY + 3, x + 1, lidY + 16)
+                .lineBetween(x + 1, 1, x + 1, 21);
+            g.fillStyle(0x80582c).fillCircle(x + 3, lidY + 6, 1.1).fillCircle(x + 3, 19, 1.1);
+        }
         if (opened) {
             g.fillStyle(0xffdf65, 0.18).fillEllipse(0, -8, 65, 36);
             g.fillStyle(0x432b20).fillRect(-25, -7, 50, 10);
+            g.lineStyle(1, 0xdba55b).lineBetween(-24, 3, 24, 3);
             if (this.treasureReward?.kind === 'money') {
                 for (const [x, y] of [[-18, -6], [-7, -9], [5, -6], [17, -8], [0, -14]]) {
                     g.fillStyle(0xffd447).lineStyle(1, 0xa96b1d).fillCircle(x, y, 6).strokeCircle(x, y, 6);
@@ -332,8 +376,11 @@ export class Collectable {
             }
             g.lineStyle(2, 0xfff4c2).lineBetween(-9, -23, -1, -23).lineBetween(-5, -27, -5, -19);
         } else {
+            g.fillStyle(0x432b20, 0.35).fillRoundedRect(-6, -5, 14, 17, 3);
             g.fillStyle(0xffd66a).lineStyle(2, 0x8a6028)
                 .fillRoundedRect(-7, -7, 14, 17, 3).strokeRoundedRect(-7, -7, 14, 17, 3);
+            g.fillStyle(0xd09b42).fillRect(3, -4, 2, 11);
+            g.lineStyle(1, 0xffefb3).lineBetween(-4, -5, 3, -5).lineBetween(-5, -3, -5, 6);
             g.fillStyle(0x634227).fillCircle(0, -1, 2.5).fillRect(-1, -1, 2, 6);
         }
     }
@@ -343,14 +390,36 @@ export class Collectable {
         if (this.kind !== 'treasureChest' || this.chestOpened || !this.available) return false;
         this.chestOpened = true;
         this.drawChest();
-        const label = scene.add.text(this.x, this.y - 55, `${treasureRewardLabel(this.treasureReward!)}\nCatch again to collect`, {
+        this.hideTreasureLabel();
+        const label = scene.add.text(this.x, this.y + (this.kind === 'treasureChest' ? 29 : this.radius + 3), `${treasureRewardLabel(this.treasureReward!)}\nCatch again to collect`, {
             fontFamily: 'Arial', fontSize: 16, fontStyle: 'bold', color: '#ffe06a', align: 'center',
             stroke: '#483126', strokeThickness: 4
-        }).setOrigin(0.5).setDepth(10);
+        }).setOrigin(0.5, 0).setDepth(10);
         // Keep instructions inside the playfield, including chests near the sides.
         label.setX(Math.max(label.width / 2 + 16, Math.min(WORLD.width - label.width / 2 - 16, this.x)));
         this.treasureLabel = label;
         return true;
+    }
+
+    revealTreasureReward(scene: Scene): void {
+        if (!this.treasureReward || this.chestOpened) return;
+        this.showLensReveal(scene, treasureRewardLabel(this.treasureReward));
+    }
+
+    revealMysteryReward(scene: Scene, reward: MysteryReward): void {
+        const text = reward.kind === 'money' ? `$${reward.amount}`
+            : reward.kind === 'dynamite' ? '+1 DYNAMITE' : 'STRENGTH x2';
+        this.showLensReveal(scene, text);
+    }
+
+    private showLensReveal(scene: Scene, text: string): void {
+        this.hideTreasureLabel();
+        this.treasureLabel = scene.add.text(this.x, this.y, text, {
+            fontFamily: 'Arial', fontSize: 16, fontStyle: 'bold', color: '#bdefff',
+            stroke: '#302e2b', strokeThickness: 4
+        }).setOrigin(0.5, 0).setDepth(10);
+        this.lensIcon = drawShopProduct(scene, 0, 0, 'prospectorsLens', 0.2).setDepth(10);
+        this.moveTo(this.x, this.y);
     }
 
     /** Catch feedback uses known values only: sealed mystery bags keep their secret. */
@@ -397,8 +466,8 @@ export class Collectable {
         }
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
         if (rockPolish && (this.kind === 'rock' || this.kind === 'mediumRock' || this.kind === 'heavyRock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
-        if (this.kind === 'diamondRat') return 2 + Math.round(TYPES.diamond.value * diamondMultiplier);
-        if (this.kind === 'rubyRat') return 2 + Math.round(TYPES.ruby.value * diamondMultiplier);
+        if (this.kind === 'diamondRat') return TYPES.rat.value + Math.round(TYPES.diamond.value * diamondMultiplier);
+        if (this.kind === 'rubyRat') return TYPES.rat.value + Math.round(TYPES.ruby.value * diamondMultiplier);
         return Math.round(this.value * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
     }
 
@@ -424,8 +493,12 @@ export class Collectable {
         this.catchGlow?.setPosition(x, y);
         this.depositCracks?.setPosition(x, y);
         if (this.treasureLabel) {
-            this.treasureLabel.setPosition(Math.max(this.treasureLabel.width / 2 + 16,
-                Math.min(WORLD.width - this.treasureLabel.width / 2 - 16, x)), y - 55);
+            const iconSpace = this.lensIcon ? 24 : 0;
+            const halfWidth = (this.treasureLabel.width + iconSpace) / 2;
+            const centerX = Math.max(halfWidth + 16, Math.min(WORLD.width - halfWidth - 16, x));
+            const labelY = y + (this.kind === 'treasureChest' ? 29 : this.radius + 3);
+            this.treasureLabel.setPosition(centerX + iconSpace / 2, labelY);
+            this.lensIcon?.setPosition(centerX - halfWidth + 8, labelY + this.treasureLabel.height / 2 - 1);
         }
     }
 
@@ -435,10 +508,15 @@ export class Collectable {
             this.supportingRock.mountedGem = undefined;
             this.supportingRock = undefined;
         }
+        if (this.mountedGem?.kind === 'diamond' || this.mountedGem?.kind === 'ruby') {
+            this.blastedGem = this.mountedGem.kind;
+        }
         this.mountedGem?.destroy();
         this.mountedGem = undefined;
         this.treasureLabel?.destroy();
         this.treasureLabel = undefined;
+        this.lensIcon?.destroy();
+        this.lensIcon = undefined;
         if (this.catchGlow) {
             this.catchGlow.scene.tweens.killTweensOf(this.catchGlow);
             this.catchGlow.destroy();
@@ -476,6 +554,7 @@ const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind
 
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
     // Roll once per seeded level, not on placement retries. At most one rare chest.
+    const hasGemRock = random() < 0.5;
     const hasChest = random() < 0.5;
     const hasRuby = random() < 0.35;
     // Place the largest objects first; retry the whole layout if it becomes crowded.
@@ -561,7 +640,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             const deposit = deposits[Math.floor(random() * deposits.length)];
             // Swap gems after placement: both carriers share a size and depth range.
             const objects = positions.map(({ x, y, kind }) => new Collectable(scene, x, y,
-                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random, deposit?.x === x && deposit?.y === y));
+                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random, deposit.x === x && deposit.y === y));
+            if (hasGemRock) perchLooseGem(objects, random, true);
             perchLooseGem(objects, random);
             return objects;
         }
@@ -569,12 +649,12 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
     throw new Error('Could not generate a complete mining layout.');
 }
 
-/** Move an existing gem onto an ordinary rock, preserving the level’s total treasure. */
-export function perchLooseGem(objects: Collectable[], random: () => number): boolean {
+/** Embed an existing gem in a deep rock, optionally forming the rare combined type. */
+export function perchLooseGem(objects: Collectable[], random: () => number, combined = false): boolean {
     // Keep the entire host rock in the deeper half of the cave.
-    const rocks = objects.filter(object => !object.gemDeposit && object.y - object.radius >= 580
+    const rocks = objects.filter(object => !object.gemDeposit && !object.mountedGem && object.y - object.radius >= 580
         && (object.kind === 'mediumRock' || object.kind === 'heavyRock' || object.kind === 'largeRock'));
-    const gems = objects.filter(object => object.kind === 'diamond' || object.kind === 'ruby');
+    const gems = objects.filter(object => !object.isMountedGem && (object.kind === 'diamond' || object.kind === 'ruby'));
     // Seeded rotations vary the selected rock and gem without changing retries.
     const rockOffset = Math.floor(random() * rocks.length);
     const gemOffset = Math.floor(random() * gems.length);
@@ -590,7 +670,7 @@ export function perchLooseGem(objects: Collectable[], random: () => number): boo
                 if (others.some(other => Math.hypot(target.x - other.x, target.y - other.y) < gem.radius + other.radius + 10)) continue;
                 if (findExposedGemAim(target, [...others, rock]) === null) continue;
                 gem.moveTo(target.x, target.y);
-                rock.mountGem(gem);
+                rock.mountGem(gem, random, combined);
                 return true;
             }
         }
