@@ -37,9 +37,9 @@ Keep mining after reaching the target to earn extra rewards:
 
 | Retrieved earnings | Bonus |
 | --- | --- |
-| 125% of the target | $150 |
-| 150% of the target | $400 |
-| 175% of the target | One dynamite stick |
+| 150% of the target | $150 |
+| 175% of the target | $400 |
+| 200% of the target | One dynamite stick |
 
 Each reward can be earned once per level. The HUD shows progress toward the next bonus. Bonus cash adds to your balance but does not count toward the target or other milestones. You can still use **Finish Level** whenever you want.
 
@@ -99,7 +99,7 @@ Progress lasts for the current run only. There is no backend or persistent save 
 
 ### Perfect catches
 
-Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the first 0.75 seconds. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 10% of the object's boosted cash value on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats, utility vials, and opening a chest do not qualify. Dynamiting the object forfeits its perfect bonus.
+Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the entire haul. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 10% of the object's boosted cash value on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats, utility vials, and opening a chest do not qualify. Dynamiting the object forfeits its perfect bonus.
 
 ### Catch streaks
 

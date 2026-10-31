@@ -6,7 +6,7 @@ export interface Milestone {
 }
 
 export const MILESTONES: readonly Milestone[] = [
-    { fraction: 1.25, kind: 'money', amount: 150, label: '+$150' },
-    { fraction: 1.5, kind: 'money', amount: 400, label: '+$400' },
-    { fraction: 1.75, kind: 'dynamite', amount: 1, label: '+1 DYNAMITE' }
+    { fraction: 1.5, kind: 'money', amount: 150, label: '+$150' },
+    { fraction: 1.75, kind: 'money', amount: 400, label: '+$400' },
+    { fraction: 2, kind: 'dynamite', amount: 1, label: '+1 DYNAMITE' }
 ];

@@ -17,7 +17,7 @@ export class Claw {
     private caught: Collectable | null = null;
     private caughtValue = 0;
     private perfectBonus = 0;
-    private perfectBoostSeconds = 0;
+    private perfectHaul = false;
     private haulingStrength = 1;
     private gripOffsetX = 0;
     private gripOffsetY = 0;
@@ -45,7 +45,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectBoostSeconds > 0 ? 1.35 : 1) / (1 + (this.caught?.weight ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.weight ?? 0)) : 0;
     }
 
     launch(): void {
@@ -80,7 +80,7 @@ export class Claw {
         blasted.destroy();
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
-        this.perfectBoostSeconds = 0;
+        this.perfectHaul = false;
         this.perfectBonus = 0;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
@@ -144,7 +144,7 @@ export class Claw {
                     'moneyBag', 'diamondRat', 'rubyRat', 'mysteryBag', 'treasureChest'].includes(first.kind);
                 const perfect = eligible && across <= Math.min(10, first.radius * 0.3);
                 this.perfectBonus = perfect ? Math.round(this.caughtValue * 0.1) : 0;
-                this.perfectBoostSeconds = perfect ? 0.75 : 0;
+                this.perfectHaul = perfect;
                 if (perfect) this.showPerfectCatch(first);
                 const catchValue = first.treasureReward ? treasureRewardValue(first.treasureReward) : this.caughtValue;
                 const valuable = first.celebrateCatch(this.scene, catchValue);
@@ -169,7 +169,6 @@ export class Claw {
             }
             const previousLength = this.length;
             this.length = Math.max(30, this.length - this.retrievalSpeed * seconds);
-            this.perfectBoostSeconds = Math.max(0, this.perfectBoostSeconds - seconds);
             this.caught?.advanceDepositHaul(this.scene, previousLength - this.length);
             if (this.length <= 30) {
                 if (this.caught) {
@@ -177,6 +176,7 @@ export class Claw {
                     this.onCollect(this.caughtValue, this.caught, this.perfectBonus);
                     this.caught.destroy();
                     this.caught = null;
+                    this.perfectHaul = false;
                 }
                 this.mode = 'idle';
             }
