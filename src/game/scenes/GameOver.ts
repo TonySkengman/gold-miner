@@ -21,7 +21,7 @@ export class GameOver extends Scene {
         menuButton(this, 512, 620, 'MAIN MENU', () => this.scene.start('MainMenu'));
         button.on('pointerover', () => button.setFillStyle(0x659b47));
         button.on('pointerout', () => button.setFillStyle(0x547f3b));
-        button.once('pointerdown', () => this.scene.start(result.won && !result.finalLevel ? 'UpgradeShop' : 'Game', {
+        button.once('pointerdown', () => this.scene.start(result.won && !result.finalLevel ? 'UpgradeShop' : 'LevelBriefing', {
             levelSeed: result.won ? undefined : result.levelSeed,
             bonuses: result.won ? (result.finalLevel ? undefined : remainingBonuses(result.bonuses)) : result.bonuses,
             dynamite: result.won ? (result.finalLevel ? 3 : result.dynamite) : result.startingDynamite,

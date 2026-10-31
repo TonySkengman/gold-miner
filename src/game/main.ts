@@ -1,4 +1,5 @@
 import { PauseMenu } from './scenes/PauseMenu';
+import { LevelBriefing } from './scenes/LevelBriefing';
 import { WORLD } from './state/World';
 import { UpgradeShop } from './scenes/UpgradeShop';
 import { Boot } from './scenes/Boot';
@@ -21,6 +22,7 @@ const config: Phaser.Types.Core.GameConfig = {
         Boot,
         Preloader,
         MainMenu,
+        LevelBriefing,
         MainGame,
         GameOver,
         UpgradeShop,

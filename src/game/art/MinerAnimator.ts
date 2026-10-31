@@ -40,7 +40,7 @@ export class MinerAnimator {
     }
 
     reactTo(kind: OreKind): void {
-        this.reaction = kind === 'diamond' || kind === 'diamondRat' ? 'celebrate'
+        this.reaction = kind === 'diamond' || kind === 'diamondRat' || kind === 'treasureChest' ? 'celebrate'
             : kind === 'rat' ? 'disappointed' : null;
         this.reactionRemaining = this.reaction ? 1.3 : 0;
     }

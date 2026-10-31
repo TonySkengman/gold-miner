@@ -6,7 +6,7 @@ import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { WORLD } from '../state/World';
-import { LevelBonuses, Upgrades, remainingBonuses } from '../state/Upgrades';
+import { LevelBonuses, Upgrades } from '../state/Upgrades';
 import { Scene, GameObjects } from 'phaser';
 import { Claw } from '../objects/Claw';
 import { Collectable, generateCollectables } from '../objects/Collectable';
@@ -45,6 +45,11 @@ export class Game extends Scene {
         this.miner = new MinerAnimator(this);
         this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
         this.claw = new Claw(this, (value, object) => {
+            if (object.kind === 'treasureChest' && object.treasureReward) {
+                this.showCollectionValue(0, this.round.applyTreasureReward(object.treasureReward));
+                this.miner.reactTo(object.kind);
+                return;
+            }
             if (object.kind === 'goldRush') {
                 this.round.activateGoldRush();
                 this.showCollectionValue(0, 'GOLD RUSH! +50% • 12s');
@@ -199,7 +204,7 @@ export class Game extends Scene {
         soundEffects.play(this.round.won ? 'win' : 'lose');
         if (this.round.won && !this.round.finalLevel) {
             this.scene.start('UpgradeShop', {
-                bonuses: remainingBonuses(this.round.bonuses),
+                bonuses: this.round.nextBonuses,
                 dynamite: this.round.dynamite,
                 level: this.round.level + 1, money: this.round.money, upgrades: this.round.upgrades
             });

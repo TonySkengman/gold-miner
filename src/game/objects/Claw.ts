@@ -4,6 +4,7 @@ import { detonateBarrel, showBarrelExplosion } from './Explosions';
 import { WORLD } from '../state/World';
 import { GameObjects, Scene } from 'phaser';
 import { Collectable } from './Collectable';
+import { treasureRewardValue } from '../state/TreasureRewards';
 
 type ClawMode = 'idle' | 'extending' | 'retracting';
 
@@ -110,7 +111,14 @@ export class Claw {
                     this.draw();
                     return;
                 }
-                const catchValue = first.collectionValue(this.diamondMultiplier, this.rockPolish);
+                if (first.openChest(this.scene)) {
+                    soundEffects.play('chestOpen');
+                    this.mode = 'retracting';
+                    this.draw();
+                    return;
+                }
+                const catchValue = first.treasureReward ? treasureRewardValue(first.treasureReward)
+                    : first.collectionValue(this.diamondMultiplier, this.rockPolish);
                 const valuable = first.celebrateCatch(this.scene, catchValue);
                 soundEffects.play(valuable ? 'valuableCatch' : 'catch', catchValue);
                 this.caught = first;
@@ -118,6 +126,7 @@ export class Claw {
                 this.gripOffsetX = first.x - (this.origin.x + Math.sin(this.angle) * this.length);
                 this.gripOffsetY = first.y - (this.origin.y + Math.cos(this.angle) * this.length);
                 first.available = false;
+                first.hideTreasureLabel();
                 this.mode = 'retracting';
             } else if (this.length >= edgeRange) this.mode = 'retracting';
         } else {

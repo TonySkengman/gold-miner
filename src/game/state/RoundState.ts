@@ -1,6 +1,7 @@
 import { MILESTONES, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
-import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses } from './Upgrades';
+import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses } from './Upgrades';
+import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
 import { LEVELS, LevelConfig } from './Levels';
 import type { OreKind } from '../objects/Collectable';
 
@@ -13,6 +14,7 @@ export class RoundState {
     dynamite: number;
     readonly upgrades: Upgrades;
     readonly bonuses: LevelBonuses;
+    private readonly collectedBonuses = emptyBonuses();
     remaining = 60;
     readonly level: number;
     readonly config: LevelConfig;
@@ -40,6 +42,19 @@ export class RoundState {
     }
 
     activateStrength(): void { this.strengthRemaining = 15; }
+
+    applyTreasureReward(reward: TreasureReward): string {
+        if (reward.kind === 'money') this.score += reward.amount;
+        else if (reward.kind === 'dynamite') this.dynamite += reward.amount;
+        else this.collectedBonuses[reward.kind] += reward.amount;
+        return `${treasureRewardLabel(reward)}${reward.kind === 'luck' || reward.kind === 'rockPolish' ? ' (STORED)' : '!'}`;
+    }
+
+    get nextBonuses(): LevelBonuses {
+        const stock = remainingBonuses(this.bonuses);
+        return { luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+            rockPolish: stock.rockPolish + this.collectedBonuses.rockPolish };
+    }
 
     activateGoldRush(): void { this.goldRushRemaining = 12; }
 

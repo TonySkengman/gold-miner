@@ -3,11 +3,13 @@ import { findClearAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
 import { WORLD } from '../state/World';
 import { POLISHED_ROCK_VALUES } from '../state/Upgrades';
+import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../state/TreasureRewards';
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
+    treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
     goldRush: { radius: 19, value: 0, weight: 0.2, color: 0xffc52e },
     timeVial: { radius: 19, value: 0, weight: 0.2, color: 0x66d9fa },
     mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
@@ -31,6 +33,9 @@ export class Collectable {
     readonly weight: number;
     readonly graphic: GameObjects.Graphics;
     available = true;
+    private chestOpened = false;
+    readonly treasureReward?: TreasureReward;
+    private treasureLabel?: GameObjects.Text;
     private direction: number;
     private readonly speed: number;
     private catchGlow?: GameObjects.Graphics;
@@ -42,9 +47,14 @@ export class Collectable {
         this.radius = type.radius;
         this.value = kind === 'moneyBag' ? 50 + Math.floor(random() * 15) * 25 : type.value;
         this.weight = type.weight;
+        if (kind === 'treasureChest') this.treasureReward = rollTreasureReward(random);
         this.graphic = scene.add.graphics().setPosition(x, y);
         const r = this.radius;
         const g = this.graphic;
+        if (kind === 'treasureChest') {
+            this.drawChest();
+            return;
+        }
         if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'timeVial') {
             g.fillStyle(0x9fc9bd).lineStyle(3, 0x365c50);
             g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
@@ -186,6 +196,65 @@ export class Collectable {
 
     get isRat(): boolean { return this.kind === 'rat' || this.kind === 'diamondRat'; }
 
+    hideTreasureLabel(): void {
+        this.treasureLabel?.destroy();
+        this.treasureLabel = undefined;
+    }
+
+    private drawChest(): void {
+        const g = this.graphic.clear();
+        const opened = this.chestOpened;
+        g.fillStyle(0x6b3e24).lineStyle(3, 0x432b20);
+        g.fillRoundedRect(-30, -4, 60, 29, 4).strokeRoundedRect(-30, -4, 60, 29, 4);
+        g.fillStyle(0xb77736).fillRect(-26, 0, 52, 21);
+        g.lineStyle(2, 0x85502c).lineBetween(-25, 8, 25, 8).lineBetween(-25, 17, 25, 17);
+        g.fillStyle(0x98602e).lineStyle(3, 0x432b20);
+        const lidY = opened ? -28 : -18;
+        g.fillRoundedRect(-30, lidY, 60, 20, 6).strokeRoundedRect(-30, lidY, 60, 20, 6);
+        g.fillStyle(0xe3b956).fillRect(-23, lidY + 2, 7, 17).fillRect(16, lidY + 2, 7, 17)
+            .fillRect(-23, 0, 7, 23).fillRect(16, 0, 7, 23);
+        if (opened) {
+            g.fillStyle(0xffdf65, 0.18).fillEllipse(0, -8, 65, 36);
+            g.fillStyle(0x432b20).fillRect(-25, -7, 50, 10);
+            if (this.treasureReward?.kind === 'money') {
+                for (const [x, y] of [[-18, -6], [-7, -9], [5, -6], [17, -8], [0, -14]]) {
+                    g.fillStyle(0xffd447).lineStyle(1, 0xa96b1d).fillCircle(x, y, 6).strokeCircle(x, y, 6);
+                }
+            } else if (this.treasureReward?.kind === 'dynamite') {
+                for (let i = 0; i < this.treasureReward.amount; i++) {
+                    const x = (i - (this.treasureReward.amount - 1) / 2) * 12;
+                    g.fillStyle(0xc43c2f).fillRoundedRect(x - 4, -22, 8, 22, 2);
+                    g.lineStyle(1, 0xffe486).lineBetween(x, -22, x + 2, -26);
+                }
+            } else {
+                g.fillStyle(this.treasureReward?.kind === 'luck' ? 0xb67ee0 : 0xdba34d)
+                    .fillRoundedRect(-10, -18, 20, 20, 4);
+                g.fillStyle(0xb68b4e).fillRect(-6, -24, 12, 7);
+                g.fillStyle(0xffedbb).fillCircle(0, -9, 4);
+            }
+            g.lineStyle(2, 0xfff4c2).lineBetween(-9, -23, -1, -23).lineBetween(-5, -27, -5, -19);
+        } else {
+            g.fillStyle(0xffd66a).lineStyle(2, 0x8a6028)
+                .fillRoundedRect(-7, -7, 14, 17, 3).strokeRoundedRect(-7, -7, 14, 17, 3);
+            g.fillStyle(0x634227).fillCircle(0, -1, 2.5).fillRect(-1, -1, 2, 6);
+        }
+    }
+
+    /** The first hit unlocks the chest in place; the claw returns empty. */
+    openChest(scene: Scene): boolean {
+        if (this.kind !== 'treasureChest' || this.chestOpened || !this.available) return false;
+        this.chestOpened = true;
+        this.drawChest();
+        const label = scene.add.text(this.x, this.y - 55, `${treasureRewardLabel(this.treasureReward!)}\nCatch again to collect`, {
+            fontFamily: 'Arial', fontSize: 16, fontStyle: 'bold', color: '#ffe06a', align: 'center',
+            stroke: '#483126', strokeThickness: 4
+        }).setOrigin(0.5).setDepth(10);
+        // Keep instructions inside the playfield, including chests near the sides.
+        label.setX(Math.max(label.width / 2 + 16, Math.min(WORLD.width - label.width / 2 - 16, this.x)));
+        this.treasureLabel = label;
+        return true;
+    }
+
     /** Catch feedback uses known values only: sealed mystery bags keep their secret. */
     celebrateCatch(scene: Scene, value = this.value): boolean {
         if (value < 90) return false;
@@ -222,6 +291,7 @@ export class Collectable {
     }
 
     collectionValue(diamondMultiplier = 1, rockPolish = false): number {
+        if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
         if (rockPolish && (this.kind === 'rock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
         if (this.kind === 'diamondRat') return 2 + Math.round(TYPES.diamond.value * diamondMultiplier);
         return Math.round(this.value * (this.kind === 'diamond' ? diamondMultiplier : 1));
@@ -246,10 +316,16 @@ export class Collectable {
         this.y = y;
         this.graphic.setPosition(x, y);
         this.catchGlow?.setPosition(x, y);
+        if (this.treasureLabel) {
+            this.treasureLabel.setPosition(Math.max(this.treasureLabel.width / 2 + 16,
+                Math.min(WORLD.width - this.treasureLabel.width / 2 - 16, x)), y - 55);
+        }
     }
 
     destroy(): void {
         this.available = false;
+        this.treasureLabel?.destroy();
+        this.treasureLabel = undefined;
         if (this.catchGlow) {
             this.catchGlow.scene.tweens.killTweensOf(this.catchGlow);
             this.catchGlow.destroy();
@@ -269,6 +345,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
         case 'diamond': return [800, 880];
         case 'diamondRat': return [570, 700];
         case 'giant': return [700, 840];
+        case 'treasureChest': return [620, 820];
         case 'large': return [570, 730];
         case 'mysteryBag': return [570, 800];
         case 'moneyBag': return [570, 820];
@@ -282,10 +359,13 @@ const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === '
 const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat';
 
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
+    // Roll once per seeded level, not on placement retries. At most one rare chest.
+    const hasChest = random() < 0.5;
     // Place the largest objects first; retry the whole layout if it becomes crowded.
     const kinds: OreKind[] = [
         'giant', ...Array<OreKind>(level.largeRocks).fill('largeRock'),
         'large', ...Array<OreKind>(level.rocks).fill('rock'),
+        ...(hasChest ? ['treasureChest' as const] : []),
         ...Array<OreKind>(level.tnt).fill('tnt'),
         'medium', 'medium', 'medium',
         ...Array<OreKind>(level.moneyBags).fill('moneyBag'),

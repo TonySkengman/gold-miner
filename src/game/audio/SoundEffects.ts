@@ -1,6 +1,6 @@
 import type { Scene, Types } from 'phaser';
 
-export type SoundCue = 'launch' | 'catch' | 'valuableCatch' | 'collect' | 'throw' | 'explosion' | 'buy' | 'win' | 'lose';
+export type SoundCue = 'launch' | 'catch' | 'valuableCatch' | 'chestOpen' | 'collect' | 'throw' | 'explosion' | 'buy' | 'win' | 'lose';
 
 /** Small original arcade sounds. Audio is created only after a player gesture. */
 class SoundEffects {
@@ -49,6 +49,10 @@ class SoundEffects {
         switch (cue) {
             case 'launch': tone(380, 110, 0.16, 0, 'triangle'); break;
             case 'catch': tone(170, 85, 0.07); break;
+            case 'chestOpen':
+                tone(140, 70, 0.12, 0, 'triangle');
+                [523, 659, 784].forEach((frequency, i) => tone(frequency, frequency, 0.25, 0.08 + i * 0.065, 'sine'));
+                break;
             case 'valuableCatch': {
                 const intensity = Math.min(1, Math.max(0, (value - 90) / 660));
                 tone(190, 95, 0.065, 0, 'triangle');

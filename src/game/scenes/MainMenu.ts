@@ -24,7 +24,7 @@ export class MainMenu extends Scene {
             if (starting) return;
             starting = true;
             soundEffects.unlock();
-            this.scene.start('Game', { level: 1, money: 0, dynamite: 3 });
+            this.scene.start('LevelBriefing', { level: 1, money: 0, dynamite: 3 });
         });
         addSoundButton(this, 32, 24);
     }
