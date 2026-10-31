@@ -16,7 +16,7 @@ export class MainMenu extends Scene {
         this.add.text(512, 385, `${LEVELS.length} caves. One fortune to make.`, { fontFamily: 'Arial', fontSize: 25, color: '#fff3cc' }).setOrigin(0.5);
         this.add.text(512, 450, 'HOW TO PLAY', { fontFamily: 'Arial', fontSize: 25, fontStyle: 'bold', color: '#ffda69' }).setOrigin(0.5);
         this.add.text(512, 605,
-            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\nP / ESC    Pause or resume\n\nReach the level target before the 60 seconds run out.\nFinish Level ends the round early. Below target means a loss.\nMoney and unused dynamite carry over. Restock in the shop.\nWatch out for rats and TNT chain reactions!',
+            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\nP / ESC    Pause or resume\n\nReach the level target before the 60 seconds run out.\nFinish Level ends the round early. Below target means a loss.\nBlast gem-studded rocks to scatter treasure you can catch.\nYou have 3 lives per run. Each failed level costs one.',
             { fontFamily: 'Arial', fontSize: 21, color: '#fff3cc', align: 'center', lineSpacing: 10 }
         ).setOrigin(0.5);
         let starting = false;
@@ -24,7 +24,7 @@ export class MainMenu extends Scene {
             if (starting) return;
             starting = true;
             soundEffects.unlock();
-            this.scene.start('LevelBriefing', { level: 1, money: 0, dynamite: 3 });
+            this.scene.start('LevelBriefing', { level: 1, money: 0, dynamite: 3, lives: 3 });
         });
         addSoundButton(this, 32, 24);
     }

@@ -1,17 +1,19 @@
-export type TreasureReward = { kind: 'money' | 'dynamite' | 'luck' | 'rockPolish'; amount: number };
+export type TreasureReward = { kind: 'money' | 'dynamite' | 'luck' | 'rockPolish' | 'life'; amount: number };
 
-/** Equal chances for the four rewards; rolled from the level's seeded stream. */
+/** Life vials have a 15% chance; the other four rewards share 85% equally. */
 export function rollTreasureReward(random: () => number = Math.random): TreasureReward {
     const roll = random();
     const amount = random();
-    if (roll < 0.25) return { kind: 'money', amount: 400 + Math.floor(amount * 11) * 50 };
-    if (roll < 0.5) return { kind: 'dynamite', amount: 2 + Math.floor(amount * 2) };
-    if (roll < 0.75) return { kind: 'luck', amount: 1 + Math.floor(amount * 2) };
-    return { kind: 'rockPolish', amount: 2 + Math.floor(amount * 2) };
+    if (roll < 0.2125) return { kind: 'money', amount: 400 + Math.floor(amount * 11) * 50 };
+    if (roll < 0.425) return { kind: 'dynamite', amount: 1 + Math.floor(amount * 2) };
+    if (roll < 0.6375) return { kind: 'luck', amount: 1 + Math.floor(amount * 2) };
+    if (roll >= 0.85) return { kind: 'life', amount: 1 };
+    return { kind: 'rockPolish', amount: 1 + Math.floor(amount * 2) };
 }
 
 export function treasureRewardLabel(reward: TreasureReward): string {
     switch (reward.kind) {
+        case 'life': return '+1 LIFE';
         case 'money': return `$${reward.amount} GOLD`;
         case 'dynamite': return `${reward.amount} DYNAMITE`;
         case 'luck': return `${reward.amount} LUCK ${reward.amount === 1 ? 'POTION' : 'POTIONS'}`;
@@ -20,5 +22,6 @@ export function treasureRewardLabel(reward: TreasureReward): string {
 }
 
 export function treasureRewardValue(reward: TreasureReward): number {
+    if (reward.kind === 'life') return 1000;
     return reward.amount * (reward.kind === 'money' ? 1 : reward.kind === 'dynamite' ? 750 : reward.kind === 'luck' ? 500 : 250);
 }

@@ -8,7 +8,7 @@ import { emptyBonuses, isPermanentUpgrade, itemSoldOut, emptyUpgrades, purchaseU
 export class UpgradeShop extends Scene {
     constructor() { super('UpgradeShop'); }
 
-    create(data: { level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses }): void {
+    create(data: { lives: number; level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses }): void {
         let bonuses = { ...emptyBonuses(), ...data.bonuses };
         let money = data.money;
         let dynamite = data.dynamite;
@@ -84,7 +84,7 @@ export class UpgradeShop extends Scene {
             });
         });
         const next = this.add.text(512, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-        next.once('pointerdown', () => this.scene.start('LevelBriefing', { level: data.level, money, upgrades, dynamite, bonuses }));
+        next.once('pointerdown', () => this.scene.start('LevelBriefing', { lives: data.lives, level: data.level, money, upgrades, dynamite, bonuses }));
         this.add.text(512, 926, `${LAYOUTS[LEVELS[data.level - 1].layout].name}  •  Target: $${LEVELS[data.level - 1].target}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
     }

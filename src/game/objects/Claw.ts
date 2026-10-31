@@ -1,3 +1,4 @@
+import { releaseGemDeposit } from './GemDeposits';
 import { clawCollisionRadius } from './Aiming';
 import { soundEffects } from '../audio/SoundEffects';
 import { detonateBarrel, showBarrelExplosion } from './Explosions';
@@ -31,6 +32,10 @@ export class Claw {
 
     get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
 
+    get hauledDeposit(): { x: number; y: number; radius: number } | null {
+        return this.isHauling && this.caught?.gemDeposit ? this.caught : null;
+    }
+
     get haulingWeight(): number { return this.isHauling ? this.caught!.weight : 0; }
 
     get retrievalSpeed(): number {
@@ -56,7 +61,7 @@ export class Claw {
         return true;
     }
 
-    private updateDynamite(seconds: number): void {
+    private updateDynamite(seconds: number, objects: Collectable[]): void {
         if (!this.dynamite || !this.caught) return;
         this.throwElapsed += seconds;
         const progress = Math.min(1, this.throwElapsed / 0.35);
@@ -66,7 +71,9 @@ export class Claw {
         if (progress < 1) return;
         this.dynamite.destroy();
         this.dynamite = null;
-        this.caught.destroy();
+        const blasted = this.caught;
+        blasted.destroy();
+        releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
@@ -109,7 +116,8 @@ export class Claw {
                 this.length = hitLength;
                 if (first.kind === 'tnt') {
                     this.mode = 'retracting';
-                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y));
+                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y),
+                        deposit => releaseGemDeposit(this.scene, deposit, objects));
                     this.draw();
                     return;
                 }
@@ -135,7 +143,7 @@ export class Claw {
             } else if (this.length >= edgeRange) this.mode = 'retracting';
         } else {
             if (this.dynamite) {
-                this.updateDynamite(seconds);
+                this.updateDynamite(seconds, objects);
                 this.draw();
                 return;
             }

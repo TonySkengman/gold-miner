@@ -6,6 +6,8 @@ import { LEVELS, LevelConfig } from './Levels';
 import type { OreKind } from '../objects/Collectable';
 
 export class RoundState {
+    lives: number;
+    readonly startingLives: number;
     score = 0;
     bonusMoney = 0;
     private claimedMilestones = 0;
@@ -19,7 +21,8 @@ export class RoundState {
     readonly level: number;
     readonly config: LevelConfig;
 
-    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses()) {
+    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses(), lives = 3) {
+        this.lives = this.startingLives = Math.max(1, Math.min(5, Math.floor(lives)));
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
         this.bonuses = { ...bonuses };
         this.remaining = bonuses.extraTime ? 75 : 60;
@@ -44,6 +47,11 @@ export class RoundState {
     activateStrength(): void { this.strengthCatches = 2; }
 
     applyTreasureReward(reward: TreasureReward): string {
+        if (reward.kind === 'life') {
+            if (this.lives >= 5) return 'LIVES FULL (5 / 5)!';
+            this.lives++;
+            return '+1 LIFE!';
+        }
         if (reward.kind === 'money') this.score += reward.amount;
         else if (reward.kind === 'dynamite') this.dynamite += reward.amount;
         else this.collectedBonuses[reward.kind] += reward.amount;
@@ -58,11 +66,11 @@ export class RoundState {
 
     activateGoldRush(): void { this.goldRushCatches = 2; }
 
-    /** Consume on a real latch, including non-gold catches; misses and unlocking don't count. */
+    /** Strength uses every latch; gold rush uses only boosted gold nugget catches. */
     consumeCatch(kind: OreKind): number {
         const goldMultiplier = this.goldRushValue(100, kind) / 100;
         this.strengthCatches = Math.max(0, this.strengthCatches - 1);
-        this.goldRushCatches = Math.max(0, this.goldRushCatches - 1);
+        if (goldMultiplier > 1) this.goldRushCatches--;
         return goldMultiplier;
     }
 

@@ -1,3 +1,4 @@
+import { DepositRewardKind, rollDepositRewards } from '../state/DepositRewards';
 import { TNT_BLAST_RADIUS } from './Explosions';
 import { findClearAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
@@ -37,12 +38,14 @@ export class Collectable {
     available = true;
     private chestOpened = false;
     readonly treasureReward?: TreasureReward;
+    readonly depositRewards: readonly DepositRewardKind[];
     private treasureLabel?: GameObjects.Text;
     private direction: number;
     private readonly speed: number;
     private catchGlow?: GameObjects.Graphics;
 
-    constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random) {
+    constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random, readonly gemDeposit = false) {
+        this.depositRewards = gemDeposit ? rollDepositRewards(random, kind === 'largeRock') : [];
         this.direction = random() < 0.5 ? -1 : 1;
         this.speed = (80 + random() * 30) * 0.85 * ratSpeed;
         const type = TYPES[kind];
@@ -210,6 +213,17 @@ export class Collectable {
             g.beginPath().moveTo(-0.1 * r, -0.5 * r).lineTo(0.12 * r, -0.12 * r)
                 .lineTo(-0.12 * r, 0.2 * r).lineTo(0.1 * r, 0.5 * r).strokePath();
             g.fillStyle(0x58636c).fillEllipse(-0.5 * r, 0.3 * r, 5, 3).fillEllipse(0.5 * r, -0.35 * r, 4, 3);
+            if (this.gemDeposit) {
+                // Bright crystals protrude from the rock, signalling its hidden contents.
+                for (const [fx, fy] of [[-0.4, -0.25], [0.3, -0.35], [0.05, 0.35]]) {
+                    const x = fx * r;
+                    const y = fy * r;
+                    g.fillStyle(0x70e6f5).lineStyle(2, 0x287e9a);
+                    g.beginPath().moveTo(x - 7, y - 3).lineTo(x, y - 11)
+                        .lineTo(x + 7, y - 3).lineTo(x, y + 8).closePath().fillPath().strokePath();
+                    g.lineStyle(1, 0xe8ffff).lineBetween(x, y - 8, x - 3, y);
+                }
+            }
         } else {
             g.lineStyle(2, 0xfff6c7);
             const x = -0.36 * r;
@@ -250,6 +264,14 @@ export class Collectable {
                     g.fillStyle(0xc43c2f).fillRoundedRect(x - 4, -22, 8, 22, 2);
                     g.lineStyle(1, 0xffe486).lineBetween(x, -22, x + 2, -26);
                 }
+            } else if (this.treasureReward?.kind === 'life') {
+                // A red vial with a heart identifies the extra-life reward.
+                g.fillStyle(0xf1c9cc).lineStyle(2, 0x793341);
+                g.fillRoundedRect(-11, -20, 22, 26, 7).strokeRoundedRect(-11, -20, 22, 26, 7);
+                g.fillStyle(0xd94b52).fillRoundedRect(-8, -11, 16, 14, 4);
+                g.fillStyle(0xb68b4e).fillRoundedRect(-6, -26, 12, 8, 2);
+                g.fillStyle(0xffe8e8).fillCircle(-3, -8, 4).fillCircle(3, -8, 4)
+                    .fillTriangle(-7, -7, 7, -7, 0, 1);
             } else {
                 g.fillStyle(this.treasureReward?.kind === 'luck' ? 0xb67ee0 : 0xdba34d)
                     .fillRoundedRect(-10, -18, 20, 20, 4);
@@ -458,9 +480,12 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             if (positions.length < index + 1) break;
         }
         if (positions.length === kinds.length) {
+            const rocks = positions.filter(p => isStaticHazard(p.kind));
+            const deposits = rocks.filter(p => findClearAim(p, rocks.filter(other => other !== p)) !== null);
+            const deposit = deposits[Math.floor(random() * deposits.length)];
             // Swap gems after placement: both carriers share a size and depth range.
             return positions.map(({ x, y, kind }) => new Collectable(scene, x, y,
-                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random));
+                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random, deposit?.x === x && deposit?.y === y));
         }
     }
     throw new Error('Could not generate a complete mining layout.');

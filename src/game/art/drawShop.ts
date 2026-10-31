@@ -1,4 +1,4 @@
-import type { Scene } from 'phaser';
+import type { Scene, GameObjects } from 'phaser';
 import type { ShopItemKind } from '../state/Upgrades';
 
 /** Original shape-drawn trading stall and its shopkeeper. */
@@ -44,7 +44,7 @@ export function drawShop(scene: Scene): void {
     g.fillStyle(0xd09a5e).fillRect(87, 591, 851, 6);
 }
 
-export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind, scale = 1): void {
+export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind, scale = 1): GameObjects.Graphics {
     const g = scene.add.graphics().setPosition(x, y).setScale(scale);
     if (kind === 'rockPolish') {
         g.fillStyle(0x8a969f).lineStyle(3, 0x414952);
@@ -114,4 +114,5 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         }
         g.fillStyle(0xc29659).fillRect(-43, -6, 86, 10);
     }
+    return g;
 }

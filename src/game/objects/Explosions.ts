@@ -5,8 +5,9 @@ import type { Collectable } from './Collectable';
 export const TNT_BLAST_RADIUS = 125;
 
 /** Resolve each barrel once; only free objects are affected and no money is awarded. */
-export function detonateBarrel(barrel: Collectable, objects: Collectable[], onBlast: (x: number, y: number) => void): void {
+export function detonateBarrel(barrel: Collectable, objects: Collectable[], onBlast: (x: number, y: number) => void, onDepositBlast?: (deposit: Collectable) => void): void {
     if (barrel.kind !== 'tnt' || !barrel.available) return;
+    const deposits: Collectable[] = [];
     const pending = [barrel];
     const queued = new Set([barrel]);
     while (pending.length) {
@@ -17,10 +18,14 @@ export function detonateBarrel(barrel: Collectable, objects: Collectable[], onBl
             if (!object.available || Math.hypot(object.x - x, object.y - y) > TNT_BLAST_RADIUS + object.radius) continue;
             if (object.kind === 'tnt') {
                 if (!queued.has(object)) { queued.add(object); pending.push(object); }
-            } else object.destroy();
+            } else {
+                if (object.gemDeposit) deposits.push(object);
+                object.destroy();
+            }
         }
         onBlast(x, y);
     }
+    deposits.forEach(deposit => onDepositBlast?.(deposit));
 }
 
 export function showBarrelExplosion(scene: Scene, x: number, y: number): void {

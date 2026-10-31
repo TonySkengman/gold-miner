@@ -1,3 +1,4 @@
+import { drawLives } from '../ui/LivesDisplay';
 import { Scene } from 'phaser';
 import { drawEnvironment } from '../art/drawEnvironment';
 import { drawShopProduct } from '../art/drawShop';
@@ -9,6 +10,7 @@ import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses } from '../state/Upg
 import { menuButton } from '../ui/menuButton';
 
 interface BriefingData {
+    lives?: number;
     level?: number;
     money?: number;
     upgrades?: Upgrades;
@@ -34,12 +36,13 @@ export class LevelBriefing extends Scene {
             }).setOrigin(0.5);
 
         text(131, `LEVEL ${level} / ${LEVELS.length}`, 26, '#e5c58f');
+        drawLives(this, 800, 131, data.lives ?? 3);
         text(186, layout.name.toUpperCase(), 38, '#ffda69').setFontStyle('bold');
         text(257, 'GOLD TARGET', 21, '#e5c58f');
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
         text(428, `${bonuses.extraTime > 0 ? 75 : 60} SECONDS`, 25, '#bcf58b');
-        text(480, layout.hint, 22);
+        text(480, `${layout.hint}\nGem-studded rocks: use dynamite to release treasure.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
