@@ -2,12 +2,15 @@ import { TNT_BLAST_RADIUS } from './Explosions';
 import { findClearAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
 import { WORLD } from '../state/World';
+import { POLISHED_ROCK_VALUES } from '../state/Upgrades';
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'mysteryBag';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag';
 const TYPES = {
-    mysteryBag: { radius: 30, value: 0, weight: 5, color: 0x837097 },
+    goldRush: { radius: 19, value: 0, weight: 0.2, color: 0xffc52e },
+    timeVial: { radius: 19, value: 0, weight: 0.2, color: 0x66d9fa },
+    mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
     strengthPotion: { radius: 19, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
     rat: { radius: 21, value: 2, weight: 0.1, color: 0x88766a },
@@ -30,6 +33,7 @@ export class Collectable {
     available = true;
     private direction: number;
     private readonly speed: number;
+    private catchGlow?: GameObjects.Graphics;
 
     constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random) {
         this.direction = random() < 0.5 ? -1 : 1;
@@ -41,16 +45,26 @@ export class Collectable {
         this.graphic = scene.add.graphics().setPosition(x, y);
         const r = this.radius;
         const g = this.graphic;
-        if (kind === 'strengthPotion') {
+        if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'timeVial') {
             g.fillStyle(0x9fc9bd).lineStyle(3, 0x365c50);
             g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
                 .lineTo(-14, 13).lineTo(-8, 17).lineTo(8, 17).lineTo(14, 13)
                 .lineTo(14, 3).lineTo(6, -5).lineTo(6, -13).closePath().fillPath().strokePath();
             g.fillStyle(type.color).fillRoundedRect(-10, 3, 20, 11, 3);
-            g.fillStyle(0xaff17d).fillRect(-8, 4, 4, 7);
+            g.fillStyle(kind === 'goldRush' ? 0xffee9a : kind === 'timeVial' ? 0xd5f8ff : 0xaff17d).fillRect(-8, 4, 4, 7);
             g.fillStyle(0xad7c43).lineStyle(2, 0x694729)
                 .fillRoundedRect(-7, -18, 14, 7, 2).strokeRoundedRect(-7, -18, 14, 7, 2);
-            g.fillStyle(0xfff1af).fillTriangle(2, -1, -4, 7, 1, 7).fillTriangle(-1, 5, 4, 5, -2, 13);
+            if (kind === 'goldRush') {
+                g.fillStyle(0xfff1af).lineStyle(1, 0x986019);
+                g.beginPath().moveTo(-6, 6).lineTo(-2, 1).lineTo(4, 2)
+                    .lineTo(7, 8).lineTo(0, 12).closePath().fillPath().strokePath();
+            } else if (kind === 'timeVial') {
+                g.fillStyle(0xe8ffff).fillCircle(0, 6, 7);
+                g.lineStyle(1.5, 0x287e9a).strokeCircle(0, 6, 7)
+                    .lineBetween(0, 6, 0, 1).lineBetween(0, 6, 4, 8);
+            } else {
+                g.fillStyle(0xfff1af).fillTriangle(2, -1, -4, 7, 1, 7).fillTriangle(-1, 5, 4, 5, -2, 13);
+            }
             g.lineStyle(2, 0xe0f6de).lineBetween(-9, -1, -11, 2);
             return;
         }
@@ -172,7 +186,43 @@ export class Collectable {
 
     get isRat(): boolean { return this.kind === 'rat' || this.kind === 'diamondRat'; }
 
-    collectionValue(diamondMultiplier = 1): number {
+    /** Catch feedback uses known values only: sealed mystery bags keep their secret. */
+    celebrateCatch(scene: Scene, value = this.value): boolean {
+        if (value < 90) return false;
+        const intensity = Math.min(1, Math.max(0, (value - 90) / 660));
+        const color = this.kind === 'diamond' || this.kind === 'diamondRat' ? 0x9ef5ff : 0xffe48a;
+        const glow = scene.add.graphics().setPosition(this.x, this.y).setDepth(4);
+        this.catchGlow = glow;
+        const r = this.radius;
+        if (intensity > 0.1) glow.fillStyle(color, intensity * 0.16).fillCircle(0, 0, r + 10);
+        if (intensity > 0.3) glow.lineStyle(2, color, intensity * 0.7).strokeCircle(0, 0, r + 6);
+        const count = 1 + Math.round(intensity * 11);
+        for (let i = 0; i < count; i++) {
+            const angle = i * Math.PI * 2 / count;
+            const distance = r + 12 + (i % 2) * 9;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            const size = (i % 2 === 0 ? 2.5 : 2) + intensity * 5;
+            glow.fillStyle(i % 2 === 0 ? 0xffffff : color);
+            glow.fillTriangle(x - size, y, x, y - 2, x + size, y);
+            glow.fillTriangle(x - size, y, x, y + 2, x + size, y);
+            glow.fillTriangle(x, y - size, x - 2, y, x, y + size);
+            glow.fillTriangle(x, y - size, x + 2, y, x, y + size);
+        }
+        // A bright glint sweeps across the face while the burst follows the hauled ore.
+        glow.lineStyle(1 + intensity * 2, 0xffffff, 0.3 + intensity * 0.6)
+            .lineBetween(-r * 0.35, -r * 0.4, r * 0.15, r * 0.15);
+        glow.setAlpha(0.45 + intensity * 0.55);
+        scene.tweens.add({
+            targets: glow, scale: 1.05 + intensity * 0.65, alpha: 0,
+            duration: 200 + intensity * 750, ease: 'Cubic.easeOut',
+            onComplete: () => { glow.destroy(); if (this.catchGlow === glow) this.catchGlow = undefined; }
+        });
+        return true;
+    }
+
+    collectionValue(diamondMultiplier = 1, rockPolish = false): number {
+        if (rockPolish && (this.kind === 'rock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
         if (this.kind === 'diamondRat') return 2 + Math.round(TYPES.diamond.value * diamondMultiplier);
         return Math.round(this.value * (this.kind === 'diamond' ? diamondMultiplier : 1));
     }
@@ -195,15 +245,26 @@ export class Collectable {
         this.x = x;
         this.y = y;
         this.graphic.setPosition(x, y);
+        this.catchGlow?.setPosition(x, y);
     }
 
-    destroy(): void { this.available = false; this.graphic.destroy(); }
+    destroy(): void {
+        this.available = false;
+        if (this.catchGlow) {
+            this.catchGlow.scene.tweens.killTweensOf(this.catchGlow);
+            this.catchGlow.destroy();
+            this.catchGlow = undefined;
+        }
+        this.graphic.destroy();
+    }
 }
 
 /** Valuable catches require a longer trip; mystery bags keep an unknown payout. */
 export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, number] {
     switch (kind) {
-        case 'strengthPotion': return [Math.max(minimumDepth, 360), 480];
+        case 'strengthPotion':
+        case 'goldRush':
+        case 'timeVial': return [minimumDepth, 860];
         case 'tnt': return [400, 820];
         case 'diamond': return [800, 880];
         case 'diamondRat': return [570, 700];
@@ -229,7 +290,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         'medium', 'medium', 'medium',
         ...Array<OreKind>(level.moneyBags).fill('moneyBag'),
         ...Array<OreKind>(level.diamonds).fill('diamond'),
-        'small', 'small', 'small', 'small', 'strengthPotion', 'mysteryBag',
+        'small', 'small', 'small', 'small', 'strengthPotion', 'goldRush', 'timeVial', 'mysteryBag',
         ...Array<OreKind>(level.rats).fill('rat'),
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')
     ];

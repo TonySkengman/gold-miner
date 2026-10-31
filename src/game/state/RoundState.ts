@@ -2,12 +2,14 @@ import { MILESTONES, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
 import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses } from './Upgrades';
 import { LEVELS, LevelConfig } from './Levels';
+import type { OreKind } from '../objects/Collectable';
 
 export class RoundState {
     score = 0;
     bonusMoney = 0;
     private claimedMilestones = 0;
     strengthRemaining = 0;
+    goldRushRemaining = 0;
     dynamite: number;
     readonly upgrades: Upgrades;
     readonly bonuses: LevelBonuses;
@@ -38,6 +40,15 @@ export class RoundState {
     }
 
     activateStrength(): void { this.strengthRemaining = 15; }
+
+    activateGoldRush(): void { this.goldRushRemaining = 12; }
+
+    addTime(): void { this.remaining += 8; }
+
+    goldRushValue(value: number, kind: OreKind): number {
+        const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
+        return this.goldRushRemaining > 0 && gold ? Math.round(value * 1.5) : value;
+    }
 
     get strengthMultiplier(): number { return this.strengthRemaining > 0 ? 2 : 1; }
 
@@ -74,6 +85,7 @@ export class RoundState {
 
     update(seconds: number): void {
         this.strengthRemaining = Math.max(0, this.strengthRemaining - seconds);
+        this.goldRushRemaining = Math.max(0, this.goldRushRemaining - seconds);
         this.remaining = Math.max(0, this.remaining - seconds);
     }
 }

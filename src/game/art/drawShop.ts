@@ -46,7 +46,18 @@ export function drawShop(scene: Scene): void {
 
 export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind, scale = 1): void {
     const g = scene.add.graphics().setPosition(x, y).setScale(scale);
-    if (kind === 'luck') {
+    if (kind === 'rockPolish') {
+        g.fillStyle(0x8a969f).lineStyle(3, 0x414952);
+        g.beginPath().moveTo(-43, 19).lineTo(-34, -10).lineTo(-5, -23)
+            .lineTo(24, -8).lineTo(32, 23).lineTo(-9, 34).closePath().fillPath().strokePath();
+        g.fillStyle(0xd9b95e).fillTriangle(-34, -10, -5, -23, -13, 17)
+            .fillTriangle(-5, -23, 24, -8, -13, 17);
+        g.fillStyle(0xdba34d).lineStyle(3, 0x79552c);
+        g.fillRoundedRect(19, -29, 28, 48, 5).strokeRoundedRect(19, -29, 28, 48, 5);
+        g.fillStyle(0x725039).fillRoundedRect(23, -40, 20, 14, 3);
+        g.fillStyle(0xffedbb).fillRect(23, -14, 20, 16);
+        g.lineStyle(3, 0xfff4c2).lineBetween(-33, -31, -15, -31).lineBetween(-24, -40, -24, -22);
+    } else if (kind === 'luck') {
         g.fillStyle(0xb7aacd).lineStyle(3, 0x59416f);
         g.fillRoundedRect(-15, -46, 30, 30, 5).strokeRoundedRect(-15, -46, 30, 30, 5);
         g.fillEllipse(0, 9, 74, 72).strokeEllipse(0, 9, 74, 72);

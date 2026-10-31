@@ -3,13 +3,13 @@ import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { drawShop, drawShopProduct } from '../art/drawShop';
 import { Scene } from 'phaser';
 import { LEVELS } from '../state/Levels';
-import { emptyBonuses, isPermanentUpgrade, itemSoldOut, emptyUpgrades, purchaseUpgrade, upgradePrice, UPGRADE_INFO, UPGRADE_LIMIT, ShopItemKind, Upgrades } from '../state/Upgrades';
+import { emptyBonuses, isPermanentUpgrade, itemSoldOut, emptyUpgrades, purchaseUpgrade, upgradePrice, UPGRADE_INFO, UPGRADE_LIMIT, ShopItemKind, Upgrades, LevelBonuses } from '../state/Upgrades';
 
 export class UpgradeShop extends Scene {
     constructor() { super('UpgradeShop'); }
 
-    create(data: { level: number; money: number; upgrades?: Upgrades; dynamite: number }): void {
-        let bonuses = emptyBonuses();
+    create(data: { level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses }): void {
+        let bonuses = { ...emptyBonuses(), ...data.bonuses };
         let money = data.money;
         let dynamite = data.dynamite;
         let upgrades = { ...(data.upgrades ?? emptyUpgrades()) };
@@ -26,11 +26,11 @@ export class UpgradeShop extends Scene {
         const showDescription = () => {
             if (!hovered) {
                 descriptionTitle.setText('“Welcome, miner! Take a look at my wares.”');
-                description.setText('Hover to learn more; click to buy. Potions and extra time apply to the next level only.');
+                description.setText('Click to buy. Stock up on round items: one charge is used per round. Extra purchases cover future rounds.');
                 return;
             }
             const info = UPGRADE_INFO[hovered];
-            const maxed = itemSoldOut(hovered, upgrades, bonuses);
+            const maxed = itemSoldOut(hovered, upgrades);
             const price = upgradePrice(hovered, upgrades);
             descriptionTitle.setText(info.name);
             description.setText(`${info.description}. ${maxed ? (isPermanentUpgrade(hovered) ? 'Fully upgraded!' : 'Ready for the next level!') : `${isPermanentUpgrade(hovered) ? 'Next tier' : 'Price'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
@@ -38,7 +38,7 @@ export class UpgradeShop extends Scene {
         const stock = this.add.text(512, 115, '', { fontFamily: 'Arial', fontSize: 20, color: '#483126' }).setOrigin(0.5);
         const refreshers: (() => void)[] = [];
         const refresh = () => {
-            stock.setText(`Dynamite: ${dynamite}${bonuses.luck ? '  •  Luck ready' : ''}${bonuses.extraTime ? '  •  +15s ready' : ''}`);
+            stock.setText(`Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Rock polish: ${bonuses.rockPolish}`);
             balance.setText(`MONEY  $${money}`);
             refreshers.forEach(update => update());
             showDescription();
@@ -52,10 +52,10 @@ export class UpgradeShop extends Scene {
             const tier = this.add.text(x, y + 37, '', { fontFamily: 'Arial', fontSize: 18, color: '#70452a' }).setOrigin(0.5);
             const priceTag = this.add.text(x, y + 70, '', { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#ffffff', padding: { x: 14, y: 7 } }).setOrigin(0.5);
             refreshers.push(() => {
-                const maxed = itemSoldOut(kind, upgrades, bonuses);
+                const maxed = itemSoldOut(kind, upgrades);
                 const price = upgradePrice(kind, upgrades);
                 tier.setText(isPermanentUpgrade(kind) ? `TIER ${upgrades[kind]} / ${UPGRADE_LIMIT}`
-                    : kind === 'dynamite' ? `OWNED: ${dynamite}` : maxed ? 'NEXT LEVEL: READY' : 'NEXT LEVEL ONLY');
+                    : kind === 'dynamite' ? `OWNED: ${dynamite}` : `ROUNDS: ${bonuses[kind]}`);
                 priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'BOUGHT') : `BUY $${price}`);
                 priceTag.setBackgroundColor(maxed || money < price ? '#827968' : '#547f3b');
             });

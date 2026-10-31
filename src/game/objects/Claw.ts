@@ -21,7 +21,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private readonly origin = { x: 512, y: 210 };
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false) {
         this.graphic = scene.add.graphics().setDepth(5);
         this.draw();
     }
@@ -110,7 +110,9 @@ export class Claw {
                     this.draw();
                     return;
                 }
-                soundEffects.play('catch');
+                const catchValue = first.collectionValue(this.diamondMultiplier, this.rockPolish);
+                const valuable = first.celebrateCatch(this.scene, catchValue);
+                soundEffects.play(valuable ? 'valuableCatch' : 'catch', catchValue);
                 this.caught = first;
                 // Preserve the contact position instead of snapping the ore's centre to the rope.
                 this.gripOffsetX = first.x - (this.origin.x + Math.sin(this.angle) * this.length);
@@ -128,7 +130,7 @@ export class Claw {
             if (this.length <= 30) {
                 if (this.caught) {
                     soundEffects.play('collect');
-                    this.onCollect(this.caught.collectionValue(this.diamondMultiplier), this.caught);
+                    this.onCollect(this.caught.collectionValue(this.diamondMultiplier, this.rockPolish), this.caught);
                     this.caught.destroy();
                     this.caught = null;
                 }

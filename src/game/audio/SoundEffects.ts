@@ -1,6 +1,6 @@
 import type { Scene, Types } from 'phaser';
 
-export type SoundCue = 'launch' | 'catch' | 'collect' | 'throw' | 'explosion' | 'buy' | 'win' | 'lose';
+export type SoundCue = 'launch' | 'catch' | 'valuableCatch' | 'collect' | 'throw' | 'explosion' | 'buy' | 'win' | 'lose';
 
 /** Small original arcade sounds. Audio is created only after a player gesture. */
 class SoundEffects {
@@ -27,10 +27,10 @@ class SoundEffects {
         }
     }
 
-    play(cue: SoundCue): void {
+    play(cue: SoundCue, value = 90): void {
         const context = this.context;
         if (!context || !this.master || this.muted || context.state !== 'running') return;
-        const tone = (from: number, to: number, duration: number, delay = 0, type: OscillatorType = 'square') => {
+        const tone = (from: number, to: number, duration: number, delay = 0, type: OscillatorType = 'square', volume = 0.3) => {
             const start = context.currentTime + delay;
             const oscillator = context.createOscillator();
             const gain = context.createGain();
@@ -38,7 +38,7 @@ class SoundEffects {
             oscillator.frequency.setValueAtTime(from, start);
             oscillator.frequency.exponentialRampToValueAtTime(to, start + duration);
             gain.gain.setValueAtTime(0.001, start);
-            gain.gain.linearRampToValueAtTime(0.3, start + 0.008);
+            gain.gain.linearRampToValueAtTime(volume, start + 0.008);
             gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
             oscillator.connect(gain);
             gain.connect(this.master!);
@@ -49,6 +49,16 @@ class SoundEffects {
         switch (cue) {
             case 'launch': tone(380, 110, 0.16, 0, 'triangle'); break;
             case 'catch': tone(170, 85, 0.07); break;
+            case 'valuableCatch': {
+                const intensity = Math.min(1, Math.max(0, (value - 90) / 660));
+                tone(190, 95, 0.065, 0, 'triangle');
+                const notes = [659, 880, 1175, 1568].slice(0, 1 + Math.round(intensity * 3));
+                notes.forEach((frequency, i) => {
+                    tone(frequency, frequency, 0.09 + intensity * 0.23,
+                        0.025 + i * 0.055, 'sine', 0.07 + intensity * 0.23);
+                });
+                break;
+            }
             case 'throw': tone(220, 650, 0.15, 0, 'triangle'); break;
             case 'collect':
             case 'buy': tone(740, 740, 0.09); tone(1110, 1110, 0.16, 0.08); break;
