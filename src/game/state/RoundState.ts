@@ -23,7 +23,7 @@ export class RoundState {
 
     /** Register a latch immediately; the returned bonus is paid only on delivery. */
     latchStreak(kind: OreKind): number {
-        if (!['small', 'medium', 'large', 'giant', 'diamond', 'ruby', 'moneyBag', 'mysteryBag', 'treasureChest'].includes(kind)) return 0;
+        if (!['small', 'medium', 'large', 'giant', 'diamond', 'ruby', 'diamondRat', 'rubyRat', 'moneyBag', 'mysteryBag', 'treasureChest'].includes(kind)) return 0;
         this.catchStreak++;
         const bonus = this.currentStreakBonus;
         return bonus;
