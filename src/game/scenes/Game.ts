@@ -1,3 +1,4 @@
+import { catchFeedbackY } from '../objects/Aiming';
 import { BuffKind, drawBuffIcon } from '../ui/BuffIcon';
 import { drawLives } from '../ui/LivesDisplay';
 import { newLevelSeed, seededRandom } from '../state/Random';
@@ -69,12 +70,12 @@ export class Game extends Scene {
             if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, reward);
         }
         const streakBonuses = new WeakMap<Collectable, number>();
-        this.claw = new Claw(this, (value, object) => {
+        this.claw = new Claw(this, (value, object, perfectBonus) => {
             const streakBonus = streakBonuses.get(object) ?? 0;
             streakBonuses.delete(object);
-            this.round.score += streakBonus;
+            this.round.score += streakBonus + perfectBonus;
             const showValue = (amount: number, label = `+$${amount}`) => this.showCollectionValue(amount,
-                streakBonus > 0 ? `${label}\nSTREAK ${this.round.catchStreak}  +$${streakBonus}` : label);
+                `${label}${perfectBonus > 0 ? `\nPERFECT +$${perfectBonus}` : ''}${streakBonus > 0 ? `\nSTREAK ${this.round.catchStreak}  +$${streakBonus}` : ''}`);
             if (object.kind === 'treasureChest' && object.treasureReward) {
                 showValue(0, this.round.applyTreasureReward(object.treasureReward));
                 this.miner.reactTo(object.kind);
@@ -266,7 +267,7 @@ export class Game extends Scene {
         // Keep feedback readable at the edges and above the bottom controls.
         const halfWidth = label.width * 1.15 / 2 + 16;
         label.setPosition(Math.max(halfWidth, Math.min(WORLD.width - halfWidth, object.x)),
-            Math.max(350, Math.min(WORLD.footerY - 75, object.y - object.radius - 30)));
+            catchFeedbackY(object.y, object.radius));
         this.tweens.add({ targets: label, scale: 1, duration: 240, ease: 'Back.easeOut' });
         this.tweens.add({ targets: label, y: label.y - 35, alpha: 0, delay: 550,
             duration: 450, ease: 'Sine.easeOut', onComplete: () => label.destroy() });

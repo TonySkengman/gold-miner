@@ -2,6 +2,9 @@ import { WORLD } from '../state/World';
 
 export interface AimCircle { x: number; y: number; radius: number; }
 export const clawCollisionRadius = (radius: number): number => radius * 0.9 + 6;
+/** Shared anchor keeps simultaneous catch labels separated, including at mine edges. */
+export const catchFeedbackY = (y: number, radius: number): number =>
+    Math.max(410, Math.min(WORLD.footerY - 75, y - radius - 30));
 const MIN_AIM_GAP = 0.024;
 
 /** Reserve a usable angular opening, rather than merely preventing visual overlap. */

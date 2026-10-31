@@ -97,6 +97,10 @@ Source code is organized under `src/game/`:
 
 Progress lasts for the current run only. There is no backend or persistent save system.
 
+### Perfect catches
+
+Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the first 0.75 seconds. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 10% of the object's boosted cash value on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats, utility vials, and opening a chest do not qualify. Dynamiting the object forfeits its perfect bonus.
+
 ### Catch streaks
 
 All gold nuggets (including small and medium), diamonds, rubies, cash bags, mystery bags, and treasure chests advance the catch streak immediately when the claw latches onto them. Mystery bags and treasure chests count regardless of their contents. A chest advances the streak on the second hit when the claw latches onto it, not on the first hit that opens it. Catch 3 awards an extra $25, catch 4 awards $50, catch 5 awards $75, and each further qualifying catch adds another $25 to its bonus, without a cap or automatic reset. From streak 3 onward, each qualifying latch triggers a bouncing streak-number popup and golden burst at the object, showing the bonus due on delivery. Streak bonuses are paid when the object reaches the surface and count toward level gold and spendable money. Dynamiting a qualifying catch preserves its streak progress but forfeits its payout.

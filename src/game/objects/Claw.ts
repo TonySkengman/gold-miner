@@ -1,5 +1,5 @@
 import { releaseGemDeposit } from './GemDeposits';
-import { clawCollisionRadius } from './Aiming';
+import { catchFeedbackY, clawCollisionRadius } from './Aiming';
 import { soundEffects } from '../audio/SoundEffects';
 import { detonateBarrel, showBarrelExplosion } from './Explosions';
 import { WORLD } from '../state/World';
@@ -16,6 +16,8 @@ export class Claw {
     private length = 30;
     private caught: Collectable | null = null;
     private caughtValue = 0;
+    private perfectBonus = 0;
+    private perfectBoostSeconds = 0;
     private haulingStrength = 1;
     private gripOffsetX = 0;
     private gripOffsetY = 0;
@@ -25,7 +27,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private readonly origin = { x: 512, y: 210 };
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false, private readonly onCatch: (object: Collectable) => number = () => 1, private readonly onMiss: () => void = () => {}) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false, private readonly onCatch: (object: Collectable) => number = () => 1, private readonly onMiss: () => void = () => {}) {
         this.graphic = scene.add.graphics().setDepth(5);
         this.draw();
     }
@@ -43,7 +45,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) / (1 + (this.caught?.weight ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectBoostSeconds > 0 ? 1.35 : 1) / (1 + (this.caught?.weight ?? 0)) : 0;
     }
 
     launch(): void {
@@ -78,6 +80,8 @@ export class Claw {
         blasted.destroy();
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
+        this.perfectBoostSeconds = 0;
+        this.perfectBonus = 0;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);
@@ -134,9 +138,17 @@ export class Claw {
                 // Snapshot both boosts before spending a charge, so the final charged haul stays boosted.
                 this.haulingStrength = this.strengthBoost();
                 this.caughtValue = Math.round(first.collectionValue(this.diamondMultiplier, this.rockPolish) * this.onCatch(first));
+                const across = Math.abs((first.x - this.origin.x) * Math.cos(this.angle)
+                    - (first.y - this.origin.y) * Math.sin(this.angle));
+                const eligible = ['small', 'medium', 'large', 'giant', 'diamond', 'ruby',
+                    'moneyBag', 'diamondRat', 'rubyRat', 'mysteryBag', 'treasureChest'].includes(first.kind);
+                const perfect = eligible && across <= Math.min(10, first.radius * 0.3);
+                this.perfectBonus = perfect ? Math.round(this.caughtValue * 0.1) : 0;
+                this.perfectBoostSeconds = perfect ? 0.75 : 0;
+                if (perfect) this.showPerfectCatch(first);
                 const catchValue = first.treasureReward ? treasureRewardValue(first.treasureReward) : this.caughtValue;
                 const valuable = first.celebrateCatch(this.scene, catchValue);
-                soundEffects.play(valuable ? 'valuableCatch' : 'catch', catchValue);
+                soundEffects.play(perfect ? 'perfectCatch' : valuable ? 'valuableCatch' : 'catch', catchValue);
                 this.caught = first;
                 first.depositIntegrity?.begin(this.length - 30);
                 // Preserve the contact position instead of snapping the ore's centre to the rope.
@@ -157,11 +169,12 @@ export class Claw {
             }
             const previousLength = this.length;
             this.length = Math.max(30, this.length - this.retrievalSpeed * seconds);
+            this.perfectBoostSeconds = Math.max(0, this.perfectBoostSeconds - seconds);
             this.caught?.advanceDepositHaul(this.scene, previousLength - this.length);
             if (this.length <= 30) {
                 if (this.caught) {
                     soundEffects.play('collect');
-                    this.onCollect(this.caughtValue, this.caught);
+                    this.onCollect(this.caughtValue, this.caught, this.perfectBonus);
                     this.caught.destroy();
                     this.caught = null;
                 }
@@ -170,6 +183,27 @@ export class Claw {
         }
         if (this.caught) this.caught.moveTo(this.origin.x + Math.sin(this.angle) * this.length + this.gripOffsetX, this.origin.y + Math.cos(this.angle) * this.length + this.gripOffsetY);
         this.draw();
+    }
+
+    private showPerfectCatch(object: Collectable): void {
+        const burst = this.scene.add.graphics().setPosition(object.x, object.y).setDepth(15);
+        burst.fillStyle(0xffdf65, 0.35).fillCircle(0, 0, object.radius + 8);
+        for (let i = 0; i < 8; i++) {
+            const angle = i * Math.PI / 4;
+            burst.lineStyle(3, i % 2 ? 0xffffff : 0xffd34d)
+                .lineBetween(Math.cos(angle) * 12, Math.sin(angle) * 12,
+                    Math.cos(angle) * 32, Math.sin(angle) * 32);
+        }
+        this.scene.tweens.add({ targets: burst, scale: 1.7, alpha: 0, duration: 320,
+            onComplete: () => burst.destroy() });
+        const label = this.scene.add.text(Math.max(150, Math.min(WORLD.width - 150, object.x)),
+            catchFeedbackY(object.y, object.radius) - 110,
+            this.perfectBonus > 0 ? `PERFECT! +$${this.perfectBonus}\nON DELIVERY` : 'PERFECT!\nREEL BOOST', {
+                fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffe685',
+                stroke: '#483126', strokeThickness: 5, align: 'center'
+            }).setOrigin(0.5).setDepth(16);
+        this.scene.tweens.add({ targets: label, y: label.y - 35, alpha: 0, delay: 550,
+            duration: 450, onComplete: () => label.destroy() });
     }
 
     private draw(): void {
