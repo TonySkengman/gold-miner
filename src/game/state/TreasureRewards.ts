@@ -1,4 +1,4 @@
-export type TreasureReward = { kind: 'money' | 'dynamite' | 'luck' | 'rockPolish' | 'life'; amount: number };
+export type TreasureReward = { kind: 'money' | 'dynamite' | 'luck' | 'lightweightGrip' | 'life'; amount: number };
 
 /** Life vials have a 15% chance; the other four rewards share 85% equally. */
 export function rollTreasureReward(random: () => number = Math.random): TreasureReward {
@@ -8,7 +8,7 @@ export function rollTreasureReward(random: () => number = Math.random): Treasure
     if (roll < 0.425) return { kind: 'dynamite', amount: 1 + Math.floor(amount * 2) };
     if (roll < 0.6375) return { kind: 'luck', amount: 1 + Math.floor(amount * 2) };
     if (roll >= 0.85) return { kind: 'life', amount: 1 };
-    return { kind: 'rockPolish', amount: 1 + Math.floor(amount * 2) };
+    return { kind: 'lightweightGrip', amount: 1 + Math.floor(amount * 2) };
 }
 
 export function treasureRewardLabel(reward: TreasureReward): string {
@@ -17,7 +17,7 @@ export function treasureRewardLabel(reward: TreasureReward): string {
         case 'money': return `$${reward.amount} GOLD`;
         case 'dynamite': return `${reward.amount} DYNAMITE`;
         case 'luck': return `${reward.amount} LUCK ${reward.amount === 1 ? 'POTION' : 'POTIONS'}`;
-        case 'rockPolish': return `${reward.amount} ROCK POLISH`;
+        case 'lightweightGrip': return `${reward.amount} LIGHTWEIGHT GRIP`;
     }
 }
 

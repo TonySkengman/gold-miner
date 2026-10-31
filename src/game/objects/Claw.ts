@@ -27,7 +27,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private readonly origin = { x: 512, y: 210 };
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false, private readonly onCatch: (object: Collectable) => number = () => 1, private readonly onMiss: () => void = () => {}) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly lightweightGrip = false, private readonly onCatch: (object: Collectable) => number = () => 1, private readonly onMiss: () => void = () => {}) {
         this.graphic = scene.add.graphics().setDepth(5);
         this.draw();
     }
@@ -41,11 +41,11 @@ export class Claw {
         return this.isHauling && this.caught?.gemDeposit ? this.caught : null;
     }
 
-    get haulingWeight(): number { return this.isHauling ? this.caught!.weight : 0; }
+    get haulingWeight(): number { return this.isHauling ? this.caught!.haulingWeight(this.lightweightGrip) : 0; }
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.weight ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
     launch(): void {
@@ -137,13 +137,13 @@ export class Claw {
                 first.prepareCatch();
                 // Snapshot both boosts before spending a charge, so the final charged haul stays boosted.
                 this.haulingStrength = this.strengthBoost();
-                this.caughtValue = Math.round(first.collectionValue(this.diamondMultiplier, this.rockPolish) * this.onCatch(first));
+                this.caughtValue = Math.round(first.collectionValue(this.diamondMultiplier) * this.onCatch(first));
                 const across = Math.abs((first.x - this.origin.x) * Math.cos(this.angle)
                     - (first.y - this.origin.y) * Math.sin(this.angle));
                 const eligible = ['small', 'medium', 'large', 'giant', 'diamond', 'ruby',
                     'moneyBag', 'diamondRat', 'rubyRat', 'mysteryBag', 'treasureChest'].includes(first.kind);
                 const perfect = eligible && across <= Math.min(10, first.radius * 0.3);
-                this.perfectBonus = perfect ? Math.round(this.caughtValue * 0.1) : 0;
+                this.perfectBonus = perfect ? Math.ceil(this.caughtValue * 35 / 1000) * 10 : 0;
                 this.perfectHaul = perfect;
                 if (perfect) this.showPerfectCatch(first);
                 const catchValue = first.treasureReward ? treasureRewardValue(first.treasureReward) : this.caughtValue;

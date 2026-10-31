@@ -79,13 +79,13 @@ export class RoundState {
         if (reward.kind === 'money') this.score += reward.amount;
         else if (reward.kind === 'dynamite') this.dynamite += reward.amount;
         else this.collectedBonuses[reward.kind] += reward.amount;
-        return `${treasureRewardLabel(reward)}${reward.kind === 'luck' || reward.kind === 'rockPolish' ? ' (STORED)' : '!'}`;
+        return `${treasureRewardLabel(reward)}${reward.kind === 'luck' || reward.kind === 'lightweightGrip' ? ' (STORED)' : '!'}`;
     }
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
         return { streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
-            prospectorsLens: stock.prospectorsLens, rockPolish: stock.rockPolish + this.collectedBonuses.rockPolish };
+            prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 
     activateGoldRush(): void { this.goldRushCatches = 3; }

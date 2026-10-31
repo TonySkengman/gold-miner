@@ -40,7 +40,7 @@ export class UpgradeShop extends Scene {
         const stock = this.add.text(512, 115, '', { fontFamily: 'Arial', fontSize: 15, color: '#483126' }).setOrigin(0.5);
         const refreshers: (() => void)[] = [];
         const refresh = () => {
-            stock.setText(`Lives: ${lives}/5  •  Streak x2: ${bonuses.streakVial}  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Rock polish: ${bonuses.rockPolish}`);
+            stock.setText(`Lives: ${lives}/5  •  Streak x2: ${bonuses.streakVial}  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Lightweight Grip: ${bonuses.lightweightGrip}`);
             balance.setText(`MONEY  $${money}`);
             next.setText(data.result?.won && data.result.finalLevel ? 'VIEW RESULTS'
                 : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'START'} LEVEL ${data.level}`);

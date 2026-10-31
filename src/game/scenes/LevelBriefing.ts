@@ -49,7 +49,7 @@ export class LevelBriefing extends Scene {
         ];
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck potion', detail: 'Money bags $250+' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Extra time', detail: '+15 seconds' });
-        if (bonuses.rockPolish > 0) prepared.push({ kind: 'rockPolish', name: 'Rock polish', detail: 'Rocks $50\nLarge rocks $150' });
+        if (bonuses.lightweightGrip > 0) prepared.push({ kind: 'lightweightGrip', name: 'Lightweight Grip', detail: 'Rock weight\n-40%' });
         if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x2' });
         text(533, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
         const cardTop = 564;

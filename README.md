@@ -47,11 +47,11 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 
 - 20 levels with increasing targets and four cave layouts: Gold Pocket, Rat Tunnels, Explosive Cavern, and Deep Mine.
 - Four gold-nugget sizes worth $70, $140, $250, and $400; diamonds worth $500 and rubies worth $700 before upgrades.
-- Four rock sizes worth $12, $16, $18, and $20 before rock polish.
+- Four rock sizes worth $12, $16, $18, and $20.
 - Cash bags worth $40–$320, with a $250 minimum when Luck is active.
 - Heavy purple mystery bags marked **?** containing $10–$640, one dynamite stick, or a strength boost for three catches. Cash rewards favor the higher end.
 - Moving rats worth $1, including rats carrying diamonds or rubies worth the gem’s value plus $1.
-- Treasure chests: the first hit opens the chest and reveals its reward; catch it again to collect. Rewards include $320–$720, dynamite, Luck potions, rock polish, or a life vial.
+- Treasure chests: the first hit opens the chest and reveals its reward; catch it again to collect. Rewards include $320–$720, dynamite, Luck potions, Lightweight Grip, or a life vial.
 - Gem-studded rocks contain hidden treasure that can crumble away during hauling. Blast them to release the remaining contents.
 - Rocks with an embedded diamond or ruby reward precision: catch just the gem or haul the heavy rock with it. These appear on medium or larger rocks deep underground.
 - A separate rare combined type has both crystal studs and an embedded gem, with a 50% chance per level to attempt one. Blasting guarantees the visible gem plus remaining hidden gold; extracting the gem first prevents it from dropping twice.
@@ -70,12 +70,12 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Dynamite | One additional stick | $750 |
 | Luck potion | Money bags pay at least $250 in the next level | $500 |
 | Extra time | Adds 15 seconds to the next level | $600 |
-| Rock polish | Rocks pay $50 / $100 / $125 / $150 by size for one round | $250 |
+| Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
 | Prospector’s Lens | Reveals cash-bag values, mystery-bag contents, and treasure-chest rewards for one round | $1,500 |
 | Streak vial | Doubles streak bonuses for the full next level; mine vials boost to x3 for 15 seconds | $1,000 |
 | Life vial | Immediately restores one life, up to five | $3,000 |
 
-Winch and gem-polish upgrades last for the run, with three tiers each. Luck, extra time, rock polish, Streak vial, and Prospector’s Lens use one charge per round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch and gem-polish upgrades last for the run, with three tiers each. Luck, extra time, Lightweight Grip, Streak vial, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
 
 ## Development
 
@@ -99,7 +99,7 @@ Progress lasts for the current run only. There is no backend or persistent save 
 
 ### Perfect catches
 
-Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the entire haul. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 10% of the object's boosted cash value on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats, utility vials, and opening a chest do not qualify. Dynamiting the object forfeits its perfect bonus.
+Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the entire haul. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 35% of the object's boosted cash value, rounded up to the nearest $10, on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats, utility vials, and opening a chest do not qualify. Dynamiting the object forfeits its perfect bonus.
 
 ### Catch streaks
 

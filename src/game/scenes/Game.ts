@@ -111,7 +111,7 @@ export class Game extends Scene {
             this.miner.reactTo(object.kind);
             showValue(earned);
         }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15,
-        () => this.round.strengthMultiplier, this.round.bonuses.rockPolish > 0,
+        () => this.round.strengthMultiplier, this.round.bonuses.lightweightGrip > 0,
         object => {
             // Gem-studded deposits are neutral, including the combined gem-rock type.
             const ordinaryRock = !object.gemDeposit
@@ -151,7 +151,7 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 17, color: '#ecc4ff', backgroundColor: '#42304b',
             padding: { x: 8, y: 5 }
         }));
-        if (this.round.bonuses.rockPolish) this.passiveBuffTexts.push(this.add.text(32, 251, 'ROCK POLISH: rocks $50 / $150', {
+        if (this.round.bonuses.lightweightGrip) this.passiveBuffTexts.push(this.add.text(32, 251, 'LIGHTWEIGHT GRIP: rock weight -40%', {
             fontFamily: 'Arial', fontSize: 17, color: '#ffe5ac', backgroundColor: '#483126',
             padding: { x: 8, y: 5 }
         }));
@@ -162,7 +162,7 @@ export class Game extends Scene {
         this.passiveBuffTexts.push(this.streakVialText);
         const buffKinds: BuffKind[] = ['strength', 'goldRush'];
         if (this.round.bonuses.luck) buffKinds.push('luck');
-        if (this.round.bonuses.rockPolish) buffKinds.push('rockPolish');
+        if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
         buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
         addSoundButton(this, 32, 166);

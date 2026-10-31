@@ -68,17 +68,21 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.fillStyle(0xb68b4e).fillRoundedRect(-15, -42, 30, 20, 4);
         g.fillStyle(0xffe8e8).fillCircle(-7, 5, 9).fillCircle(7, 5, 9).fillTriangle(-16, 7, 16, 7, 0, 25);
         g.lineStyle(3, 0xffffff).lineBetween(-15, -17, -15, -8);
-    } else if (kind === 'rockPolish') {
-        g.fillStyle(0x8a969f).lineStyle(3, 0x414952);
-        g.beginPath().moveTo(-43, 19).lineTo(-34, -10).lineTo(-5, -23)
-            .lineTo(24, -8).lineTo(32, 23).lineTo(-9, 34).closePath().fillPath().strokePath();
-        g.fillStyle(0xd9b95e).fillTriangle(-34, -10, -5, -23, -13, 17)
-            .fillTriangle(-5, -23, 24, -8, -13, 17);
-        g.fillStyle(0xdba34d).lineStyle(3, 0x79552c);
-        g.fillRoundedRect(19, -29, 28, 48, 5).strokeRoundedRect(19, -29, 28, 48, 5);
-        g.fillStyle(0x725039).fillRoundedRect(23, -40, 20, 14, 3);
-        g.fillStyle(0xffedbb).fillRect(23, -14, 20, 16);
-        g.lineStyle(3, 0xfff4c2).lineBetween(-33, -31, -15, -31).lineBetween(-24, -40, -24, -22);
+    } else if (kind === 'lightweightGrip') {
+        // Slim steel claw and upward arrows represent a lighter rock haul.
+        g.lineStyle(8, 0x3d494f).lineBetween(0, -48, 0, -18);
+        g.lineStyle(4, 0xc5e5ec).lineBetween(-1, -48, -1, -18);
+        for (const side of [-1, 1]) {
+            g.lineStyle(9, 0x466875).beginPath().moveTo(0, -18)
+                .lineTo(side * 28, 0).lineTo(side * 23, 28).lineTo(side * 10, 36).strokePath();
+            g.lineStyle(4, 0xb8dce5).beginPath().moveTo(0, -18)
+                .lineTo(side * 28, 0).lineTo(side * 23, 28).lineTo(side * 10, 36).strokePath();
+            const x = side * 44;
+            g.lineStyle(3, 0xffdf79).lineBetween(x, 14, x, -14)
+                .lineBetween(x, -14, x - 7, -5).lineBetween(x, -14, x + 7, -5);
+        }
+        g.fillStyle(0x8a969f).lineStyle(2, 0x414952);
+        g.fillRoundedRect(-13, 8, 26, 20, 6).strokeRoundedRect(-13, 8, 26, 20, 6);
     } else if (kind === 'luck') {
         g.fillStyle(0xb7aacd).lineStyle(3, 0x59416f);
         g.fillRoundedRect(-15, -46, 30, 30, 5).strokeRoundedRect(-15, -46, 30, 30, 5);

@@ -1,17 +1,16 @@
 export interface Upgrades { strength: number; diamonds: number; }
-export interface LevelBonuses { luck: number; extraTime: number; rockPolish: number; prospectorsLens: number; streakVial: number; }
+export interface LevelBonuses { luck: number; extraTime: number; lightweightGrip: number; prospectorsLens: number; streakVial: number; }
 export type UpgradeKind = keyof Upgrades;
 export type ShopItemKind = UpgradeKind | 'dynamite' | 'lifeVial' | keyof LevelBonuses;
 export const emptyUpgrades = (): Upgrades => ({ strength: 0, diamonds: 0 });
-export const emptyBonuses = (): LevelBonuses => ({ luck: 0, extraTime: 0, rockPolish: 0, prospectorsLens: 0, streakVial: 0 });
+export const emptyBonuses = (): LevelBonuses => ({ luck: 0, extraTime: 0, lightweightGrip: 0, prospectorsLens: 0, streakVial: 0 });
 export const remainingBonuses = (bonuses: LevelBonuses): LevelBonuses => ({
     luck: Math.max(0, bonuses.luck - 1),
     extraTime: Math.max(0, bonuses.extraTime - 1),
-    rockPolish: Math.max(0, bonuses.rockPolish - 1),
+    lightweightGrip: Math.max(0, bonuses.lightweightGrip - 1),
     streakVial: Math.max(0, bonuses.streakVial - 1),
     prospectorsLens: Math.max(0, bonuses.prospectorsLens - 1)
 });
-export const POLISHED_ROCK_VALUES = { rock: 50, mediumRock: 100, heavyRock: 125, largeRock: 150 };
 export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => kind === 'strength' || kind === 'diamonds';
 export const UPGRADE_LIMIT = 3;
 export const UPGRADE_INFO = {
@@ -23,7 +22,7 @@ export const UPGRADE_INFO = {
     dynamite: { name: 'Dynamite', description: 'One stick. Unused dynamite carries over; no free refills', basePrice: 750 },
     luck: { name: 'Luck potion', description: 'Money bags pay at least $250. Each purchase covers one round', basePrice: 500 },
     extraTime: { name: 'Extra time', description: '+15 seconds per round. Each purchase covers one round', basePrice: 600 },
-    rockPolish: { name: 'Rock polish', description: 'Rocks pay $50; large rocks pay $150. Each purchase covers one round', basePrice: 250 }
+    lightweightGrip: { name: 'Lightweight Grip', description: 'Reduces rock hauling weight by 40%, including gem-bearing rocks. Each purchase covers one round', basePrice: 250 }
 };
 export const upgradePrice = (kind: ShopItemKind, upgrades: Upgrades): number =>
     UPGRADE_INFO[kind].basePrice * (isPermanentUpgrade(kind) ? upgrades[kind] + 1 : 1);

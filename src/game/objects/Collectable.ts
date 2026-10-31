@@ -6,7 +6,6 @@ import { TNT_BLAST_RADIUS } from './Explosions';
 import { findClearAim, findExposedGemAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
 import { WORLD } from '../state/World';
-import { POLISHED_ROCK_VALUES } from '../state/Upgrades';
 import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../state/TreasureRewards';
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
@@ -44,7 +43,11 @@ export class Collectable {
     private supportingRock?: Collectable;
     private gemOffset = { x: 0, y: 0 };
     get isMountedGem(): boolean { return this.supportingRock !== undefined; }
-    get weight(): number { return this.baseWeight + (this.mountedGem?.weight ?? 0); }
+    get weight(): number { return this.haulingWeight(false); }
+    haulingWeight(lightweightGrip: boolean): number {
+        const rock = ['rock', 'mediumRock', 'heavyRock', 'largeRock'].includes(this.kind);
+        return this.baseWeight * (lightweightGrip && rock ? 0.6 : 1) + (this.mountedGem?.weight ?? 0);
+    }
     readonly graphic: GameObjects.Graphics;
     available = true;
     private chestOpened = false;
@@ -374,6 +377,10 @@ export class Collectable {
                 g.fillStyle(0xb68b4e).fillRoundedRect(-6, -26, 12, 8, 2);
                 g.fillStyle(0xffe8e8).fillCircle(-3, -8, 4).fillCircle(3, -8, 4)
                     .fillTriangle(-7, -7, 7, -7, 0, 1);
+            } else if (this.treasureReward?.kind === 'lightweightGrip') {
+                g.lineStyle(5, 0xc5e5ec).lineBetween(0, -25, 0, -12);
+                g.lineStyle(4, 0x7199a8).beginPath().moveTo(0, -12).lineTo(-12, -5)
+                    .lineTo(-8, 4).moveTo(0, -12).lineTo(12, -5).lineTo(8, 4).strokePath();
             } else {
                 g.fillStyle(this.treasureReward?.kind === 'luck' ? 0xb67ee0 : 0xdba34d)
                     .fillRoundedRect(-10, -18, 20, 20, 4);
@@ -464,14 +471,11 @@ export class Collectable {
         return true;
     }
 
-    collectionValue(diamondMultiplier = 1, rockPolish = false): number {
+    collectionValue(diamondMultiplier = 1): number {
         if (this.mountedGem) {
-            const rockValue = rockPolish && (this.kind === 'rock' || this.kind === 'mediumRock' || this.kind === 'heavyRock' || this.kind === 'largeRock')
-                ? POLISHED_ROCK_VALUES[this.kind] : this.value;
-            return rockValue + this.mountedGem.collectionValue(diamondMultiplier);
+            return this.value + this.mountedGem.collectionValue(diamondMultiplier);
         }
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
-        if (rockPolish && (this.kind === 'rock' || this.kind === 'mediumRock' || this.kind === 'heavyRock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
         if (this.kind === 'diamondRat') return TYPES.rat.value + Math.round(TYPES.diamond.value * diamondMultiplier);
         if (this.kind === 'rubyRat') return TYPES.rat.value + Math.round(TYPES.ruby.value * diamondMultiplier);
         return Math.round(this.value * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
