@@ -7,7 +7,7 @@ import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../stat
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
     ruby: { radius: 15, value: 1000, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
@@ -18,6 +18,7 @@ const TYPES = {
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
     rat: { radius: 21, value: 2, weight: 0.1, color: 0x88766a },
     diamondRat: { radius: 24, value: 602, weight: 0.2, color: 0x88766a },
+    rubyRat: { radius: 24, value: 1002, weight: 0.2, color: 0x88766a },
     diamond: { radius: 17, value: 600, weight: 0.4, color: 0x70e6f5 },
     moneyBag: { radius: 30, value: 0, weight: 1.2, color: 0xc49450 },
     small: { radius: 15, value: 90, weight: 0.6, color: 0xffdf49 },
@@ -114,6 +115,14 @@ export class Collectable {
                 g.beginPath().moveTo(-12, -14).lineTo(-7, -20).lineTo(1, -20)
                     .lineTo(6, -14).lineTo(-3, -5).closePath().fillPath().strokePath();
                 g.lineStyle(1, 0xe8ffff).lineBetween(-12, -14, 6, -14).lineBetween(-7, -20, -3, -5);
+            } else if (kind === 'rubyRat') {
+                g.fillStyle(0xe83864).lineStyle(2, 0x751d42);
+                g.beginPath().moveTo(-7, -23).lineTo(1, -23).lineTo(7, -16)
+                    .lineTo(3, -9).lineTo(-3, -5).lineTo(-10, -10).lineTo(-13, -16)
+                    .closePath().fillPath().strokePath();
+                g.fillStyle(0xffa6bb).fillTriangle(-7, -23, -3, -16, -13, -16);
+                g.fillStyle(0x9f2152).fillTriangle(7, -16, -3, -5, 3, -9);
+                g.lineStyle(1, 0xffd2dd).lineBetween(-13, -16, 7, -16).lineBetween(-3, -16, 1, -23);
             }
             g.setScale(this.direction, 1);
             return;
@@ -209,7 +218,7 @@ export class Collectable {
         }
     }
 
-    get isRat(): boolean { return this.kind === 'rat' || this.kind === 'diamondRat'; }
+    get isRat(): boolean { return this.kind === 'rat' || this.kind === 'diamondRat' || this.kind === 'rubyRat'; }
 
     hideTreasureLabel(): void {
         this.treasureLabel?.destroy();
@@ -274,7 +283,7 @@ export class Collectable {
     celebrateCatch(scene: Scene, value = this.value): boolean {
         if (value < 90) return false;
         const intensity = Math.min(1, Math.max(0, (value - 90) / 660));
-        const color = this.kind === 'ruby' ? 0xff93b4
+        const color = this.kind === 'ruby' || this.kind === 'rubyRat' ? 0xff93b4
             : this.kind === 'diamond' || this.kind === 'diamondRat' ? 0x9ef5ff : 0xffe48a;
         const glow = scene.add.graphics().setPosition(this.x, this.y).setDepth(4);
         this.catchGlow = glow;
@@ -310,6 +319,7 @@ export class Collectable {
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
         if (rockPolish && (this.kind === 'rock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
         if (this.kind === 'diamondRat') return 2 + Math.round(TYPES.diamond.value * diamondMultiplier);
+        if (this.kind === 'rubyRat') return 2 + Math.round(TYPES.ruby.value * diamondMultiplier);
         return Math.round(this.value * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
     }
 
@@ -360,7 +370,8 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
         case 'tnt': return [400, 820];
         case 'diamond': return [800, 880];
         case 'ruby': return [560, 860];
-        case 'diamondRat': return [570, 700];
+        case 'diamondRat':
+        case 'rubyRat': return [570, 700];
         case 'giant': return [700, 840];
         case 'treasureChest': return [620, 820];
         case 'large': return [570, 730];
@@ -373,7 +384,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
 }
 
 const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === 'largeRock';
-const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat';
+const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat' && kind !== 'rubyRat';
 
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
     // Roll once per seeded level, not on placement retries. At most one rare chest.
@@ -447,7 +458,9 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             if (positions.length < index + 1) break;
         }
         if (positions.length === kinds.length) {
-            return positions.map(({ x, y, kind }) => new Collectable(scene, x, y, kind, level.ratSpeed, random));
+            // Swap gems after placement: both carriers share a size and depth range.
+            return positions.map(({ x, y, kind }) => new Collectable(scene, x, y,
+                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random));
         }
     }
     throw new Error('Could not generate a complete mining layout.');
