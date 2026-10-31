@@ -88,12 +88,23 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.lineStyle(7, 0x39464d).lineBetween(27, 0, 61, 0).lineBetween(61, 0, 61, -25);
         g.fillStyle(0x79512e).fillRoundedRect(52, -32, 18, 13, 4);
     } else if (kind === 'diamonds') {
+        g.save().translateCanvas(-21, 2).scaleCanvas(0.7, 0.7);
         g.fillStyle(0x70e6f5).lineStyle(3, 0x287e9a);
         g.beginPath().moveTo(-48, -15).lineTo(-26, -42).lineTo(26, -42)
             .lineTo(48, -15).lineTo(0, 43).closePath().fillPath().strokePath();
         g.fillStyle(0xe8ffff).fillTriangle(-48, -15, 0, -42, 0, 43);
         g.lineStyle(2, 0x3196b1).lineBetween(-48, -15, 48, -15).lineBetween(-26, -15, 0, 43).lineBetween(26, -15, 0, 43);
         g.lineStyle(3, 0xfff4c2).lineBetween(53, -42, 69, -42).lineBetween(61, -50, 61, -34);
+        g.restore();
+        // A faceted ruby beside the diamond identifies polish for both gems.
+        g.fillStyle(0xe83864).lineStyle(3, 0x751d42);
+        g.beginPath().moveTo(16, -24).lineTo(39, -24).lineTo(52, -7)
+            .lineTo(43, 20).lineTo(28, 34).lineTo(10, 20).lineTo(4, -7)
+            .closePath().fillPath().strokePath();
+        g.fillStyle(0xffa6bb).fillTriangle(16, -24, 28, -7, 4, -7);
+        g.fillStyle(0xff6288).fillTriangle(4, -7, 28, -7, 28, 34);
+        g.fillStyle(0x9f2152).fillTriangle(52, -7, 28, 34, 43, 20);
+        g.lineStyle(2, 0xffd2dd).lineBetween(4, -7, 52, -7).lineBetween(28, -7, 39, -24);
     } else {
         g.fillStyle(0x69442c).fillRoundedRect(-56, 16, 112, 22, 4);
         for (const x of [-28, 0, 28]) {

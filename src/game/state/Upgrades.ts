@@ -14,7 +14,7 @@ export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => k
 export const UPGRADE_LIMIT = 3;
 export const UPGRADE_INFO = {
     strength: { name: 'Stronger winch', description: '+10% retrieval speed per tier. Lasts for this run', basePrice: 1000 },
-    diamonds: { name: 'Diamond polish', description: '+15% diamond value per tier. Lasts for this run', basePrice: 1250 },
+    diamonds: { name: 'Gem polish', description: '+15% diamond and ruby value per tier. Lasts for this run', basePrice: 1250 },
     dynamite: { name: 'Dynamite', description: 'One stick. Unused dynamite carries over; no free refills', basePrice: 750 },
     luck: { name: 'Luck potion', description: 'Money bags pay at least $250. Each purchase covers one round', basePrice: 500 },
     extraTime: { name: 'Extra time', description: '+15 seconds per round. Each purchase covers one round', basePrice: 600 },

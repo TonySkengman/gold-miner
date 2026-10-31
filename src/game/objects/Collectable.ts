@@ -7,18 +7,19 @@ import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../stat
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
+    ruby: { radius: 15, value: 1000, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
-    goldRush: { radius: 19, value: 0, weight: 0.2, color: 0xffc52e },
-    timeVial: { radius: 19, value: 0, weight: 0.2, color: 0x66d9fa },
+    goldRush: { radius: 30, value: 0, weight: 0.2, color: 0xffc52e },
+    timeVial: { radius: 30, value: 0, weight: 0.2, color: 0x66d9fa },
     mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
-    strengthPotion: { radius: 19, value: 0, weight: 0.2, color: 0x80d65b },
+    strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
     rat: { radius: 21, value: 2, weight: 0.1, color: 0x88766a },
     diamondRat: { radius: 24, value: 602, weight: 0.2, color: 0x88766a },
     diamond: { radius: 17, value: 600, weight: 0.4, color: 0x70e6f5 },
-    moneyBag: { radius: 22, value: 0, weight: 1.2, color: 0xc49450 },
+    moneyBag: { radius: 30, value: 0, weight: 1.2, color: 0xc49450 },
     small: { radius: 15, value: 90, weight: 0.6, color: 0xffdf49 },
     medium: { radius: 32, value: 180, weight: 1.5, color: 0xffca28 },
     large: { radius: 48, value: 300, weight: 3, color: 0xf5b51b },
@@ -56,6 +57,7 @@ export class Collectable {
             return;
         }
         if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'timeVial') {
+            g.save().scaleCanvas(r / 19, r / 19);
             g.fillStyle(0x9fc9bd).lineStyle(3, 0x365c50);
             g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
                 .lineTo(-14, 13).lineTo(-8, 17).lineTo(8, 17).lineTo(14, 13)
@@ -76,6 +78,7 @@ export class Collectable {
                 g.fillStyle(0xfff1af).fillTriangle(2, -1, -4, 7, 1, 7).fillTriangle(-1, 5, 4, 5, -2, 13);
             }
             g.lineStyle(2, 0xe0f6de).lineBetween(-9, -1, -11, 2);
+            g.restore();
             return;
         }
         if (kind === 'tnt') {
@@ -113,6 +116,18 @@ export class Collectable {
                 g.lineStyle(1, 0xe8ffff).lineBetween(-12, -14, 6, -14).lineBetween(-7, -20, -3, -5);
             }
             g.setScale(this.direction, 1);
+            return;
+        }
+        if (kind === 'ruby') {
+            g.fillStyle(type.color).lineStyle(2, 0x751d42);
+            g.beginPath().moveTo(-r * 0.5, -r).lineTo(r * 0.5, -r)
+                .lineTo(r, -r * 0.3).lineTo(r * 0.7, r * 0.55).lineTo(0, r)
+                .lineTo(-r * 0.7, r * 0.55).lineTo(-r, -r * 0.3).closePath().fillPath().strokePath();
+            g.fillStyle(0xffa6bb).fillTriangle(-r * 0.5, -r, 0, -r * 0.3, -r, -r * 0.3);
+            g.fillStyle(0xff6288).fillTriangle(-r, -r * 0.3, 0, -r * 0.3, 0, r);
+            g.fillStyle(0x9f2152).fillTriangle(r, -r * 0.3, 0, r, r * 0.7, r * 0.55);
+            g.lineStyle(1, 0xffd2dd).lineBetween(-r, -r * 0.3, r, -r * 0.3)
+                .lineBetween(0, -r * 0.3, r * 0.5, -r);
             return;
         }
         if (kind === 'diamond') {
@@ -259,7 +274,8 @@ export class Collectable {
     celebrateCatch(scene: Scene, value = this.value): boolean {
         if (value < 90) return false;
         const intensity = Math.min(1, Math.max(0, (value - 90) / 660));
-        const color = this.kind === 'diamond' || this.kind === 'diamondRat' ? 0x9ef5ff : 0xffe48a;
+        const color = this.kind === 'ruby' ? 0xff93b4
+            : this.kind === 'diamond' || this.kind === 'diamondRat' ? 0x9ef5ff : 0xffe48a;
         const glow = scene.add.graphics().setPosition(this.x, this.y).setDepth(4);
         this.catchGlow = glow;
         const r = this.radius;
@@ -294,7 +310,7 @@ export class Collectable {
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
         if (rockPolish && (this.kind === 'rock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
         if (this.kind === 'diamondRat') return 2 + Math.round(TYPES.diamond.value * diamondMultiplier);
-        return Math.round(this.value * (this.kind === 'diamond' ? diamondMultiplier : 1));
+        return Math.round(this.value * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
     }
 
     update(seconds: number, objects: Collectable[]): void {
@@ -343,6 +359,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
         case 'timeVial': return [minimumDepth, 860];
         case 'tnt': return [400, 820];
         case 'diamond': return [800, 880];
+        case 'ruby': return [560, 860];
         case 'diamondRat': return [570, 700];
         case 'giant': return [700, 840];
         case 'treasureChest': return [620, 820];
@@ -361,6 +378,7 @@ const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
     // Roll once per seeded level, not on placement retries. At most one rare chest.
     const hasChest = random() < 0.5;
+    const hasRuby = random() < 0.35;
     // Place the largest objects first; retry the whole layout if it becomes crowded.
     const kinds: OreKind[] = [
         'giant', ...Array<OreKind>(level.largeRocks).fill('largeRock'),
@@ -370,6 +388,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         'medium', 'medium', 'medium',
         ...Array<OreKind>(level.moneyBags).fill('moneyBag'),
         ...Array<OreKind>(level.diamonds).fill('diamond'),
+        ...(hasRuby ? ['ruby' as const] : []),
         'small', 'small', 'small', 'small', 'strengthPotion', 'goldRush', 'timeVial', 'mysteryBag',
         ...Array<OreKind>(level.rats).fill('rat'),
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')

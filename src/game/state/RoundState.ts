@@ -9,8 +9,8 @@ export class RoundState {
     score = 0;
     bonusMoney = 0;
     private claimedMilestones = 0;
-    strengthRemaining = 0;
-    goldRushRemaining = 0;
+    strengthCatches = 0;
+    goldRushCatches = 0;
     dynamite: number;
     readonly upgrades: Upgrades;
     readonly bonuses: LevelBonuses;
@@ -38,10 +38,10 @@ export class RoundState {
             return '+1 DYNAMITE!';
         }
         this.activateStrength();
-        return 'STRENGTH x2!';
+        return 'STRENGTH x2 • 2 CATCHES!';
     }
 
-    activateStrength(): void { this.strengthRemaining = 15; }
+    activateStrength(): void { this.strengthCatches = 2; }
 
     applyTreasureReward(reward: TreasureReward): string {
         if (reward.kind === 'money') this.score += reward.amount;
@@ -56,16 +56,24 @@ export class RoundState {
             rockPolish: stock.rockPolish + this.collectedBonuses.rockPolish };
     }
 
-    activateGoldRush(): void { this.goldRushRemaining = 12; }
+    activateGoldRush(): void { this.goldRushCatches = 2; }
+
+    /** Consume on a real latch, including non-gold catches; misses and unlocking don't count. */
+    consumeCatch(kind: OreKind): number {
+        const goldMultiplier = this.goldRushValue(100, kind) / 100;
+        this.strengthCatches = Math.max(0, this.strengthCatches - 1);
+        this.goldRushCatches = Math.max(0, this.goldRushCatches - 1);
+        return goldMultiplier;
+    }
 
     addTime(): void { this.remaining += 8; }
 
     goldRushValue(value: number, kind: OreKind): number {
         const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
-        return this.goldRushRemaining > 0 && gold ? Math.round(value * 1.5) : value;
+        return this.goldRushCatches > 0 && gold ? Math.round(value * 1.5) : value;
     }
 
-    get strengthMultiplier(): number { return this.strengthRemaining > 0 ? 2 : 1; }
+    get strengthMultiplier(): number { return this.strengthCatches > 0 ? 2 : 1; }
 
     get money(): number { return this.startingMoney + this.score + this.bonusMoney; }
 
@@ -99,8 +107,6 @@ export class RoundState {
     get won(): boolean { return this.score >= this.target; }
 
     update(seconds: number): void {
-        this.strengthRemaining = Math.max(0, this.strengthRemaining - seconds);
-        this.goldRushRemaining = Math.max(0, this.goldRushRemaining - seconds);
         this.remaining = Math.max(0, this.remaining - seconds);
     }
 }

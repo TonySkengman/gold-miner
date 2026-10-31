@@ -14,6 +14,8 @@ export class Claw {
     private swingDirection = 1;
     private length = 30;
     private caught: Collectable | null = null;
+    private caughtValue = 0;
+    private haulingStrength = 1;
     private gripOffsetX = 0;
     private gripOffsetY = 0;
     private readonly grabReach = 18;
@@ -22,7 +24,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private readonly origin = { x: 512, y: 210 };
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly rockPolish = false, private readonly onCatch: (object: Collectable) => number = () => 1) {
         this.graphic = scene.add.graphics().setDepth(5);
         this.draw();
     }
@@ -33,7 +35,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * this.retrievalMultiplier * this.strengthBoost() / (1 + (this.caught?.weight ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) / (1 + (this.caught?.weight ?? 0)) : 0;
     }
 
     launch(): void {
@@ -117,8 +119,10 @@ export class Claw {
                     this.draw();
                     return;
                 }
-                const catchValue = first.treasureReward ? treasureRewardValue(first.treasureReward)
-                    : first.collectionValue(this.diamondMultiplier, this.rockPolish);
+                // Snapshot both boosts before spending a charge, so the final charged haul stays boosted.
+                this.haulingStrength = this.strengthBoost();
+                this.caughtValue = Math.round(first.collectionValue(this.diamondMultiplier, this.rockPolish) * this.onCatch(first));
+                const catchValue = first.treasureReward ? treasureRewardValue(first.treasureReward) : this.caughtValue;
                 const valuable = first.celebrateCatch(this.scene, catchValue);
                 soundEffects.play(valuable ? 'valuableCatch' : 'catch', catchValue);
                 this.caught = first;
@@ -139,7 +143,7 @@ export class Claw {
             if (this.length <= 30) {
                 if (this.caught) {
                     soundEffects.play('collect');
-                    this.onCollect(this.caught.collectionValue(this.diamondMultiplier, this.rockPolish), this.caught);
+                    this.onCollect(this.caughtValue, this.caught);
                     this.caught.destroy();
                     this.caught = null;
                 }

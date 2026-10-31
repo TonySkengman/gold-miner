@@ -52,7 +52,7 @@ export class Game extends Scene {
             }
             if (object.kind === 'goldRush') {
                 this.round.activateGoldRush();
-                this.showCollectionValue(0, 'GOLD RUSH! +50% • 12s');
+                this.showCollectionValue(0, 'GOLD RUSH! 2 CATCHES');
                 return;
             }
             if (object.kind === 'timeVial') {
@@ -66,15 +66,17 @@ export class Game extends Scene {
             }
             if (object.kind === 'strengthPotion') {
                 this.round.activateStrength();
-                this.showCollectionValue(0, 'STRENGTH x2!');
+                this.showCollectionValue(0, 'STRENGTH x2 • 2 CATCHES!');
                 return;
             }
             const earned = this.round.bonuses.luck && object.kind === 'moneyBag'
-                ? Math.max(250, value) : this.round.goldRushValue(value, object.kind);
+                ? Math.max(250, value) : value;
             this.round.score += earned;
             this.miner.reactTo(object.kind);
             this.showCollectionValue(earned);
-        }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15, () => this.round.strengthMultiplier, this.round.bonuses.rockPolish > 0);
+        }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15,
+        () => this.round.strengthMultiplier, this.round.bonuses.rockPolish > 0,
+        object => this.round.consumeCatch(object.kind));
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(512, 44, 1024, 88, 0x483126);
         this.scoreText = this.add.text(32, 29, '', style);
@@ -232,10 +234,10 @@ export class Game extends Scene {
             this.tweens.add({ targets: popup, y: 291, alpha: 0, delay: 1400, duration: 450, onComplete: () => popup.destroy() });
         }
         this.milestoneProgress.update(this.round);
-        this.strengthText.setVisible(this.round.strengthRemaining > 0);
-        this.strengthText.setText(`STRENGTH x2  ${Math.ceil(this.round.strengthRemaining)}s`);
-        this.goldRushText.setVisible(this.round.goldRushRemaining > 0);
-        this.goldRushText.setText(`GOLD RUSH +50%  ${Math.ceil(this.round.goldRushRemaining)}s`);
+        this.strengthText.setVisible(this.round.strengthCatches > 0);
+        this.strengthText.setText(`STRENGTH x2  ${this.round.strengthCatches} catches`);
+        this.goldRushText.setVisible(this.round.goldRushCatches > 0);
+        this.goldRushText.setText(`GOLD RUSH +50%  ${this.round.goldRushCatches} catches`);
         let buffY = 213;
         for (const text of [this.strengthText, this.goldRushText, ...this.passiveBuffTexts]) {
             if (!text.visible) continue;
