@@ -1,19 +1,21 @@
 export interface Upgrades { strength: number; diamonds: number; }
-export interface LevelBonuses { luck: number; extraTime: number; rockPolish: number; prospectorsLens: number; }
+export interface LevelBonuses { luck: number; extraTime: number; rockPolish: number; prospectorsLens: number; streakVial: number; }
 export type UpgradeKind = keyof Upgrades;
 export type ShopItemKind = UpgradeKind | 'dynamite' | 'lifeVial' | keyof LevelBonuses;
 export const emptyUpgrades = (): Upgrades => ({ strength: 0, diamonds: 0 });
-export const emptyBonuses = (): LevelBonuses => ({ luck: 0, extraTime: 0, rockPolish: 0, prospectorsLens: 0 });
+export const emptyBonuses = (): LevelBonuses => ({ luck: 0, extraTime: 0, rockPolish: 0, prospectorsLens: 0, streakVial: 0 });
 export const remainingBonuses = (bonuses: LevelBonuses): LevelBonuses => ({
     luck: Math.max(0, bonuses.luck - 1),
     extraTime: Math.max(0, bonuses.extraTime - 1),
     rockPolish: Math.max(0, bonuses.rockPolish - 1),
+    streakVial: Math.max(0, bonuses.streakVial - 1),
     prospectorsLens: Math.max(0, bonuses.prospectorsLens - 1)
 });
 export const POLISHED_ROCK_VALUES = { rock: 50, mediumRock: 100, heavyRock: 125, largeRock: 150 };
 export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => kind === 'strength' || kind === 'diamonds';
 export const UPGRADE_LIMIT = 3;
 export const UPGRADE_INFO = {
+    streakVial: { name: 'Streak vial', description: 'Doubles streak bonuses for one full round. Catching a mine streak vial boosts them to x3 for 15 seconds', basePrice: 1000 },
     prospectorsLens: { name: 'Prospector’s Lens', description: 'Reveals cash-bag values and the exact contents of mystery bags and treasure chests. Each purchase covers one round', basePrice: 1500 },
     lifeVial: { name: 'Life vial', description: 'Restores one life immediately, up to five lives', basePrice: 3000 },
     strength: { name: 'Stronger winch', description: '+10% retrieval speed per tier. Lasts for this run', basePrice: 1000 },

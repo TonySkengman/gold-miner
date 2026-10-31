@@ -10,18 +10,28 @@ export class RoundState {
     readonly startingLives: number;
     score = 0;
     catchStreak = 0;
+    streakVialSeconds = 0;
+
+    get streakVialActive(): boolean { return this.streakMultiplier > 1; }
+
+    get streakMultiplier(): number {
+        if (this.bonuses.streakVial > 0) return this.streakVialSeconds > 0 ? 3 : 2;
+        return this.streakVialSeconds > 0 ? 2 : 1;
+    }
+
+    activateStreakVial(): void { this.streakVialSeconds = this.bonuses.streakVial > 0 ? 15 : 30; }
 
     /** Register a latch immediately; the returned bonus is paid only on delivery. */
     latchStreak(kind: OreKind): number {
         if (!['small', 'medium', 'large', 'giant', 'diamond', 'ruby', 'moneyBag', 'mysteryBag', 'treasureChest'].includes(kind)) return 0;
         this.catchStreak++;
-        const bonus = Math.max(0, this.catchStreak - 2) * 25;
+        const bonus = this.currentStreakBonus;
         return bonus;
     }
 
     missShot(): void { this.catchStreak = 0; }
 
-    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * 25; }
+    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * 25 * this.streakMultiplier; }
 
     bonusMoney = 0;
     private claimedMilestones = 0;
@@ -74,7 +84,7 @@ export class RoundState {
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
-        return { luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+        return { streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
             prospectorsLens: stock.prospectorsLens, rockPolish: stock.rockPolish + this.collectedBonuses.rockPolish };
     }
 
@@ -88,7 +98,7 @@ export class RoundState {
         return goldMultiplier;
     }
 
-    addTime(): void { this.remaining += 8; }
+    addTime(): void { this.remaining += 15; }
 
     goldRushValue(value: number, kind: OreKind): number {
         const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
@@ -130,5 +140,6 @@ export class RoundState {
 
     update(seconds: number): void {
         this.remaining = Math.max(0, this.remaining - seconds);
+        this.streakVialSeconds = Math.max(0, this.streakVialSeconds - seconds);
     }
 }

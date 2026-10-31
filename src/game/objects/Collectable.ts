@@ -11,11 +11,12 @@ import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../stat
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
     ruby: { radius: 15, value: 700, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
     goldRush: { radius: 30, value: 0, weight: 0.2, color: 0xffc52e },
+    streakVial: { radius: 30, value: 0, weight: 0.2, color: 0xa75ae0 },
     timeVial: { radius: 30, value: 0, weight: 0.2, color: 0x66d9fa },
     mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
     strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
@@ -80,7 +81,7 @@ export class Collectable {
             this.drawChest();
             return;
         }
-        if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'timeVial') {
+        if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'timeVial' || kind === 'streakVial') {
             g.save().scaleCanvas(r / 19, r / 19);
             g.fillStyle(0x9fc9bd).lineStyle(3, 0x365c50);
             g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
@@ -90,7 +91,12 @@ export class Collectable {
             g.fillStyle(kind === 'goldRush' ? 0xffee9a : kind === 'timeVial' ? 0xd5f8ff : 0xaff17d).fillRect(-8, 4, 4, 7);
             g.fillStyle(0xad7c43).lineStyle(2, 0x694729)
                 .fillRoundedRect(-7, -18, 14, 7, 2).strokeRoundedRect(-7, -18, 14, 7, 2);
-            if (kind === 'goldRush') {
+            if (kind === 'streakVial') {
+                for (const x of [-5, 5]) {
+                    g.fillStyle(0xffe68c).fillTriangle(x + 2, -1, x - 4, 7, x + 1, 7)
+                        .fillTriangle(x - 1, 5, x + 4, 5, x - 2, 13);
+                }
+            } else if (kind === 'goldRush') {
                 g.fillStyle(0xfff1af).lineStyle(1, 0x986019);
                 g.beginPath().moveTo(-6, 6).lineTo(-2, 1).lineTo(4, 2)
                     .lineTo(7, 8).lineTo(0, 12).closePath().fillPath().strokePath();
@@ -532,6 +538,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
     switch (kind) {
         case 'strengthPotion':
         case 'goldRush':
+        case 'streakVial':
         case 'timeVial': return [minimumDepth, 860];
         case 'tnt': return [400, 820];
         case 'diamond': return [800, 880];
@@ -568,7 +575,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         ...Array<OreKind>(level.moneyBags).fill('moneyBag'),
         ...Array<OreKind>(level.diamonds).fill('diamond'),
         ...(hasRuby ? ['ruby' as const] : []),
-        'small', 'small', 'small', 'small', 'strengthPotion', 'goldRush', 'timeVial', 'mysteryBag',
+        'small', 'small', 'small', 'small', 'strengthPotion', 'goldRush', 'timeVial', 'streakVial', 'mysteryBag',
         ...Array<OreKind>(level.rats).fill('rat'),
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')
     ];

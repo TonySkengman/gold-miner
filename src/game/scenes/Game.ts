@@ -31,6 +31,7 @@ export class Game extends Scene {
     private progressText: GameObjects.Text;
     private dynamiteInventory: DynamiteInventory;
     private strengthText: GameObjects.Text;
+    private streakVialText: GameObjects.Text;
     private goldRushText: GameObjects.Text;
     private buffIcons: GameObjects.Graphics[] = [];
     private passiveBuffTexts: GameObjects.Text[] = [];
@@ -79,6 +80,11 @@ export class Game extends Scene {
                 this.miner.reactTo(object.kind);
                 return;
             }
+            if (object.kind === 'streakVial') {
+                this.round.activateStreakVial();
+                showValue(0, `STREAK BONUSES x${this.round.streakMultiplier} — ${this.round.streakVialSeconds} SECONDS!`);
+                return;
+            }
             if (object.kind === 'goldRush') {
                 this.round.activateGoldRush();
                 showValue(0, 'GOLD RUSH! 3 GOLD NUGGETS');
@@ -86,7 +92,7 @@ export class Game extends Scene {
             }
             if (object.kind === 'timeVial') {
                 this.round.addTime();
-                showValue(0, '+8 SECONDS!');
+                showValue(0, '+15 SECONDS!');
                 return;
             }
             if (object.kind === 'mysteryBag') {
@@ -148,9 +154,15 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 17, color: '#ffe5ac', backgroundColor: '#483126',
             padding: { x: 8, y: 5 }
         }));
+        this.streakVialText = this.add.text(32, 251, 'STREAK VIAL: bonuses x2', {
+            fontFamily: 'Arial', fontSize: 17, color: '#e7c5ff', backgroundColor: '#42304b',
+            padding: { x: 8, y: 5 }
+        }).setVisible(false);
+        this.passiveBuffTexts.push(this.streakVialText);
         const buffKinds: BuffKind[] = ['strength', 'goldRush'];
         if (this.round.bonuses.luck) buffKinds.push('luck');
         if (this.round.bonuses.rockPolish) buffKinds.push('rockPolish');
+        buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
         addSoundButton(this, 32, 166);
         this.add.text(512, 263, LAYOUTS[this.round.config.layout].name.toUpperCase(), {
@@ -284,24 +296,24 @@ export class Game extends Scene {
         this.ended = true;
         this.round.remaining = 0;
         soundEffects.play(this.round.won ? 'win' : 'lose');
-        if (this.round.won && !this.round.finalLevel) {
-            this.scene.start('UpgradeShop', {
-                lives: this.round.lives,
-                bonuses: this.round.nextBonuses,
-                dynamite: this.round.dynamite,
-                level: this.round.level + 1, money: this.round.money, upgrades: this.round.upgrades
-            });
-            return;
-        }
-        this.scene.start('GameOver', {
-            lives: this.round.won ? this.round.lives : Math.max(0, this.round.startingLives - 1),
-            levelSeed: this.levelSeed,
-            bonuses: this.round.bonuses,
-            dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
+        const lives = this.round.won ? this.round.lives : Math.max(0, this.round.startingLives - 1);
+        this.scene.start('UpgradeShop', {
+            lives,
+            failed: !this.round.won,
+            levelSeed: this.round.won ? undefined : this.levelSeed,
+            bonuses: this.round.won ? this.round.nextBonuses : this.round.bonuses,
+            dynamite: this.round.won ? this.round.dynamite : this.round.startingDynamite,
+            level: this.round.won && !this.round.finalLevel ? this.round.level + 1 : this.round.level,
+            money: this.round.won ? this.round.money : this.round.startingMoney,
             upgrades: this.round.upgrades,
-            money: this.round.money, startingMoney: this.round.startingMoney,
-            score: this.round.score, target: this.round.target, won: this.round.won,
-            level: this.round.level, finalLevel: this.round.finalLevel
+            result: {
+                lives, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
+                dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
+                upgrades: this.round.upgrades,
+                money: this.round.money, startingMoney: this.round.startingMoney,
+                score: this.round.score, target: this.round.target, won: this.round.won,
+                level: this.round.level, finalLevel: this.round.finalLevel
+            }
         });
     }
 
@@ -343,6 +355,9 @@ export class Game extends Scene {
         this.strengthText.setText(`STRENGTH x2  ${this.round.strengthCatches} catches`);
         this.goldRushText.setVisible(this.round.goldRushCatches > 0);
         this.goldRushText.setText(`GOLD RUSH +50%  ${this.round.goldRushCatches} gold nuggets`);
+        this.streakVialText.setVisible(this.round.streakVialActive);
+        this.streakVialText.setText(`STREAK BONUSES x${this.round.streakMultiplier}  ${this.round.streakVialSeconds > 0
+            ? `${Math.ceil(this.round.streakVialSeconds)}s` : 'FULL LEVEL'}`);
         let buffY = 213;
         const buffTexts = [this.strengthText, this.goldRushText, ...this.passiveBuffTexts];
         for (const [index, text] of buffTexts.entries()) {

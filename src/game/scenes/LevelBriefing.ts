@@ -50,12 +50,14 @@ export class LevelBriefing extends Scene {
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck potion', detail: 'Money bags $250+' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Extra time', detail: '+15 seconds' });
         if (bonuses.rockPolish > 0) prepared.push({ kind: 'rockPolish', name: 'Rock polish', detail: 'Rocks $50\nLarge rocks $150' });
+        if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x2' });
         text(533, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
         const cardTop = 564;
         const cardHeight = 136;
+        const spacing = Math.min(190, 760 / prepared.length);
         prepared.forEach((item, index) => {
-            const x = 512 + (index - (prepared.length - 1) / 2) * 190;
-            this.add.rectangle(x, cardTop + cardHeight / 2, 176, cardHeight, 0x3c3329).setStrokeStyle(1, 0x8e603c);
+            const x = 512 + (index - (prepared.length - 1) / 2) * spacing;
+            this.add.rectangle(x, cardTop + cardHeight / 2, spacing - 14, cardHeight, 0x3c3329).setStrokeStyle(1, 0x8e603c);
             this.add.text(x, cardTop + 18, item.name, {
                 fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffda69'
             }).setOrigin(0.5);

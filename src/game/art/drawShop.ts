@@ -44,12 +44,23 @@ export function drawShop(scene: Scene): void {
     g.fillStyle(0xd09a5e).fillRect(87, 591, 851, 6);
 }
 
-export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind, scale = 1): GameObjects.Graphics {
+export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind | 'streakVial', scale = 1): GameObjects.Graphics {
     const g = scene.add.graphics().setPosition(x, y).setScale(scale);
     if (kind === 'prospectorsLens') {
         g.lineStyle(15, 0x79512e).lineBetween(20, 22, 48, 50);
         g.fillStyle(0x92dce8).lineStyle(7, 0xc79949).fillCircle(-5, -6, 33).strokeCircle(-5, -6, 33);
         g.lineStyle(4, 0xe9ffff).lineBetween(-24, -7, -8, -23).lineBetween(-12, 5, 7, -14);
+    } else if (kind === 'streakVial') {
+        g.fillStyle(0xe7c5ff).lineStyle(3, 0x654178);
+        g.fillRoundedRect(-25, -25, 50, 66, 14).strokeRoundedRect(-25, -25, 50, 66, 14);
+        g.fillStyle(0xa75ae0).fillRoundedRect(-19, -6, 38, 40, 9);
+        g.fillStyle(0xffdc69).fillRoundedRect(-16, -43, 32, 20, 4);
+        // Twin golden bolts distinguish the double-streak vial.
+        for (const x of [-10, 8]) {
+            g.fillStyle(0xffe68c).fillTriangle(x + 4, -2, x - 7, 14, x + 3, 14)
+                .fillTriangle(x - 3, 10, x + 7, 10, x - 4, 29);
+        }
+        g.lineStyle(3, 0xffffff).lineBetween(-16, -18, -16, -10);
     } else if (kind === 'lifeVial') {
         g.fillStyle(0xf1c9cc).lineStyle(3, 0x793341);
         g.fillRoundedRect(-24, -25, 48, 65, 14).strokeRoundedRect(-24, -25, 48, 65, 14);

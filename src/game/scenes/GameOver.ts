@@ -4,7 +4,7 @@ import { addSoundButton } from '../audio/SoundEffects';
 import { LevelBonuses, Upgrades, remainingBonuses } from '../state/Upgrades';
 import { Scene } from 'phaser';
 
-interface Result { lives: number; levelSeed: number; bonuses: LevelBonuses; dynamite: number; startingDynamite: number; upgrades: Upgrades; money: number; startingMoney: number; score: number; target: number; won: boolean; level: number; finalLevel: boolean; }
+export interface Result { lives: number; levelSeed: number; bonuses: LevelBonuses; dynamite: number; startingDynamite: number; upgrades: Upgrades; money: number; startingMoney: number; score: number; target: number; won: boolean; level: number; finalLevel: boolean; }
 
 export class GameOver extends Scene {
     constructor() { super('GameOver'); }
