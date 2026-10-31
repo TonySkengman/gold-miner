@@ -42,7 +42,7 @@ export class LevelBriefing extends Scene {
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
         text(428, `${bonuses.extraTime > 0 ? 75 : 60} SECONDS`, 25, '#bcf58b');
-        text(480, `${layout.hint}\nGem-studded rocks: use dynamite to release treasure.`, 19);
+        text(480, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }

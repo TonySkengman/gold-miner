@@ -31,7 +31,7 @@ export function releaseGemDeposit(scene: Scene, deposit: Collectable, objects: C
             if (obstacles.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + 10)) continue;
             const target = { x, y, radius };
             // Other treasure can be caught first; only fixed rocks must leave an aiming gap.
-            const rocks = obstacles.filter(other => other.kind === 'rock' || other.kind === 'largeRock');
+            const rocks = obstacles.filter(other => other.kind === 'rock' || other.kind === 'mediumRock' || other.kind === 'heavyRock' || other.kind === 'largeRock');
             if (findClearAim(target, rocks) === null) continue;
             position = target;
             break;
@@ -46,7 +46,8 @@ export function releaseGemDeposit(scene: Scene, deposit: Collectable, objects: C
             duration: 350, ease: 'Cubic.easeOut', onComplete: () => { drop.available = true; } });
     }
     const label = scene.add.text(Math.max(180, Math.min(844, deposit.x)), Math.max(320, deposit.y - 65),
-        'GEM DEPOSIT!\nCatch the scattered treasure', {
+        released.length > 0 ? 'GEM DEPOSIT!\nCatch the scattered treasure'
+            : 'DEPOSIT CRUMBLED!\nNothing left inside.', {
             fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#9ef5ff',
             align: 'center', stroke: '#483126', strokeThickness: 4
         }).setOrigin(0.5).setDepth(10);

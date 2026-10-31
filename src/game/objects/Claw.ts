@@ -32,7 +32,7 @@ export class Claw {
 
     get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
 
-    get hauledDeposit(): { x: number; y: number; radius: number } | null {
+    get hauledDeposit(): Collectable | null {
         return this.isHauling && this.caught?.gemDeposit ? this.caught : null;
     }
 
@@ -127,6 +127,7 @@ export class Claw {
                     this.draw();
                     return;
                 }
+                first.prepareCatch();
                 // Snapshot both boosts before spending a charge, so the final charged haul stays boosted.
                 this.haulingStrength = this.strengthBoost();
                 this.caughtValue = Math.round(first.collectionValue(this.diamondMultiplier, this.rockPolish) * this.onCatch(first));
@@ -134,6 +135,7 @@ export class Claw {
                 const valuable = first.celebrateCatch(this.scene, catchValue);
                 soundEffects.play(valuable ? 'valuableCatch' : 'catch', catchValue);
                 this.caught = first;
+                first.depositIntegrity?.begin(this.length - 30);
                 // Preserve the contact position instead of snapping the ore's centre to the rope.
                 this.gripOffsetX = first.x - (this.origin.x + Math.sin(this.angle) * this.length);
                 this.gripOffsetY = first.y - (this.origin.y + Math.cos(this.angle) * this.length);
@@ -147,7 +149,9 @@ export class Claw {
                 this.draw();
                 return;
             }
+            const previousLength = this.length;
             this.length = Math.max(30, this.length - this.retrievalSpeed * seconds);
+            this.caught?.advanceDepositHaul(this.scene, previousLength - this.length);
             if (this.length <= 30) {
                 if (this.caught) {
                     soundEffects.play('collect');

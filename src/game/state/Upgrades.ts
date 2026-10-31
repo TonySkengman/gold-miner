@@ -9,7 +9,7 @@ export const remainingBonuses = (bonuses: LevelBonuses): LevelBonuses => ({
     extraTime: Math.max(0, bonuses.extraTime - 1),
     rockPolish: Math.max(0, bonuses.rockPolish - 1)
 });
-export const POLISHED_ROCK_VALUES = { rock: 50, largeRock: 150 };
+export const POLISHED_ROCK_VALUES = { rock: 50, mediumRock: 100, heavyRock: 125, largeRock: 150 };
 export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => kind === 'strength' || kind === 'diamonds';
 export const UPGRADE_LIMIT = 3;
 export const UPGRADE_INFO = {

@@ -42,3 +42,36 @@ export function findClearAim(target: AimCircle, hazards: readonly AimCircle[]): 
     const range = Math.min(WORLD.clawRange, (WORLD.floorY - 210) / Math.cos(aim), 488 / Math.max(0.001, Math.abs(Math.sin(aim))));
     return entry <= range ? aim : null;
 }
+
+/** Embedded gems overlap their host: compare first contact instead of treating its shadow as solid. */
+export function findExposedGemAim(target: AimCircle, obstacles: readonly AimCircle[]): number | null {
+    const centre = Math.atan2(target.x - 512, target.y - 210);
+    const distance = Math.hypot(target.x - 512, target.y - 210);
+    const spread = Math.asin(Math.min(1, (clawCollisionRadius(target.radius) - 3) / distance));
+    const start = Math.max(-1.05, centre - spread);
+    const end = Math.min(1.05, centre + spread);
+    let runStart = start;
+    let bestStart = start;
+    let bestWidth = 0;
+    const entry = (circle: AimCircle, angle: number): number => {
+        const dx = circle.x - 512;
+        const dy = circle.y - 210;
+        const along = dx * Math.sin(angle) + dy * Math.cos(angle);
+        const across = Math.abs(dx * Math.cos(angle) - dy * Math.sin(angle));
+        const radius = clawCollisionRadius(circle.radius);
+        return across <= radius ? along - Math.sqrt(radius * radius - across * across) - 18 : Infinity;
+    };
+    for (let step = 0; step <= 80; step++) {
+        const angle = start + (end - start) * step / 80;
+        const hit = entry(target, angle);
+        const range = Math.min(WORLD.clawRange, (WORLD.floorY - 210) / Math.cos(angle),
+            488 / Math.max(0.001, Math.abs(Math.sin(angle))));
+        const clear = hit >= 30 && hit <= range && obstacles.every(other => entry(other, angle) > hit + 2);
+        if (!clear) runStart = angle;
+        else if (angle - runStart > bestWidth) {
+            bestStart = runStart;
+            bestWidth = angle - runStart;
+        }
+    }
+    return bestWidth >= 0.012 ? bestStart + bestWidth / 2 : null;
+}

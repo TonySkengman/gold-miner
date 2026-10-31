@@ -1,6 +1,7 @@
+import { DepositIntegrity } from '../state/DepositIntegrity';
 import { DepositRewardKind, rollDepositRewards } from '../state/DepositRewards';
 import { TNT_BLAST_RADIUS } from './Explosions';
-import { findClearAim } from './Aiming';
+import { findClearAim, findExposedGemAim } from './Aiming';
 import { RAT_LANE_Y } from '../state/Layouts';
 import { WORLD } from '../state/World';
 import { POLISHED_ROCK_VALUES } from '../state/Upgrades';
@@ -8,7 +9,7 @@ import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../stat
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
     ruby: { radius: 15, value: 1000, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
@@ -26,6 +27,8 @@ const TYPES = {
     medium: { radius: 32, value: 180, weight: 1.5, color: 0xffca28 },
     large: { radius: 48, value: 300, weight: 3, color: 0xf5b51b },
     giant: { radius: 72, value: 500, weight: 4.8, color: 0xf0b21d },
+    mediumRock: { radius: 40, value: 20, weight: 4.4, color: 0x838e97 },
+    heavyRock: { radius: 51, value: 23, weight: 4.95, color: 0x808c95 },
     largeRock: { radius: 62, value: 25, weight: 5.5, color: 0x7e8993 },
     rock: { radius: 30, value: 15, weight: 3.8, color: 0x89939b }
 };
@@ -33,25 +36,31 @@ const TYPES = {
 export class Collectable {
     readonly radius: number;
     readonly value: number;
-    readonly weight: number;
+    private readonly baseWeight: number;
+    mountedGem?: Collectable;
+    private supportingRock?: Collectable;
+    private gemOffset = { x: 0, y: 0 };
+    get weight(): number { return this.baseWeight + (this.mountedGem?.weight ?? 0); }
     readonly graphic: GameObjects.Graphics;
     available = true;
     private chestOpened = false;
     readonly treasureReward?: TreasureReward;
-    readonly depositRewards: readonly DepositRewardKind[];
+    readonly depositIntegrity?: DepositIntegrity;
+    private depositCracks?: GameObjects.Graphics;
+    get depositRewards(): readonly DepositRewardKind[] { return this.depositIntegrity?.rewards ?? []; }
     private treasureLabel?: GameObjects.Text;
     private direction: number;
     private readonly speed: number;
     private catchGlow?: GameObjects.Graphics;
 
     constructor(scene: Scene, public x: number, public y: number, readonly kind: OreKind, ratSpeed = 1, random: () => number = Math.random, readonly gemDeposit = false) {
-        this.depositRewards = gemDeposit ? rollDepositRewards(random, kind === 'largeRock') : [];
+        if (gemDeposit) this.depositIntegrity = new DepositIntegrity(rollDepositRewards(random, kind === 'largeRock'), random);
         this.direction = random() < 0.5 ? -1 : 1;
         this.speed = (80 + random() * 30) * 0.85 * ratSpeed;
         const type = TYPES[kind];
         this.radius = type.radius;
         this.value = kind === 'moneyBag' ? 50 + Math.floor(random() * 15) * 25 : type.value;
-        this.weight = type.weight;
+        this.baseWeight = type.weight;
         if (kind === 'treasureChest') this.treasureReward = rollTreasureReward(random);
         this.graphic = scene.add.graphics().setPosition(x, y);
         const r = this.radius;
@@ -190,7 +199,7 @@ export class Collectable {
             g.restore();
             return;
         }
-        const rock = kind === 'rock' || kind === 'largeRock';
+        const rock = kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
         // Uneven silhouettes and flat facets distinguish ore from round pebbles.
         const outline = rock
             ? [[-0.95, 0.25], [-0.8, -0.5], [-0.25, -0.9], [0.5, -0.78], [0.95, -0.15], [0.8, 0.65], [0.1, 0.9], [-0.6, 0.75]]
@@ -229,6 +238,49 @@ export class Collectable {
             const x = -0.36 * r;
             const y = -0.33 * r;
             g.lineBetween(x - 4, y, x + 4, y).lineBetween(x, y - 4, x, y + 4);
+        }
+    }
+
+    /** A clean gem catch detaches it; a rock catch carries its gem too. */
+    prepareCatch(): void {
+        if (this.supportingRock) {
+            this.supportingRock.mountedGem = undefined;
+            this.supportingRock = undefined;
+        }
+        if (this.mountedGem) this.mountedGem.available = false;
+    }
+
+    mountGem(gem: Collectable): void {
+        this.mountedGem = gem;
+        gem.supportingRock = this;
+        this.gemOffset = { x: gem.x - this.x, y: gem.y - this.y };
+        gem.graphic.setDepth(1);
+    }
+
+    advanceDepositHaul(scene: Scene, distance: number): void {
+        const integrity = this.depositIntegrity;
+        if (!integrity) return;
+        const previousStage = integrity.stage;
+        const lost = integrity.advance(distance);
+        if (integrity.stage !== previousStage) {
+            const g = this.depositCracks ??= scene.add.graphics().setDepth(5);
+            g.clear().setPosition(this.x, this.y).lineStyle(integrity.stage + 1, 0x352b28);
+            const r = this.radius;
+            for (let i = 0; i <= integrity.stage; i++) {
+                const angle = i * 2.1;
+                g.beginPath().moveTo(0, 0).lineTo(Math.cos(angle) * r * 0.35, Math.sin(angle) * r * 0.35)
+                    .lineTo(Math.cos(angle + 0.35) * r * 0.65, Math.sin(angle + 0.35) * r * 0.65)
+                    .lineTo(Math.cos(angle) * r * 0.9, Math.sin(angle) * r * 0.9).strokePath();
+            }
+        }
+        for (const [index, kind] of lost.entries()) {
+            const color = kind === 'ruby' ? 0xe83864 : kind === 'diamond' ? 0x70e6f5 : 0xffca28;
+            const fragment = scene.add.graphics().setPosition(this.x, this.y).setDepth(7);
+            fragment.fillStyle(color).fillTriangle(-6, -4, 6, -4, 0, 7);
+            // Lost fragments crumble away; they are visual feedback, not collectible drops.
+            scene.tweens.add({ targets: fragment, x: this.x + (index % 2 ? -32 : 32),
+                y: this.y + 65, angle: 120, alpha: 0, duration: 650,
+                onComplete: () => fragment.destroy() });
         }
     }
 
@@ -338,8 +390,13 @@ export class Collectable {
     }
 
     collectionValue(diamondMultiplier = 1, rockPolish = false): number {
+        if (this.mountedGem) {
+            const rockValue = rockPolish && (this.kind === 'rock' || this.kind === 'mediumRock' || this.kind === 'heavyRock' || this.kind === 'largeRock')
+                ? POLISHED_ROCK_VALUES[this.kind] : this.value;
+            return rockValue + this.mountedGem.collectionValue(diamondMultiplier);
+        }
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
-        if (rockPolish && (this.kind === 'rock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
+        if (rockPolish && (this.kind === 'rock' || this.kind === 'mediumRock' || this.kind === 'heavyRock' || this.kind === 'largeRock')) return POLISHED_ROCK_VALUES[this.kind];
         if (this.kind === 'diamondRat') return 2 + Math.round(TYPES.diamond.value * diamondMultiplier);
         if (this.kind === 'rubyRat') return 2 + Math.round(TYPES.ruby.value * diamondMultiplier);
         return Math.round(this.value * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
@@ -363,7 +420,9 @@ export class Collectable {
         this.x = x;
         this.y = y;
         this.graphic.setPosition(x, y);
+        this.mountedGem?.moveTo(x + this.gemOffset.x, y + this.gemOffset.y);
         this.catchGlow?.setPosition(x, y);
+        this.depositCracks?.setPosition(x, y);
         if (this.treasureLabel) {
             this.treasureLabel.setPosition(Math.max(this.treasureLabel.width / 2 + 16,
                 Math.min(WORLD.width - this.treasureLabel.width / 2 - 16, x)), y - 55);
@@ -372,6 +431,12 @@ export class Collectable {
 
     destroy(): void {
         this.available = false;
+        if (this.supportingRock) {
+            this.supportingRock.mountedGem = undefined;
+            this.supportingRock = undefined;
+        }
+        this.mountedGem?.destroy();
+        this.mountedGem = undefined;
         this.treasureLabel?.destroy();
         this.treasureLabel = undefined;
         if (this.catchGlow) {
@@ -379,6 +444,7 @@ export class Collectable {
             this.catchGlow.destroy();
             this.catchGlow = undefined;
         }
+        this.depositCracks?.destroy();
         this.graphic.destroy();
     }
 }
@@ -405,7 +471,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
     }
 }
 
-const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === 'largeRock';
+const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
 const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat' && kind !== 'rubyRat';
 
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
@@ -415,7 +481,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
     // Place the largest objects first; retry the whole layout if it becomes crowded.
     const kinds: OreKind[] = [
         'giant', ...Array<OreKind>(level.largeRocks).fill('largeRock'),
-        'large', ...Array<OreKind>(level.rocks).fill('rock'),
+        ...Array<OreKind>(level.heavyRocks).fill('heavyRock'),
+        'large', ...Array.from({ length: level.rocks }, (_, index): OreKind => index === 0 ? 'mediumRock' : 'rock'),
         ...(hasChest ? ['treasureChest' as const] : []),
         ...Array<OreKind>(level.tnt).fill('tnt'),
         'medium', 'medium', 'medium',
@@ -427,7 +494,13 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')
     ];
     kinds.sort((a, b) => TYPES[b].radius - TYPES[a].radius);
-    for (let layout = 0; layout < 50; layout++) {
+    for (let layout = 0; layout < 300; layout++) {
+        // Crowded seeds may need one fewer small obstacle to retain clear shots.
+        // Keep the new rock size and all treasure; retries use the same seeded fallback.
+        if (layout === 150) {
+            const smallRock = kinds.indexOf('rock');
+            if (smallRock >= 0) kinds.splice(smallRock, 1);
+        }
         const positions: { x: number; y: number; radius: number; kind: OreKind }[] = [];
         for (const [index, kind] of kinds.entries()) {
             const radius = TYPES[kind].radius;
@@ -436,7 +509,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 let x = 65 + random() * 894;
                 let y = minY + random() * (maxY - minY);
                 const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
-                const rock = kind === 'rock' || kind === 'largeRock';
+                const rock = kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
                 if (level.layout === 'goldPocket') {
                     if (gold) x = 260 + random() * 504;
                     if (rock) y = 500 + random() * 280;
@@ -481,12 +554,46 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         }
         if (positions.length === kinds.length) {
             const rocks = positions.filter(p => isStaticHazard(p.kind));
-            const deposits = rocks.filter(p => findClearAim(p, rocks.filter(other => other !== p)) !== null);
+            const deposits = rocks.filter(p => p.kind !== 'mediumRock' && p.kind !== 'heavyRock'
+                && (p.kind !== 'largeRock' || p.y >= 620)
+                && findClearAim(p, rocks.filter(other => other !== p)) !== null);
+            if (deposits.length === 0) continue;
             const deposit = deposits[Math.floor(random() * deposits.length)];
             // Swap gems after placement: both carriers share a size and depth range.
-            return positions.map(({ x, y, kind }) => new Collectable(scene, x, y,
+            const objects = positions.map(({ x, y, kind }) => new Collectable(scene, x, y,
                 kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random, deposit?.x === x && deposit?.y === y));
+            perchLooseGem(objects, random);
+            return objects;
         }
     }
     throw new Error('Could not generate a complete mining layout.');
+}
+
+/** Move an existing gem onto an ordinary rock, preserving the level’s total treasure. */
+export function perchLooseGem(objects: Collectable[], random: () => number): boolean {
+    // Keep the entire host rock in the deeper half of the cave.
+    const rocks = objects.filter(object => !object.gemDeposit && object.y - object.radius >= 580
+        && (object.kind === 'mediumRock' || object.kind === 'heavyRock' || object.kind === 'largeRock'));
+    const gems = objects.filter(object => object.kind === 'diamond' || object.kind === 'ruby');
+    // Seeded rotations vary the selected rock and gem without changing retries.
+    const rockOffset = Math.floor(random() * rocks.length);
+    const gemOffset = Math.floor(random() * gems.length);
+    for (let g = 0; g < gems.length; g++) {
+        const gem = gems[(g + gemOffset) % gems.length];
+        for (let r = 0; r < rocks.length; r++) {
+            const rock = rocks[(r + rockOffset) % rocks.length];
+            for (const side of [-1, 1]) {
+                const target = { x: rock.x + side * rock.radius * 0.62,
+                    y: rock.y - rock.radius * 0.65, radius: gem.radius };
+                if (target.x - gem.radius < 40 || target.x + gem.radius > WORLD.width - 40 || target.y - gem.radius < 580) continue;
+                const others = objects.filter(object => object !== gem && object !== rock);
+                if (others.some(other => Math.hypot(target.x - other.x, target.y - other.y) < gem.radius + other.radius + 10)) continue;
+                if (findExposedGemAim(target, [...others, rock]) === null) continue;
+                gem.moveTo(target.x, target.y);
+                rock.mountGem(gem);
+                return true;
+            }
+        }
+    }
+    return false;
 }

@@ -253,8 +253,14 @@ export class Game extends Scene {
         this.depositHint.setVisible(deposit !== null);
         if (deposit) {
             this.depositHint.setText(this.round.dynamite > 0
-                ? '↑ Use dynamite to reveal what’s inside!'
+                ? (deposit.depositIntegrity?.stage === 2
+                    ? 'BREAKING APART! Gems at risk!\n↑ Blast now to save the remaining treasure!'
+                    : deposit.depositIntegrity?.stage === 1
+                        ? 'CRACKING! Gold is falling out!\n↑ Blast now to preserve the treasure.'
+                        : 'INTACT — full reward\n↑ Blast now, or haul closer and risk losing treasure.')
                 : 'Hidden treasure inside!\nNo dynamite left.');
+            this.depositHint.setColor(deposit.depositIntegrity?.stage === 2 ? '#ff9390'
+                : deposit.depositIntegrity?.stage === 1 ? '#ffe06a' : '#9ef5ff');
             const halfWidth = this.depositHint.width / 2 + 16;
             this.depositHint.setPosition(
                 Math.max(halfWidth, Math.min(WORLD.width - halfWidth, deposit.x)),
