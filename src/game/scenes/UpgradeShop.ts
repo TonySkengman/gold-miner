@@ -1,3 +1,4 @@
+import { MINES, mineConfig, type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { WORLD } from '../state/World';
 import type { Result } from './GameOver';
@@ -5,18 +6,17 @@ import { LAYOUTS } from '../state/Layouts';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { drawShop, drawShopProduct } from '../art/drawShop';
 import { Scene } from 'phaser';
-import { LEVELS } from '../state/Levels';
 import { emptyBonuses, isPermanentUpgrade, itemSoldOut, emptyUpgrades, purchaseUpgrade, upgradePrice, UPGRADE_INFO, UPGRADE_LIMIT, ShopItemKind, Upgrades, LevelBonuses } from '../state/Upgrades';
 
 export class UpgradeShop extends Scene {
     constructor() { super('UpgradeShop'); }
 
-    create(data: { lives: number; level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses; levelSeed?: number; failed?: boolean; result?: Result }): void {
+    create(data: { lives: number; level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses; levelSeed?: number; failed?: boolean; mine?: MineKind; result?: Result }): void {
         let bonuses = { ...emptyBonuses(), ...data.bonuses };
         let money = data.money;
         let lives = data.lives;
         let dynamite = data.dynamite;
-        let upgrades = { ...(data.upgrades ?? emptyUpgrades()) };
+        let upgrades = { ...emptyUpgrades(), ...data.upgrades };
         let hovered: ShopItemKind | null = null;
         drawShop(this);
         addSoundButton(this, 32, 16);
@@ -39,22 +39,22 @@ export class UpgradeShop extends Scene {
             descriptionTitle.setText(info.name);
             description.setText(`${info.description}. ${maxed ? (isPermanentUpgrade(hovered) ? 'Fully upgraded!' : 'Lives full (5 / 5)!') : `${isPermanentUpgrade(hovered) ? 'Next tier' : 'Price'}: $${price}.${money < price ? ' You need more money.' : ' Click the product to buy.'}`}`);
         };
-        const stock = this.add.text(WORLD.centerX, 115, '', { fontFamily: 'Arial', fontSize: 15, color: '#483126' }).setOrigin(0.5);
+        const stock = this.add.text(WORLD.centerX, 115, '', { fontFamily: 'Arial', fontSize: 15, color: '#483126', align: 'center', wordWrap: { width: 900 } }).setOrigin(0.5);
         const refreshers: (() => void)[] = [];
         const refresh = () => {
-            stock.setText(`Lives: ${lives}/5  •  Streak x2: ${bonuses.streakVial}  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Lightweight Grip: ${bonuses.lightweightGrip}`);
+            stock.setText(`Strength: ${bonuses.strengthPotion}  •  Gold Rush: ${bonuses.goldRush}  •  Lives: ${lives}/5  •  Streak x2: ${bonuses.streakVial}  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Lightweight Grip: ${bonuses.lightweightGrip}`);
             balance.setText(`MONEY  $${money}`);
             next.setText(data.result?.won && data.result.finalLevel ? 'VIEW RESULTS'
-                : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'START'} LEVEL ${data.level}`);
+                : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'CHOOSE MINE FOR'} LEVEL ${data.level}`);
             refreshers.forEach(update => update());
             showDescription();
         };
         (Object.keys(UPGRADE_INFO) as ShopItemKind[]).forEach((kind, index) => {
-            const x = WORLD.centerX - 94 + (index % 3) * 216;
-            const y = 360 + Math.floor(index / 3) * 130;
-            const card = this.add.rectangle(x, y, 206, 122, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
+            const x = WORLD.centerX - 116 + (index % 4) * 162;
+            const y = 360 + Math.floor(index / 4) * 130;
+            const card = this.add.rectangle(x, y, 154, 122, 0xf4dcaa).setStrokeStyle(3, 0xc29659).setInteractive({ useHandCursor: true });
             drawShopProduct(this, x, y - 6, kind, 0.34);
-            this.add.text(x, y - 54, UPGRADE_INFO[kind].name, { fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#483126', align: 'center', wordWrap: { width: 198 } }).setOrigin(0.5, 0);
+            this.add.text(x, y - 54, UPGRADE_INFO[kind].name, { fontFamily: 'Arial', fontSize: 15, fontStyle: 'bold', color: '#483126', align: 'center', wordWrap: { width: 146 } }).setOrigin(0.5, 0);
             const tier = this.add.text(x, y + 21, '', { fontFamily: 'Arial', fontSize: 18, color: '#70452a' }).setOrigin(0.5);
             const priceTag = this.add.text(x, y + 46, '', { fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffffff', padding: { x: 14, y: 4 } }).setOrigin(0.5);
             refreshers.push(() => {
@@ -96,11 +96,11 @@ export class UpgradeShop extends Scene {
                 this.scene.start('GameOver', { ...data.result, lives, money, upgrades, dynamite });
                 return;
             }
-            this.scene.start('LevelBriefing', {
-                lives, level: data.level, money, upgrades, dynamite, bonuses, levelSeed: data.levelSeed
+            this.scene.start(data.failed ? 'LevelBriefing' : 'MineSelection', {
+                lives, mine: data.mine, level: data.level, money, upgrades, dynamite, bonuses, levelSeed: data.levelSeed
             });
         });
-        this.add.text(WORLD.centerX, 926, `${LAYOUTS[LEVELS[data.level - 1].layout].name}  •  Target: $${LEVELS[data.level - 1].target}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, 926, `${LAYOUTS[mineConfig(data.level, data.mine).layout].name}  •  ${data.failed ? MINES[data.mine ?? 'quarry'].name + ' • Target: $' + mineConfig(data.level, data.mine).target : 'Choose your next mine after shopping'}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
         responsiveLayout(this);
     }

@@ -2,6 +2,7 @@ import { MILESTONES, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
 import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses } from './Upgrades';
 import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
+import { mineConfig, type MineKind } from './Mines';
 import { LEVELS, LevelConfig } from './Levels';
 import type { OreKind } from '../objects/Collectable';
 
@@ -19,7 +20,7 @@ export class RoundState {
         return this.streakVialSeconds > 0 ? 2 : 1;
     }
 
-    activateStreakVial(): void { this.streakVialSeconds = this.bonuses.streakVial > 0 ? 15 : 30; }
+    activateStreakVial(): void { this.streakVialSeconds = (this.bonuses.streakVial > 0 ? 15 : 30) + this.upgrades.vialBelt * 5; }
 
     /** Register a latch immediately; the returned bonus is paid only on delivery. */
     latchStreak(kind: OreKind): number {
@@ -45,14 +46,16 @@ export class RoundState {
     readonly level: number;
     readonly config: LevelConfig;
 
-    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses(), lives = 3) {
+    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses(), lives = 3, readonly mine: MineKind = 'quarry') {
         this.lives = this.startingLives = Math.max(1, Math.min(5, Math.floor(lives)));
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
         this.bonuses = { ...emptyBonuses(), ...bonuses };
         this.remaining = bonuses.extraTime ? 75 : 60;
-        this.upgrades = { ...upgrades };
+        this.upgrades = { ...emptyUpgrades(), ...upgrades };
         this.dynamite = startingDynamite;
-        this.config = LEVELS[this.level - 1];
+        this.config = mineConfig(this.level, mine);
+        if (this.bonuses.strengthPotion > 0) this.activateStrength();
+        if (this.bonuses.goldRush > 0) this.activateGoldRush();
     }
 
     applyMysteryReward(reward: MysteryReward): string {
@@ -65,10 +68,10 @@ export class RoundState {
             return '+1 DYNAMITE!';
         }
         this.activateStrength();
-        return 'STRENGTH x2 • 3 CATCHES!';
+        return `STRENGTH x2 • ${this.strengthCatches} CATCHES!`;
     }
 
-    activateStrength(): void { this.strengthCatches = 3; }
+    activateStrength(): void { this.strengthCatches += 3 + this.upgrades.vialBelt; }
 
     applyTreasureReward(reward: TreasureReward): string {
         if (reward.kind === 'life') {
@@ -84,11 +87,11 @@ export class RoundState {
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
-        return { streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+        return { strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
             prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 
-    activateGoldRush(): void { this.goldRushCatches = 3; }
+    activateGoldRush(): void { this.goldRushCatches += 3 + this.upgrades.vialBelt; }
 
     /** Strength uses every latch; gold rush uses only boosted gold nugget catches. */
     consumeCatch(kind: OreKind): number {

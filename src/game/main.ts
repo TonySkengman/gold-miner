@@ -1,3 +1,4 @@
+import { MineSelection } from './scenes/MineSelection';
 import { PauseMenu } from './scenes/PauseMenu';
 import { LevelBriefing } from './scenes/LevelBriefing';
 import { resizeWorld } from './state/World';
@@ -28,6 +29,7 @@ const config: Phaser.Types.Core.GameConfig = {
         MainGame,
         GameOver,
         UpgradeShop,
+        MineSelection,
         PauseMenu
     ]
 };

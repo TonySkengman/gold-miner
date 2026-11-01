@@ -57,7 +57,28 @@ export function drawShop(scene: Scene): void {
 
 export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind | 'streakVial', scale = 1): GameObjects.Graphics {
     const g = scene.add.graphics().setPosition(x, y).setScale(scale);
-    if (kind === 'prospectorsLens') {
+    if (kind === 'strengthPotion' || kind === 'goldRush') {
+        g.fillStyle(0xddebd5).lineStyle(3, 0x526344);
+        g.fillRoundedRect(-24, -26, 48, 66, 13).strokeRoundedRect(-24, -26, 48, 66, 13);
+        g.fillStyle(kind === 'goldRush' ? 0xffd45d : 0x8bd665).fillRoundedRect(-18, -6, 36, 39, 9);
+        g.fillStyle(0xb68b4e).fillRoundedRect(-15, -43, 30, 20, 4);
+        g.fillStyle(0xfff4cd).fillTriangle(6, -3, -10, 15, 2, 15).fillTriangle(-2, 10, 11, 10, -5, 28);
+        g.lineStyle(3, 0xffffff).lineBetween(-15, -19, -15, -11);
+    } else if (kind === 'vialBelt') {
+        g.fillStyle(0x4a2e20).fillRoundedRect(-65, -9, 130, 44, 9);
+        g.fillStyle(0x95603b).lineStyle(3, 0x573623);
+        g.fillRoundedRect(-65, -16, 130, 40, 7).strokeRoundedRect(-65, -16, 130, 40, 7);
+        for (const [index, color] of [0x8bd665, 0xffd65a, 0xa75ae0].entries()) {
+            const x = (index - 1) * 39;
+            g.fillStyle(0xe4f1ed).lineStyle(2, 0x42565a);
+            g.fillRoundedRect(x - 13, -35, 26, 47, 7).strokeRoundedRect(x - 13, -35, 26, 47, 7);
+            g.fillStyle(color).fillRoundedRect(x - 9, -19, 18, 27, 4);
+            g.fillStyle(0xc49a5c).fillRoundedRect(x - 10, -43, 20, 11, 3);
+            g.fillStyle(0x68432c).fillRect(x - 16, -2, 32, 12);
+            g.lineStyle(2, 0xffffff).lineBetween(x - 6, -29, x - 6, -23);
+        }
+        g.lineStyle(4, 0xe4ba62).strokeRoundedRect(-13, 9, 26, 22, 3);
+    } else if (kind === 'prospectorsLens') {
         g.lineStyle(15, 0x79512e).lineBetween(20, 22, 48, 50);
         g.fillStyle(0x92dce8).lineStyle(7, 0xc79949).fillCircle(-5, -6, 33).strokeCircle(-5, -6, 33);
         g.lineStyle(4, 0xe9ffff).lineBetween(-24, -7, -8, -23).lineBetween(-12, 5, 7, -14);

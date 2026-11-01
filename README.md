@@ -69,15 +69,18 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | --- | --- | --- |
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
 | Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
+| Strength potion | Start the next round with x2 retrieval speed for 3 catches, plus Vial Belt | $500 |
+| Gold Rush potion | Start the next round with +50% gold value for 3 gold catches, plus Vial Belt | $600 |
 | Dynamite | One additional stick | $750 |
 | Luck potion | Money bags pay at least $250 in the next level | $500 |
 | Extra time | Adds 15 seconds to the next level | $600 |
 | Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
 | Prospector’s Lens | Reveals cash-bag values, mystery-bag contents, and treasure-chest rewards for one round | $1,500 |
+| Vial Belt | +1 Strength/Gold Rush catch and +5 seconds to caught Streak vials per tier; lasts for the run | $1,000 / $2,000 / $3,000 |
 | Streak vial | Doubles streak bonuses for the full next level; mine vials boost to x3 for 15 seconds | $1,000 |
 | Life vial | Immediately restores one life, up to five | $3,000 |
 
-Winch and gem-polish upgrades last for the run, with three tiers each. Luck, extra time, Lightweight Grip, Streak vial, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch, gem-polish, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 3 catches to 4/5/6, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x3 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
 
 ## Development
 
@@ -112,3 +115,27 @@ Catching an empty rat or an ordinary stone without a gem immediately breaks the 
 A catchable purple Streak vial appears in each mine. Collecting it doubles streak bonuses for 30 seconds: catch 3 pays $40, catch 4 pays $80, catch 5 pays $120, and so on. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
 
 The shop Streak vial grants x2 streak bonuses for the entire next level. With that shop buff active, collecting a mine Streak vial grants x3 for 15 seconds before returning to x2. Without the shop buff, the mine vial still grants x2 for 30 seconds. Extra shop charges cover future levels; they do not stack multipliers.
+
+### Starting potions and mine routes
+
+Strength potions ($500) and Gold Rush potions ($600) can be stocked in the shop. One of each purchased supply activates per round: Strength doubles retrieval speed for 3 catches; Gold Rush adds 50% value for 3 gold catches. Vial Belt adds one catch per tier. Mine potions add their full catches to the remaining effect without increasing its multiplier, including Strength from mystery bags. Active catches expire after the round; unused shop stock covers future rounds. Failed attempts restore starting supplies.
+
+After shopping for a new level, choose a mine entrance:
+
+| Mine | Entry fee | Treasure added | Target |
+|---|---:|---|---|
+| Old Quarry | Free | Standard mix | Standard |
+| Gold Basin | $600 | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, rounded to $50 |
+| Gem Hollow | $900 | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
+
+Fees come from saved money and never count toward the target. Paid routes add treasure to the existing mix. The selected route and seeded layout remain on retry, with no second entry fee; starting money is restored to its amount after entry. Level 1 starts in Old Quarry.
+
+Mine routes also have distinct scenery: Old Quarry uses earthy stone, Gold Basin has amber strata, gold seams and timber supports, and Gem Hollow has blue-violet stone, cool lanterns and wall crystals. Gold Basin retains its extra heavy gold, while Gem Hollow replaces extra-density large and giant gold with diamonds and rubies; entrance previews match each environment.
+
+Gold Basin keeps only a medium rock and a small rock, removes large/heavy rocks, caps TNT barrels at three, and uses a dedicated density pool favoring giant/large gold and supplies, with no extra medium nuggets or rocks. Only two base medium nuggets remain. Its giant nuggets spread across the middle and bottom to keep crowded layouts playable.
+
+Gold Basin specializes in gold: at most one loose diamond and one cash bag, no rubies, gem-carrying rats, mystery bags or treasure chests, and one of each catchable potion. Its density pool adds gold rather than gems and bags. Old Quarry retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
+
+Both paid routes raise their previous rounded targets by 35%, rounded again to the nearest $50. Old Quarry targets stay unchanged. Gem Hollow contains no gold nuggets of any size and no catchable Gold Rush potions, including in crowded-layout fallbacks. Its rock deposits also contain gems rather than gold; its existing scattered gem population remains the focus. Catchable Strength vials are available to help haul rocks and chests.
+
+Gem Hollow adds two large rocks, two medium rocks and two small rocks as precision obstacles. Placement rejects rocks that block the last usable aiming gap to a gem, so clearing rocks is optional. TNT is capped at three barrels to leave room for the extra rocks. Existing gem spacing and gold-free generation still apply.

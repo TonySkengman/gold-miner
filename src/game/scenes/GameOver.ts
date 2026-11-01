@@ -1,3 +1,4 @@
+import type { MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { WORLD } from '../state/World';
 import { menuButton } from '../ui/menuButton';
@@ -6,7 +7,7 @@ import { addSoundButton } from '../audio/SoundEffects';
 import { LevelBonuses, Upgrades, remainingBonuses } from '../state/Upgrades';
 import { Scene } from 'phaser';
 
-export interface Result { lives: number; levelSeed: number; bonuses: LevelBonuses; dynamite: number; startingDynamite: number; upgrades: Upgrades; money: number; startingMoney: number; score: number; target: number; won: boolean; level: number; finalLevel: boolean; }
+export interface Result { mine: MineKind; lives: number; levelSeed: number; bonuses: LevelBonuses; dynamite: number; startingDynamite: number; upgrades: Upgrades; money: number; startingMoney: number; score: number; target: number; won: boolean; level: number; finalLevel: boolean; }
 
 export class GameOver extends Scene {
     constructor() { super('GameOver'); }
@@ -30,6 +31,7 @@ export class GameOver extends Scene {
                 return;
             }
             this.scene.start(result.won && !result.finalLevel ? 'UpgradeShop' : 'LevelBriefing', {
+                mine: result.won ? undefined : result.mine,
                 lives: result.won && result.finalLevel ? 3 : result.lives,
                 levelSeed: result.won ? undefined : result.levelSeed,
                 bonuses: result.won ? (result.finalLevel ? undefined : remainingBonuses(result.bonuses)) : result.bonuses,

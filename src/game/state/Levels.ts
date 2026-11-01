@@ -1,6 +1,8 @@
+import type { MineKind } from './Mines';
 import { LayoutKind, LAYOUT_ORDER } from './Layouts';
 
 export interface LevelConfig {
+    mine?: MineKind;
     layout: LayoutKind;
     target: number;
     rocks: number;

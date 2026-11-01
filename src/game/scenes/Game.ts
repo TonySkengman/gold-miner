@@ -1,3 +1,4 @@
+import { type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { catchFeedbackY } from '../objects/Aiming';
 import { BuffKind, drawBuffIcon } from '../ui/BuffIcon';
@@ -44,7 +45,7 @@ export class Game extends Scene {
 
     constructor() { super('Game'); }
 
-    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number } = {}): void {
+    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number; mine?: MineKind } = {}): void {
         this.levelSeed = data.levelSeed ?? newLevelSeed();
         const rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
         this.mysteryRewards = new Map();
@@ -53,8 +54,8 @@ export class Game extends Scene {
         this.pausing = false;
         this.passiveBuffTexts = [];
         this.buffIcons = [];
-        this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses, data.lives);
-        drawEnvironment(this, this.round.config.layout);
+        this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses, data.lives, data.mine);
+        drawEnvironment(this, this.round.config.layout, this.round.mine);
         this.miner = new MinerAnimator(this);
         this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
         for (const object of this.objects) {
@@ -89,7 +90,7 @@ export class Game extends Scene {
             }
             if (object.kind === 'goldRush') {
                 this.round.activateGoldRush();
-                showValue(0, 'GOLD RUSH! 3 GOLD NUGGETS');
+                showValue(0, `GOLD RUSH! ${this.round.goldRushCatches} GOLD NUGGETS`);
                 return;
             }
             if (object.kind === 'timeVial') {
@@ -103,7 +104,7 @@ export class Game extends Scene {
             }
             if (object.kind === 'strengthPotion') {
                 this.round.activateStrength();
-                showValue(0, 'STRENGTH x2 • 3 CATCHES!');
+                showValue(0, `STRENGTH x2 • ${this.round.strengthCatches} CATCHES!`);
                 return;
             }
             const earned = this.round.bonuses.luck && object.kind === 'moneyBag'
@@ -312,6 +313,7 @@ export class Game extends Scene {
         this.scene.start('UpgradeShop', {
             lives,
             failed: !this.round.won,
+            mine: this.round.won ? undefined : this.round.mine,
             levelSeed: this.round.won ? undefined : this.levelSeed,
             bonuses: this.round.won ? this.round.nextBonuses : this.round.bonuses,
             dynamite: this.round.won ? this.round.dynamite : this.round.startingDynamite,
@@ -319,7 +321,7 @@ export class Game extends Scene {
             money: this.round.won ? this.round.money : this.round.startingMoney,
             upgrades: this.round.upgrades,
             result: {
-                lives, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
+                lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
                 dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
                 upgrades: this.round.upgrades,
                 money: this.round.money, startingMoney: this.round.startingMoney,
