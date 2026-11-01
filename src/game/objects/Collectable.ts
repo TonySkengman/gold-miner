@@ -600,6 +600,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             kinds.splice(kinds.indexOf(kind), 1);
         }
         kinds.push('giant', 'giant', 'large', 'diamond');
+        // Give even the opening levels a fuller mix of gold and obstacles.
+        kinds.push('small', 'medium', 'large', 'rock', 'mediumRock');
     }
     if (level.mine === 'goldBasin') {
         kinds.push('giant', 'giant', 'giant', 'giant', 'giant', 'giant', 'giant', 'large', 'large');
@@ -752,9 +754,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             const [baseMinY, baseMaxY] = spawnDepthRange(kind, level.minimumDepth);
             const scatteredGem = level.mine === 'gemHollow' && (kind === 'diamond' || kind === 'ruby');
             const scatteredQuarryTreasure = (level.mine ?? 'quarry') === 'quarry' && isQuarryTreasure(kind);
-            const middleTreasure = positions.filter(other => isQuarryTreasure(other.kind)).length % 3 !== 2;
-            const maxY = scatteredQuarryTreasure ? (layout >= 100 ? 860 : middleTreasure ? 700 : 860)
-                : level.mine === 'goldBasin' && (kind === 'small' || kind === 'medium') ? 800 : baseMaxY;
+            let maxY = level.mine === 'goldBasin' && (kind === 'small' || kind === 'medium') ? 800 : baseMaxY;
             // Large groups of giant nuggets need room across the middle and bottom.
             let minY = scatteredGem ? Math.max(440, level.minimumDepth)
                 : level.mine === 'goldBasin' && kind === 'giant' ? 390
@@ -776,7 +776,16 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             if (level.mine === 'gemHollow' && (kind === 'mediumRock' || kind === 'rock')) {
                 minY = Math.max(minY, 600);
             }
-            if (scatteredQuarryTreasure) minY = layout >= 100 ? 390 : middleTreasure ? 390 : 600;
+            const deepQuarryValuable = isQuarry && (scatteredQuarryTreasure || kind === 'large' || kind === 'giant');
+            if (deepQuarryValuable) {
+                // Choose a band once per object, so placement retries cannot drift up
+                // into easier surface space. Keep the bias even in crowded layouts.
+                const depthRoll = random();
+                [minY, maxY] = depthRoll < 0.10 ? [390, 500]
+                    : depthRoll < 0.35 ? [500, 660] : [660, 860];
+                minY = Math.max(minY, level.minimumDepth);
+                maxY = Math.max(minY, maxY);
+            }
             for (let attempt = 0; attempt < 2000; attempt++) {
                 let x = 65 + random() * (WORLD.width - 130);
                 let y = minY + random() * (maxY - minY);
@@ -805,7 +814,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                         y = anchor.y + Math.sin(angle) * separation;
                         if (y < minY || y > maxY) continue;
                     }
-                } else if (level.layout === 'deepMine' && (gold || kind === 'moneyBag') && !scatteredQuarryTreasure) {
+                } else if (level.layout === 'deepMine' && (gold || kind === 'moneyBag') && !deepQuarryValuable) {
                     const deeperMin = Math.min(860 - radius, minY + (kind === 'small' ? 80 : 55));
                     const deeperMax = Math.min(890 - radius, maxY + 55);
                     y = deeperMin + random() * (deeperMax - deeperMin);
