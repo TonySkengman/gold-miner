@@ -379,13 +379,13 @@ export class Game extends Scene {
             bonuses: this.round.won ? this.round.nextBonuses : this.round.bonuses,
             dynamite: this.round.won ? this.round.dynamite : this.round.startingDynamite,
             level: this.round.won && !this.round.finalLevel ? this.round.level + 1 : this.round.level,
-            money: this.round.won ? this.round.money : this.round.startingMoney,
+            money: this.round.retainedMoney,
             upgrades: this.round.upgrades,
             result: {
                 lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
                 dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
                 upgrades: this.round.upgrades,
-                money: this.round.money, startingMoney: this.round.startingMoney,
+                money: this.round.retainedMoney, startingMoney: this.round.startingMoney,
                 score: this.round.score, target: this.round.target, won: this.round.won,
                 level: this.round.level, finalLevel: this.round.finalLevel
             }

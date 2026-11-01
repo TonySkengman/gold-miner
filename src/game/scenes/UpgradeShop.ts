@@ -21,7 +21,13 @@ export class UpgradeShop extends Scene {
         let leaving = false;
         drawShop(this, false);
         addSoundButton(this, 32, 16);
-        this.add.text(WORLD.centerX, 46, data.failed ? `LEVEL ${data.level} FAILED — RESTOCK & RETRY` : data.result?.finalLevel ? 'ALL LEVELS CLEARED!' : `LEVEL ${data.level - 1} CLEARED!`, { fontFamily: 'Arial', fontSize: 34, fontStyle: 'bold', color: '#483126' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, data.failed ? 30 : 46, data.failed ? `LEVEL ${data.level} FAILED — RESTOCK & RETRY` : data.result?.finalLevel ? 'ALL LEVELS CLEARED!' : `LEVEL ${data.level - 1} CLEARED!`, { fontFamily: 'Arial', fontSize: 34, fontStyle: 'bold', color: '#483126' }).setOrigin(0.5);
+        if (data.failed && data.result) {
+            const keptEarnings = data.money - data.result.startingMoney;
+            this.add.text(WORLD.centerX, 64, `Kept 50% of level earnings: $${keptEarnings.toLocaleString('en-US')}`, {
+                fontFamily: 'Arial', fontSize: 17, color: '#483126'
+            }).setOrigin(0.5);
+        }
         const shopWidth = WORLD.width - 32;
         const vendorWidth = Math.min(260, Math.max(190, WORLD.width * 0.18));
         const productsLeft = vendorWidth + 40;

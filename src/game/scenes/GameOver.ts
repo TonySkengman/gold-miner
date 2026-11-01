@@ -19,7 +19,7 @@ export class GameOver extends Scene {
         this.add.rectangle(WORLD.centerX, 374, 660, 440, 0xffedbb).setStrokeStyle(6, 0xc58b47);
         this.add.text(WORLD.centerX, 245, result.won ? (result.finalLevel ? 'MINE MASTER!' : `LEVEL ${result.level} CLEARED!`) : (runOver ? 'GAME OVER' : `LEVEL ${result.level} FAILED`), { fontFamily: 'Arial', fontSize: 48, fontStyle: 'bold', color: '#70452a' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 340, `Level gold: $${result.score} / $${result.target}\nTotal money: $${result.money}  •  Lives: ${result.lives}`, { fontFamily: 'Arial', fontSize: 30, color: '#483126', align: 'center', lineSpacing: 12 }).setOrigin(0.5);
-        this.add.text(WORLD.centerX, 422, result.won ? (result.finalLevel ? `You cleared all ${LEVELS.length} levels!` : 'Next level: a higher target and more rocks!') : (runOver ? 'No lives left. Start a new run from level 1.' : 'Life lost! Retry restores your starting money.'), { fontFamily: 'Arial', fontSize: 21, color: '#70452a' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, 422, result.won ? (result.finalLevel ? `You cleared all ${LEVELS.length} levels!` : 'Next level: a higher target and more rocks!') : (runOver ? 'No lives left. Start a new run from level 1.' : 'Life lost! You keep 50% of level earnings.'), { fontFamily: 'Arial', fontSize: 21, color: '#70452a' }).setOrigin(0.5);
         const button = this.add.rectangle(WORLD.centerX, 510, 250, 66, 0x547f3b).setStrokeStyle(3, 0x365725).setInteractive({ useHandCursor: true });
         this.add.text(WORLD.centerX, 510, result.won ? (result.finalLevel ? 'PLAY AGAIN' : 'UPGRADE SHOP') : (runOver ? 'NEW GAME' : 'RETRY LEVEL'), { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
         menuButton(this, WORLD.centerX, 620, 'MAIN MENU', () => this.scene.start('MainMenu'));
@@ -38,7 +38,7 @@ export class GameOver extends Scene {
                 dynamite: result.won ? (result.finalLevel ? 3 : result.dynamite) : result.startingDynamite,
                 upgrades: result.won && result.finalLevel ? undefined : result.upgrades,
                 level: result.won ? (result.finalLevel ? 1 : result.level + 1) : result.level,
-                money: result.won ? (result.finalLevel ? 0 : result.money) : result.startingMoney
+                money: result.won && result.finalLevel ? 0 : result.money
             });
         });
         responsiveLayout(this);

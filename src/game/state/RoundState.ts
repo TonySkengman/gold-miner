@@ -125,6 +125,11 @@ export class RoundState {
 
     get money(): number { return this.startingMoney + this.score + this.bonusMoney; }
 
+    /** Failed rounds preserve the existing balance plus half of the new earnings. */
+    get retainedMoney(): number {
+        return this.won ? this.money : this.startingMoney + Math.floor((this.money - this.startingMoney) / 2);
+    }
+
     get nextMilestone(): Milestone | undefined { return MILESTONES[this.claimedMilestones]; }
 
     get milestoneProgress(): number {
