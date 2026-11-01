@@ -19,6 +19,7 @@ export class Claw {
     private perfectBonus = 0;
     private perfectHaul = false;
     private haulingStrength = 1;
+    private emptyReturnMultiplier = 1;
     private gripOffsetX = 0;
     private gripOffsetY = 0;
     private readonly grabReach = 18;
@@ -45,7 +46,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * (this.caught ? this.haulingStrength : this.emptyReturnMultiplier) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
     resize(oldWidth: number): void {
@@ -59,6 +60,7 @@ export class Claw {
 
     launch(): void {
         if (this.mode === 'idle') {
+            this.emptyReturnMultiplier = 1;
             this.mode = 'extending';
             soundEffects.play('launch');
         }
@@ -128,6 +130,11 @@ export class Claw {
                     hitLength = Math.max(oldLength, entry);
                 }
             }
+            // Keep the extension-based boost ready for any empty return, including
+            // after dynamite destroys a catch. Loaded hauls use their own boosts.
+            const shortRange = 350;
+            this.emptyReturnMultiplier = 1 + Math.max(0, Math.min(1,
+                (hitLength - shortRange) / Math.max(1, WORLD.clawRange - shortRange)));
             if (first) {
                 this.length = hitLength;
                 if (first.isExplosive) {
