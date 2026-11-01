@@ -1,10 +1,10 @@
 import { GameObjects, Scene } from 'phaser';
 import { drawShopProduct } from '../art/drawShop';
 
-export type BuffKind = 'strength' | 'goldRush' | 'luck' | 'lightweightGrip' | 'streakVial';
+export type BuffKind = 'strength' | 'goldRush' | 'luck' | 'lightweightGrip' | 'streakVial' | 'momentum';
 
 export function drawBuffIcon(scene: Scene, kind: BuffKind): GameObjects.Graphics {
-    if (kind === 'luck' || kind === 'lightweightGrip' || kind === 'streakVial') {
+    if (kind === 'momentum' || kind === 'luck' || kind === 'lightweightGrip' || kind === 'streakVial') {
         return drawShopProduct(scene, 0, 0, kind, 0.25);
     }
     const g = scene.add.graphics();

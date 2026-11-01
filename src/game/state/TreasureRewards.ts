@@ -16,7 +16,7 @@ export function treasureRewardLabel(reward: TreasureReward): string {
         case 'life': return '+1 LIFE';
         case 'money': return `$${reward.amount} GOLD`;
         case 'dynamite': return `${reward.amount} DYNAMITE`;
-        case 'luck': return `${reward.amount} LUCK ${reward.amount === 1 ? 'POTION' : 'POTIONS'}`;
+        case 'luck': return `${reward.amount} LUCK ${reward.amount === 1 ? 'VIAL' : 'VIALS'}`;
         case 'lightweightGrip': return `${reward.amount} LIGHTWEIGHT GRIP`;
     }
 }

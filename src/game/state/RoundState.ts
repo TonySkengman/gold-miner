@@ -12,6 +12,17 @@ export class RoundState {
     score = 0;
     catchStreak = 0;
     streakVialSeconds = 0;
+    momentumSecondsEarned = 0;
+
+    /** Award immediately on a perfect latch; later dynamite does not undo it. */
+    catchMomentum(perfect: boolean): number {
+        if (!perfect || this.bonuses.momentum <= 0) return 0;
+        const seconds = Math.min(2, 10 - this.momentumSecondsEarned);
+        this.momentumSecondsEarned += seconds;
+        this.remaining += seconds;
+        return seconds;
+    }
+
 
     get streakVialActive(): boolean { return this.streakMultiplier > 1; }
 
@@ -87,7 +98,7 @@ export class RoundState {
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
-        return { strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+        return { momentum: stock.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
             prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 

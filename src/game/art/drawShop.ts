@@ -76,12 +76,7 @@ export function drawShop(scene: Scene, showVendor = true): void {
 export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopItemKind | 'streakVial', scale = 1): GameObjects.Graphics {
     const g = scene.add.graphics().setPosition(x, y).setScale(scale);
     if (kind === 'strengthPotion' || kind === 'goldRush') {
-        g.fillStyle(0xddebd5).lineStyle(3, 0x526344);
-        g.fillRoundedRect(-24, -26, 48, 66, 13).strokeRoundedRect(-24, -26, 48, 66, 13);
-        g.fillStyle(kind === 'goldRush' ? 0xffd45d : 0x8bd665).fillRoundedRect(-18, -6, 36, 39, 9);
-        g.fillStyle(0xb68b4e).fillRoundedRect(-15, -43, 30, 20, 4);
-        g.fillStyle(0xfff4cd).fillTriangle(6, -3, -10, 15, 2, 15).fillTriangle(-2, 10, 11, 10, -5, 28);
-        g.lineStyle(3, 0xffffff).lineBetween(-15, -19, -15, -11);
+        drawMineVial(g, kind, 2.4);
     } else if (kind === 'vialBelt') {
         g.fillStyle(0x4a2e20).fillRoundedRect(-65, -9, 130, 44, 9);
         g.fillStyle(0x95603b).lineStyle(3, 0x573623);
@@ -101,16 +96,7 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.fillStyle(0x92dce8).lineStyle(7, 0xc79949).fillCircle(-5, -6, 33).strokeCircle(-5, -6, 33);
         g.lineStyle(4, 0xe9ffff).lineBetween(-24, -7, -8, -23).lineBetween(-12, 5, 7, -14);
     } else if (kind === 'streakVial') {
-        g.fillStyle(0xe7c5ff).lineStyle(3, 0x654178);
-        g.fillRoundedRect(-25, -25, 50, 66, 14).strokeRoundedRect(-25, -25, 50, 66, 14);
-        g.fillStyle(0xa75ae0).fillRoundedRect(-19, -6, 38, 40, 9);
-        g.fillStyle(0xffdc69).fillRoundedRect(-16, -43, 32, 20, 4);
-        // Twin golden bolts distinguish the double-streak vial.
-        for (const x of [-10, 8]) {
-            g.fillStyle(0xffe68c).fillTriangle(x + 4, -2, x - 7, 14, x + 3, 14)
-                .fillTriangle(x - 3, 10, x + 7, 10, x - 4, 29);
-        }
-        g.lineStyle(3, 0xffffff).lineBetween(-16, -18, -16, -10);
+        drawMineVial(g, kind, 2.4);
     } else if (kind === 'lifeVial') {
         g.fillStyle(0xf1c9cc).lineStyle(3, 0x793341);
         g.fillRoundedRect(-24, -25, 48, 65, 14).strokeRoundedRect(-24, -25, 48, 65, 14);
@@ -133,26 +119,10 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         }
         g.fillStyle(0x8a969f).lineStyle(2, 0x414952);
         g.fillRoundedRect(-13, 8, 26, 20, 6).strokeRoundedRect(-13, 8, 26, 20, 6);
-    } else if (kind === 'luck') {
-        g.fillStyle(0xb7aacd).lineStyle(3, 0x59416f);
-        g.fillRoundedRect(-15, -46, 30, 30, 5).strokeRoundedRect(-15, -46, 30, 30, 5);
-        g.fillEllipse(0, 9, 74, 72).strokeEllipse(0, 9, 74, 72);
-        g.fillStyle(0x9e5dc3).fillEllipse(0, 16, 62, 48);
-        g.fillStyle(0xdba4ef).fillEllipse(-16, 7, 10, 23);
-        g.fillStyle(0xb68b4e).fillRoundedRect(-18, -54, 36, 14, 3);
-        g.fillStyle(0xffdf79).fillCircle(-5, 4, 8).fillCircle(7, 4, 8).fillCircle(-5, 16, 8).fillCircle(7, 16, 8);
-        g.lineStyle(3, 0xffdf79).lineBetween(1, 15, 4, 32);
+    } else if (kind === 'luck' || kind === 'momentum') {
+        drawMineVial(g, kind, 2.4);
     } else if (kind === 'extraTime') {
-        g.fillStyle(0xb4833d).fillRoundedRect(-7, -56, 14, 18, 3).fillRoundedRect(-17, -60, 34, 9, 3);
-        g.fillStyle(0xdfb85e).lineStyle(4, 0x79552c).fillCircle(0, 0, 45).strokeCircle(0, 0, 45);
-        g.fillStyle(0xffedbb).fillCircle(0, 0, 36);
-        g.lineStyle(3, 0x79552c);
-        for (let i = 0; i < 12; i++) {
-            const a = i * Math.PI / 6;
-            g.lineBetween(Math.sin(a) * 29, Math.cos(a) * 29, Math.sin(a) * 33, Math.cos(a) * 33);
-        }
-        g.lineStyle(4, 0x483126).lineBetween(0, 0, 0, -24).lineBetween(0, 0, 19, 12);
-        g.fillStyle(0x79552c).fillCircle(0, 0, 4);
+        drawTimeVial(g, 2.4);
     } else if (kind === 'strength') {
         g.fillStyle(0x6a4a31).fillRect(-47, 27, 94, 14).fillRect(-39, -14, 10, 45).fillRect(29, -14, 10, 45);
         g.fillStyle(0x414f56).fillCircle(-27, 0, 30).fillCircle(27, 0, 30);
@@ -255,4 +225,59 @@ export function drawShopkeeper(scene: Scene, x: number, y: number, scale = 1, em
     g.lineStyle(2, 0x817054).lineBetween(-42, -138, 38, -136);
     g.lineStyle(2, 0xb0965a).strokeRect(12, -148, 10, 9);
     return g;
+}
+
+/** Shared Time vial artwork for mine catches and shop/briefing icons. */
+export function drawTimeVial(g: GameObjects.Graphics, scale = 1): void {
+    g.save().scaleCanvas(scale, scale);
+    g.fillStyle(0x9fc9bd).lineStyle(3, 0x365c50);
+    g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
+        .lineTo(-14, 13).lineTo(-8, 17).lineTo(8, 17).lineTo(14, 13)
+        .lineTo(14, 3).lineTo(6, -5).lineTo(6, -13).closePath().fillPath().strokePath();
+    g.fillStyle(0x66d9fa).fillRoundedRect(-10, 3, 20, 11, 3);
+    g.fillStyle(0xd5f8ff).fillRect(-8, 4, 4, 7);
+    g.fillStyle(0xad7c43).lineStyle(2, 0x694729)
+        .fillRoundedRect(-7, -18, 14, 7, 2).strokeRoundedRect(-7, -18, 14, 7, 2);
+    g.fillStyle(0xe8ffff).fillCircle(0, 6, 7);
+    g.lineStyle(1.5, 0x287e9a).strokeCircle(0, 6, 7)
+        .lineBetween(0, 6, 0, 1).lineBetween(0, 6, 4, 8);
+    g.lineStyle(2, 0xe0f6de).lineBetween(-9, -1, -11, 2);
+    g.restore();
+}
+
+/** Consistent vial artwork for mine buffs and shop Luck. */
+export function drawMineVial(g: GameObjects.Graphics, kind: 'strengthPotion' | 'goldRush' | 'streakVial' | 'luck' | 'momentum', scale = 1): void {
+    g.save().scaleCanvas(scale, scale);
+    g.fillStyle(0x9fc9bd).lineStyle(3, 0x365c50);
+    g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
+        .lineTo(-14, 13).lineTo(-8, 17).lineTo(8, 17).lineTo(14, 13)
+        .lineTo(14, 3).lineTo(6, -5).lineTo(6, -13).closePath().fillPath().strokePath();
+    g.fillStyle(kind === 'goldRush' ? 0xffc52e : kind === 'streakVial' ? 0xa75ae0 : kind === 'luck' ? 0x9e5dc3 : kind === 'momentum' ? 0x39c9b3 : 0x80d65b).fillRoundedRect(-10, 3, 20, 11, 3);
+    g.fillStyle(kind === 'goldRush' ? 0xffee9a : kind === 'luck' ? 0xdba4ef : kind === 'momentum' ? 0xc3fff2 : 0xaff17d).fillRect(-8, 4, 4, 7);
+    g.fillStyle(0xad7c43).lineStyle(2, 0x694729)
+        .fillRoundedRect(-7, -18, 14, 7, 2).strokeRoundedRect(-7, -18, 14, 7, 2);
+    if (kind === 'streakVial') {
+        for (const x of [-5, 5]) {
+            g.fillStyle(0xffe68c).fillTriangle(x + 2, -1, x - 4, 7, x + 1, 7)
+                .fillTriangle(x - 1, 5, x + 4, 5, x - 2, 13);
+        }
+    } else if (kind === 'momentum') {
+        // Clock and upward chevron connect precise catches with earned time.
+        g.fillStyle(0xe8ffff).fillCircle(0, 6, 6);
+        g.lineStyle(1.2, 0x176d66).strokeCircle(0, 6, 6)
+            .lineBetween(0, 6, 0, 2).lineBetween(0, 6, 3, 8);
+        g.lineStyle(1.5, 0xffe68c).lineBetween(-4, -2, 0, -6).lineBetween(0, -6, 4, -2);
+    } else if (kind === 'luck') {
+        g.fillStyle(0xffdf79).fillCircle(-2.5, 3, 3).fillCircle(2.5, 3, 3)
+            .fillCircle(-2.5, 8, 3).fillCircle(2.5, 8, 3);
+        g.lineStyle(1.5, 0xffdf79).lineBetween(0, 8, 2, 14);
+    } else if (kind === 'goldRush') {
+        g.fillStyle(0xfff1af).lineStyle(1, 0x986019);
+        g.beginPath().moveTo(-6, 6).lineTo(-2, 1).lineTo(4, 2)
+            .lineTo(7, 8).lineTo(0, 12).closePath().fillPath().strokePath();
+    } else {
+        g.fillStyle(0xfff1af).fillTriangle(2, -1, -4, 7, 1, 7).fillTriangle(-1, 5, 4, 5, -2, 13);
+    }
+    g.lineStyle(2, 0xe0f6de).lineBetween(-9, -1, -11, 2);
+    g.restore();
 }

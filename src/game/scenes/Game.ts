@@ -12,7 +12,7 @@ import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { WORLD } from '../state/World';
-import { LevelBonuses, Upgrades } from '../state/Upgrades';
+import { cashBagValue, LevelBonuses, Upgrades } from '../state/Upgrades';
 import { Scene, GameObjects } from 'phaser';
 import { Claw } from '../objects/Claw';
 import { Collectable, generateCollectables } from '../objects/Collectable';
@@ -39,6 +39,7 @@ export class Game extends Scene {
     private streakVialText: GameObjects.Text;
     private goldRushText: GameObjects.Text;
     private buffIcons: GameObjects.Graphics[] = [];
+    private momentumText?: GameObjects.Text;
     private passiveBuffTexts: GameObjects.Text[] = [];
     private mineClock: MineClock;
     private livesIcons: GameObjects.Graphics;
@@ -60,6 +61,7 @@ export class Game extends Scene {
         this.ended = false;
         this.pausing = false;
         this.passiveBuffTexts = [];
+        this.momentumText = undefined;
         this.buffIcons = [];
         this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses, data.lives, data.mine);
         drawEnvironment(this, this.round.config.layout, this.round.mine);
@@ -71,7 +73,7 @@ export class Game extends Scene {
                 object.revealTreasureReward(this);
             }
             if (this.round.bonuses.prospectorsLens && object.kind === 'moneyBag') {
-                const amount = this.round.bonuses.luck ? Math.max(250, object.value) : object.value;
+                const amount = cashBagValue(object.value, this.round.bonuses.luck);
                 object.revealMysteryReward(this, { kind: 'money', amount });
             }
             if (object.kind !== 'mysteryBag') continue;
@@ -115,14 +117,23 @@ export class Game extends Scene {
                 showValue(0, `STRENGTH x2 • ${this.round.strengthCatches} CATCHES!`);
                 return;
             }
-            const earned = this.round.bonuses.luck && object.kind === 'moneyBag'
-                ? Math.max(250, value) : value;
+            const earned = object.kind === 'moneyBag' ? cashBagValue(value, this.round.bonuses.luck) : value;
             this.round.score += earned;
             this.miner.reactTo(object.kind);
             showValue(earned);
         }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15,
         () => this.round.strengthMultiplier, this.round.bonuses.lightweightGrip > 0,
-        object => {
+        (object, perfect) => {
+            const momentumSeconds = this.round.catchMomentum(perfect);
+            if (momentumSeconds > 0) {
+                const popup = this.add.text(Math.max(150, Math.min(WORLD.width - 150, object.x)),
+                    catchFeedbackY(object.y, object.radius) - 165, `MOMENTUM +${momentumSeconds}s`, {
+                        fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#9cf2e7',
+                        backgroundColor: '#253e42', padding: { x: 8, y: 5 }
+                    }).setOrigin(0.5).setDepth(17);
+                this.tweens.add({ targets: popup, y: popup.y - 30, alpha: 0, delay: 550,
+                    duration: 450, onComplete: () => popup.destroy() });
+            }
             // Embedded gems advance the streak; deposits without a visible gem stay neutral.
             const ordinaryRock = !object.gemDeposit && !object.mountedGem
                 && ['rock', 'mediumRock', 'heavyRock', 'largeRock'].includes(object.kind);
@@ -149,6 +160,7 @@ export class Game extends Scene {
         const lifeBar = this.add.rectangle(this.statusX, 131, 190, 40, 0xffedbb).setData('responsiveAnchor', 'center');
         lifeBar.setData('responsiveRedraw', () => lifeBar.setX(this.statusX));
         this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
+        const leftHudStart = this.children.length;
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100);
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
@@ -158,10 +170,16 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe06a',
             backgroundColor: '#483126', padding: { x: 10, y: 6 }
         }).setVisible(false);
-        if (this.round.bonuses.luck) this.passiveBuffTexts.push(this.add.text(32, 251, 'LUCK: bags pay $250+', {
+        if (this.round.bonuses.luck) this.passiveBuffTexts.push(this.add.text(32, 251, 'LUCK: cash bags +$200', {
             fontFamily: 'Arial', fontSize: 17, color: '#ecc4ff', backgroundColor: '#42304b',
             padding: { x: 8, y: 5 }
         }));
+        if (this.round.bonuses.momentum > 0) {
+            this.momentumText = this.add.text(32, 251, 'MOMENTUM: 10s left', {
+                fontFamily: 'Arial', fontSize: 17, color: '#9cf2e7', backgroundColor: '#253e42', padding: { x: 8, y: 5 }
+            });
+            this.passiveBuffTexts.push(this.momentumText);
+        }
         if (this.round.bonuses.lightweightGrip) this.passiveBuffTexts.push(this.add.text(32, 251, 'LIGHTWEIGHT GRIP: rock weight -40%', {
             fontFamily: 'Arial', fontSize: 17, color: '#ffe5ac', backgroundColor: '#483126',
             padding: { x: 8, y: 5 }
@@ -171,11 +189,12 @@ export class Game extends Scene {
             padding: { x: 8, y: 5 }
         }).setVisible(false);
         this.passiveBuffTexts.push(this.streakVialText);
-        // Keep the left buff column clear of the clock and its time label.
+        // Compact buff rows stay above the mine floor.
         [this.strengthText, this.goldRushText, ...this.passiveBuffTexts]
-            .forEach(text => text.setWordWrapWidth(210));
+            .forEach(text => text.setFontSize(14).setPadding(8, 4).setWordWrapWidth(270));
         const buffKinds: BuffKind[] = ['strength', 'goldRush'];
         if (this.round.bonuses.luck) buffKinds.push('luck');
+        if (this.round.bonuses.momentum > 0) buffKinds.push('momentum');
         if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
         buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
@@ -194,6 +213,19 @@ export class Game extends Scene {
             event.stopPropagation();
             pause();
         });
+        // Keep controls and buffs together to the left of the clock, including on resize.
+        const leftHudItems = this.children.list.slice(leftHudStart) as (GameObjects.GameObject & GameObjects.Components.Transform)[];
+        for (const item of leftHudItems) {
+            item.x -= 32;
+            item.y -= 100;
+        }
+        const leftHud = this.add.container(32, 100, leftHudItems);
+        const layoutLeftHud = () => {
+            const clockX = Math.max(372, WORLD.centerX - 210);
+            leftHud.setScale(Math.min(1, (clockX - 70 - 32) / 650));
+        };
+        leftHud.setData('responsiveRedraw', layoutLeftHud);
+        layoutLeftHud();
         const finishButtonsX = levelPanel.x - levelPanel.width - 18;
         const finishButton = this.add.text(finishButtonsX, 112, 'Finish Level', {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
@@ -401,14 +433,15 @@ export class Game extends Scene {
         this.streakVialText.setVisible(this.round.streakVialActive);
         this.streakVialText.setText(`STREAK BONUSES x${this.round.streakMultiplier}  ${this.round.streakVialSeconds > 0
             ? `${Math.ceil(this.round.streakVialSeconds)}s` : 'FULL LEVEL'}`);
-        let buffY = 213;
+        this.momentumText?.setText(`MOMENTUM: ${10 - this.round.momentumSecondsEarned}s left`);
+        let buffY = 0;
         const buffTexts = [this.strengthText, this.goldRushText, ...this.passiveBuffTexts];
         for (const [index, text] of buffTexts.entries()) {
             const icon = this.buffIcons[index];
             icon.setVisible(text.visible);
             if (!text.visible) continue;
-            text.setPosition(68, buffY);
-            icon.setPosition(48, buffY + text.height / 2);
+            text.setPosition(350, buffY);
+            icon.setPosition(330, buffY + text.height / 2);
             buffY += text.height + 5;
         }
         this.streakText.setText(`CATCH STREAK  ${this.round.catchStreak}\nCurrent bonus: +$${this.round.currentStreakBonus}`);
