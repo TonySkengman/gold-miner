@@ -21,6 +21,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 | Up Arrow | Throw dynamite at a caught object |
 | P or Esc | Pause or resume |
 | Finish Level | End the level immediately |
+| Auto Finish Level | Toggle automatic finishing when the gold target is reached (starts OFF) |
 | Sound ON/OFF | Toggle sound effects |
 
 ## How to play

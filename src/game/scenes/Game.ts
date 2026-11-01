@@ -25,6 +25,7 @@ export class Game extends Scene {
     private mysteryRewards = new Map<Collectable, MysteryReward>();
     private ended = false;
     private pausing = false;
+    private autoFinishLevel = false;
     private round: RoundState;
     private claw: Claw;
     private miner: MinerAnimator;
@@ -136,9 +137,9 @@ export class Game extends Scene {
         this.scoreText = this.add.text(32, 29, '', style);
         this.milestoneProgress = new MilestoneProgress(this);
         this.progressText = this.add.text(WORLD.centerX, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
-        this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\n${MINES[this.round.mine].name}`, {
+        const levelPanel = this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\nMode: ${MINES[this.round.mine].name}\nLevel name: ${LAYOUTS[this.round.config.layout].name}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
-            backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
+            backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }, lineSpacing: 4
         }).setOrigin(1, 0);
         this.streakText = this.add.text(this.statusX, 164, '', {
             fontFamily: 'Arial', fontSize: 16, fontStyle: 'bold', color: '#ffe06a',
@@ -179,10 +180,6 @@ export class Game extends Scene {
         buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
         addSoundButton(this, 32, 166);
-        this.add.text(WORLD.centerX, 263, LAYOUTS[this.round.config.layout].name.toUpperCase(), {
-            fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#e5c58f',
-            backgroundColor: '#302e2b', padding: { x: 12, y: 6 }
-        }).setOrigin(0.5);
         const pause = () => {
             if (this.ended || this.pausing || this.scene.isPaused()) return;
             this.pausing = true;
@@ -197,10 +194,11 @@ export class Game extends Scene {
             event.stopPropagation();
             pause();
         });
-        const finishButton = this.add.text(WORLD.width - 34, 196, 'Finish Level', {
+        const finishButtonsX = levelPanel.x - levelPanel.width - 18;
+        const finishButton = this.add.text(finishButtonsX, 112, 'Finish Level', {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
             backgroundColor: '#547f3b', padding: { x: 16, y: 10 }
-        }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+        }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setInteractive({ useHandCursor: true });
         finishButton.on('pointerover', () => finishButton.setBackgroundColor('#659b47'));
         finishButton.on('pointerout', () => finishButton.setBackgroundColor('#547f3b'));
         finishButton.on('pointerdown', (
@@ -208,6 +206,22 @@ export class Game extends Scene {
         ) => {
             event.stopPropagation();
             this.finishLevel();
+        });
+        const autoFinishButton = this.add.text(finishButtonsX, 166, '', {
+            fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffffff',
+            padding: { x: 12, y: 9 }
+        }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setInteractive({ useHandCursor: true });
+        const updateAutoFinishButton = () => autoFinishButton
+            .setText(`Auto Finish Level: ${this.autoFinishLevel ? 'ON' : 'OFF'}`)
+            .setBackgroundColor(this.autoFinishLevel ? '#547f3b' : '#70452a');
+        updateAutoFinishButton();
+        autoFinishButton.on('pointerdown', (
+            _pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData
+        ) => {
+            event.stopPropagation();
+            if (this.ended) return;
+            this.autoFinishLevel = !this.autoFinishLevel;
+            updateAutoFinishButton();
         });
         this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
         this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: drop claw   •   ↑: dynamite (gem-studded rocks release treasure)', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
@@ -273,9 +287,11 @@ export class Game extends Scene {
             this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight);
             this.round.update(step);
             pending -= step;
+            if (this.autoFinishLevel && this.round.won) break;
         }
         this.updateHud();
-        if (this.round.finished && !this.claw.hasPendingCatch) this.finishLevel();
+        if ((this.autoFinishLevel && this.round.won)
+            || (this.round.finished && !this.claw.hasPendingCatch)) this.finishLevel();
     }
 
     private showStreakCatch(object: Collectable, bonus: number): void {
