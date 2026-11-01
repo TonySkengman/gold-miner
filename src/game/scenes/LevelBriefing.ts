@@ -54,9 +54,9 @@ export class LevelBriefing extends Scene {
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck potion', detail: 'Money bags $250+' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Extra time', detail: '+15 seconds' });
         if (bonuses.lightweightGrip > 0) prepared.push({ kind: 'lightweightGrip', name: 'Lightweight Grip', detail: 'Rock weight\n-40%' });
-        if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x2' });
-        if (bonuses.strengthPotion > 0) prepared.push({ kind: 'strengthPotion', name: 'Strength', detail: `${3 + (data.upgrades?.vialBelt ?? 0)} catches at x2` });
-        if (bonuses.goldRush > 0) prepared.push({ kind: 'goldRush', name: 'Gold Rush', detail: `${3 + (data.upgrades?.vialBelt ?? 0)} gold catches +50%` });
+        if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x1.5' });
+        if (bonuses.strengthPotion > 0) prepared.push({ kind: 'strengthPotion', name: 'Strength', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} catches at x2` });
+        if (bonuses.goldRush > 0) prepared.push({ kind: 'goldRush', name: 'Gold Rush', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} gold catches +50%` });
         text(533, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
         const cardTop = 564;
         const cardHeight = 136;

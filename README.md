@@ -49,14 +49,14 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 - Four gold-nugget sizes worth $50, $100, $200, and $350; diamonds worth $450 and rubies worth $650 before upgrades.
 - Four rock sizes worth $12, $16, $18, and $20.
 - Cash bags worth $150–$400, with a $250 minimum when Luck is active.
-- Heavy purple mystery bags marked **?** containing $10–$640, one dynamite stick, or a strength boost for three catches. Cash rewards favor the higher end.
+- Heavy purple mystery bags marked **?** containing $10–$640, one dynamite stick, or a strength boost for two catches. Cash rewards favor the higher end.
 - Moving rats worth $1, including rats carrying diamonds or rubies worth the gem’s value plus $1.
 - Treasure chests: the first hit opens the chest and reveals its reward; catch it again to collect. Rewards include $320–$720, dynamite, Luck potions, Lightweight Grip, or a life vial.
 - Gem-studded rocks contain hidden treasure that can crumble away during hauling. Blast them to release the remaining contents.
 - Rocks with an embedded diamond or ruby reward precision: catch just the gem or haul the heavy rock with it. These appear on medium or larger rocks deep underground.
 - A separate rare combined type has both crystal studs and an embedded gem, with a 50% chance per level to attempt one. Blasting guarantees the visible gem plus remaining hidden gold; extracting the gem first prevents it from dropping twice.
 - TNT barrels that destroy nearby objects and trigger chain reactions without awarding money.
-- Catchable strength potions that double retrieval speed for three catches and stack with winch upgrades; Gold Rush boosts the next three gold catches by 50%, and time vials add 15 seconds.
+- Catchable strength potions that double retrieval speed for two catches and stack with winch upgrades; Gold Rush boosts the next two gold catches by 50%, and time vials add 15 seconds.
 - A shopkeeper and illustrated products with descriptions shown on hover.
 - Denser collectible mix adds large and giant gold, diamonds, rubies, bags, and rocks alongside smaller catches; additions scale with screen width.
 - Window-filling mine with responsive width, extended claw reach, and collectible counts that scale with the available space. Resizing preserves the current round and shop purchases.
@@ -69,18 +69,18 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | --- | --- | --- |
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
 | Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
-| Strength potion | Start the next round with x2 retrieval speed for 3 catches, plus Vial Belt | $500 |
-| Gold Rush potion | Start the next round with +50% gold value for 3 gold catches, plus Vial Belt | $600 |
+| Strength potion | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
+| Gold Rush potion | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
 | Dynamite | One additional stick | $750 |
-| Luck potion | Money bags pay at least $250 in the next level | $500 |
-| Extra time | Adds 15 seconds to the next level | $600 |
+| Luck potion | Money bags pay at least $250 in the next level | $1,000 |
+| Extra time | Adds 15 seconds to the next level | $1,000 |
 | Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
 | Prospector’s Lens | Reveals cash-bag values, mystery-bag contents, and treasure-chest rewards for one round | $1,500 |
 | Vial Belt | +1 Strength/Gold Rush catch and +5 seconds to caught Streak vials per tier; lasts for the run | $1,000 / $2,000 / $3,000 |
-| Streak vial | Doubles streak bonuses for the full next level; mine vials boost to x3 for 15 seconds | $1,000 |
+| Streak vial | Multiplies streak bonuses by 1.5 for the full next level; mine vials boost to x2 for 15 seconds | $1,000 |
 | Life vial | Immediately restores one life, up to five | $3,000 |
 
-Winch, gem-polish, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 3 catches to 4/5/6, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x3 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch, gem-polish, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
 
 ## Development
 
@@ -112,13 +112,13 @@ All gold nuggets (including small and medium), diamonds, rubies, diamond- and ru
 
 Catching an empty rat or an ordinary stone without a gem immediately breaks the streak, even if you dynamite it afterward. Catching a whole rock containing an embedded diamond or ruby advances the streak and earns the normal streak bonus, including combined gem-studded rocks. Gem-studded deposits without an embedded gem stay neutral: they preserve the streak without advancing it. Once an embedded gem is caught separately, its ordinary host rock breaks the streak if caught. An empty shot also resets it. Catching a gem separately from its rock advances the streak normally. Utility items stay neutral: they neither advance nor break the streak. Opening a chest and hitting TNT also preserve it. Every level and retry starts at zero.
 
-A catchable purple Streak vial appears in each mine. Collecting it doubles streak bonuses for 30 seconds: catch 3 pays $40, catch 4 pays $80, catch 5 pays $120, and so on. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
+A catchable purple Streak vial appears in each mine. Collecting it multiplies streak bonuses by 1.5 for 30 seconds: catch 3 pays $30, catch 4 pays $60, catch 5 pays $90, and so on. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
 
-The shop Streak vial grants x2 streak bonuses for the entire next level. With that shop buff active, collecting a mine Streak vial grants x3 for 15 seconds before returning to x2. Without the shop buff, the mine vial still grants x2 for 30 seconds. Extra shop charges cover future levels; they do not stack multipliers.
+The shop Streak vial grants x1.5 streak bonuses for the entire next level. With that shop buff active, collecting a mine Streak vial grants x2 for 15 seconds before returning to x1.5. Without the shop buff, the mine vial still grants x1.5 for 30 seconds. Extra shop charges cover future levels; they do not stack multipliers.
 
 ### Starting potions and run modes
 
-Strength potions ($500) and Gold Rush potions ($600) can be stocked in the shop. One of each purchased supply activates per round: Strength doubles retrieval speed for 3 catches; Gold Rush adds 50% value for 3 gold catches. Vial Belt adds one catch per tier. Mine potions add their full catches to the remaining effect without increasing its multiplier, including Strength from mystery bags. Active catches expire after the round; unused shop stock covers future rounds. Failed attempts restore starting supplies.
+Strength potions ($1,000) and Gold Rush potions ($1,000) can be stocked in the shop. One of each purchased supply activates per round: Strength doubles retrieval speed for 2 catches; Gold Rush adds 50% value for 2 gold catches. Vial Belt adds one catch per tier. Mine potions add their full catches to the remaining effect without increasing its multiplier, including Strength from mystery bags. Active catches expire after the round; unused shop stock covers future rounds. Failed attempts restore starting supplies.
 
 Before starting a run, choose a game mode. It stays fixed for every level and retry in that run:
 

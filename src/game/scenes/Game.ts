@@ -165,7 +165,7 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 17, color: '#ffe5ac', backgroundColor: '#483126',
             padding: { x: 8, y: 5 }
         }));
-        this.streakVialText = this.add.text(32, 251, 'STREAK VIAL: bonuses x2', {
+        this.streakVialText = this.add.text(32, 251, 'STREAK VIAL: bonuses x1.5', {
             fontFamily: 'Arial', fontSize: 17, color: '#e7c5ff', backgroundColor: '#42304b',
             padding: { x: 8, y: 5 }
         }).setVisible(false);

@@ -16,8 +16,8 @@ export class RoundState {
     get streakVialActive(): boolean { return this.streakMultiplier > 1; }
 
     get streakMultiplier(): number {
-        if (this.bonuses.streakVial > 0) return this.streakVialSeconds > 0 ? 3 : 2;
-        return this.streakVialSeconds > 0 ? 2 : 1;
+        if (this.bonuses.streakVial > 0) return this.streakVialSeconds > 0 ? 2 : 1.5;
+        return this.streakVialSeconds > 0 ? 1.5 : 1;
     }
 
     activateStreakVial(): void { this.streakVialSeconds = (this.bonuses.streakVial > 0 ? 15 : 30) + this.upgrades.vialBelt * 5; }
@@ -71,7 +71,7 @@ export class RoundState {
         return `STRENGTH x2 • ${this.strengthCatches} CATCHES!`;
     }
 
-    activateStrength(): void { this.strengthCatches += 3 + this.upgrades.vialBelt; }
+    activateStrength(): void { this.strengthCatches += 2 + this.upgrades.vialBelt; }
 
     applyTreasureReward(reward: TreasureReward): string {
         if (reward.kind === 'life') {
@@ -91,7 +91,7 @@ export class RoundState {
             prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 
-    activateGoldRush(): void { this.goldRushCatches += 3 + this.upgrades.vialBelt; }
+    activateGoldRush(): void { this.goldRushCatches += 2 + this.upgrades.vialBelt; }
 
     /** Vials preserve Strength charges; Gold Rush uses only boosted gold nugget catches. */
     consumeCatch(kind: OreKind): number {
