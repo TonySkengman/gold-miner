@@ -128,7 +128,22 @@ Before starting a run, choose a game mode. It stays fixed for every level and re
 | Gold Basin | Free | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, then reduced 10%; rounded to $50 |
 | Gem Hollow | Free | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
 
-All three mines are free to enter, including with zero money. Choose between mixed treasure, heavy gold and precision gems. Treasure Hollow guarantees one chest and two mystery bags, with a 40% chance of a second chest and independent 50% and 20% chances for two additional mystery bags (up to four total). These rolls replace generic chest/mystery spawns, run once per seeded layout, and stay fixed on retry. Cash bags retain their existing spawns plus two extra. Other object pools and all current targets are unchanged. The selected mode persists through the shop, every cleared level and every retry. Failed attempts restore starting money and supplies and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
+All three mines are free to enter, including with zero money. Choose between mixed treasure, heavy gold and precision gems. Treasure Hollow valuables use one progression pool, replacing generic base, width and density spawns. Gold nugget counts and values keep their existing rules. Each special item has a bonus rating that rises by five percentage points per level, capped at 150%. Below 100%, the rating is the chance to trigger extras; triggered bonuses give **+1 at 60%, +2 at 30%, +3 at 10%**. At 100% and above, bonuses always trigger. From 100% to 150%, the amount distribution shifts linearly toward larger bonuses: at 125% it is **35% / 45% / 20%**, and at 150% it is **10% / 60% / 30%** for +1/+2/+3. Bonuses never exceed three extras. The 20%, 15% and 10% starting groups reach the cap at levels 27, 28 and 29 respectively. Rolls happen once before placement retries; retrying a level preserves its seeded rolls.
+
+| Special item | Starting minimum | Add one guaranteed at levels | Starting bonus rating |
+| --- | --- | --- | --- |
+| Money bags | 1 | 4, 13, 22 | 20% |
+| Diamonds | 1 | 7, 16, 25 | 15% |
+| Rubies | 0 | 4, 13, 22 | 10% |
+| Mystery bags | 1 | 10, 19, 28 | 15% |
+| Treasure chests | 0 | 7, 19 | 10% |
+| Gem-studded rocks | 0 | 4, 16 | 20% |
+| Gems stuck on rocks | 0 | 10, 25 | 15% |
+| Combined rocks | 0 | 13, 28 | 10% |
+
+Special rocks have their own visible gems in addition to the loose gem pool. Gem-studded rocks contain hidden deposits; combined rocks also have a catchable visible gem. Gem-carrying rats and rewards inside deposits keep their separate rules. Targets and other modes are unchanged.
+
+The selected mode persists through the shop, every cleared level and every retry. Failed attempts restore starting money and supplies and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
 
 Mine routes also have distinct scenery: Treasure Hollow uses earthy stone, Gold Basin has amber strata, gold seams and timber supports, and Gem Hollow has blue-violet stone, cool lanterns and wall crystals. Gold Basin retains its extra heavy gold, while Gem Hollow replaces extra-density large and giant gold with diamonds and rubies; entrance previews match each environment.
 
@@ -142,7 +157,7 @@ Gem Hollow adds two large rocks, two medium rocks and two small rocks as precisi
 
 The game-mode selection screen explains each playstyle: Treasure Hollow rewards varied catches and sustained streaks; Gold Basin rewards heavy-haul planning, potion use, time-vial collection and avoiding TNT; Gem Hollow rewards accurate shots through rock gaps, perfect catches and Gem Polish.
 
-Treasure Hollow scatters diamonds, rubies, bags and chests at least 90 pixels apart. Placement favors the middle band (y=390–700), with some treasure deeper (y=600–860); crowded layouts can use the full y=390–860 range without reducing spacing. Treasure Hollow diamonds do not cluster around TNT and its cash bags are not forced deeper by the Deep Mine layout. Mounted gems also preserve the treasure spacing. Treasure counts, values and targets are unchanged. Crowded Treasure Hollow layouts can use slimmer rocks while keeping all treasure.
+Treasure Hollow normally scatters diamonds, rubies, bags and chests at least 90 pixels apart; crowded layouts may use 45 pixels and the full buried depth range to preserve rolled treasure counts. Rich late-game layouts can place treasure behind rocks that must be cleared first; gems remain precisely catchable from their own host once intervening rocks are cleared. Placement favors the middle band (y=390–700), with some treasure deeper (y=600–860); crowded layouts can use the full y=390–860 range. Treasure Hollow diamonds do not cluster around TNT and its cash bags are not forced deeper by the Deep Mine layout. Mounted gems also preserve the treasure spacing. Values and targets are unchanged. Crowded Treasure Hollow layouts can use slimmer rocks while keeping all treasure.
 
 Gold Basin has a seeded 50% chance of a deep large gem-bearing rock. Only large rocks can host embedded gems or hidden deposits in Gold Basin; its existing diamond can be mounted on the large host. Medium and small rocks remain ordinary.
 
@@ -156,7 +171,7 @@ The shop includes a Forfeit Run button after any attempt. Confirming ends the ru
 
 Treasure Hollow trades two small and two medium nuggets for two giant nuggets, one large nugget and one diamond. Its density allowance is raised by 8 percentage points (with at least six density additions), and wider windows favor large gold, cash bags and gems over small/medium filler. Giant nuggets can occupy the deeper middle as well as the bottom. Chest and mystery-bag chances, treasure spacing, targets and timers are unchanged.
 
-Treasure Hollow also raises its combined gem-studded/embedded rock roll from 50% to 75%. Existing hidden-deposit rocks and exposed embedded gems remain part of its mix. Placement keeps a deep medium gem host even when crowded-layout fallbacks slim down other rocks; the most crowded layouts may remove up to two additional ordinary rocks instead of sacrificing treasure or the gem host; mounted gems still respect treasure spacing and exposed-gem aiming checks.
+Treasure Hollow rolls each special rock type from its level progression table. Placement reserves deep hosts and exposed gem positions before filling the remaining space, keeping their aiming paths open. Crowded-layout fallbacks preserve rolled special rocks and treasure; gold nugget counts and values retain their original rules, with wider placement depth ranges available when the usual bands are crowded.
 
 A brass analog countdown clock beside the miner replaces the HUD timer. A Time Left label underneath shows the exact seconds remaining, alongside the clock’s remaining-time ring and moving hand. It turns red for the final 10 seconds, reflects collected time vials and stops with the game when paused.
 
@@ -169,3 +184,5 @@ Each game mode now has 30 levels. Levels 1–20 retain their existing configurat
 | 21 | $5,300 | $7,450 | $8,550 |
 | 25 | $6,150 | $8,550 | $10,000 |
 | 30 | $7,200 | $10,100 | $11,700 |
+
+Ordinary rats have a 25% chance to carry a visible red TNT bundle, capped at two TNT rats per level in every mode. They move like other rats and detonate on claw contact or in a nearby TNT blast, using the same blast radius and chain reactions as barrels. They award no money; gem-carrying rats are unchanged.

@@ -130,7 +130,7 @@ export class Claw {
             }
             if (first) {
                 this.length = hitLength;
-                if (first.kind === 'tnt') {
+                if (first.isExplosive) {
                     this.mode = 'retracting';
                     detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y),
                         deposit => releaseGemDeposit(this.scene, deposit, objects));

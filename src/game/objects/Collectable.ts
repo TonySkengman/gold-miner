@@ -1,3 +1,4 @@
+import { quarryTreasureRules, rollQuarryRocks, rollQuarryTreasure } from '../state/QuarryTreasure';
 import { drawShopProduct } from '../art/drawShop';
 import type { MysteryReward } from '../state/MysteryRewards';
 import { DepositIntegrity } from '../state/DepositIntegrity';
@@ -10,7 +11,7 @@ import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../stat
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tntRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
     ruby: { radius: 15, value: 650, weight: 2, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 5.5, color: 0xb77736 },
@@ -20,6 +21,7 @@ const TYPES = {
     mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
     strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
+    tntRat: { radius: 24, value: 0, weight: 0.2, color: 0x88766a },
     rat: { radius: 21, value: 1, weight: 0.1, color: 0x88766a },
     diamondRat: { radius: 24, value: 451, weight: 0.2, color: 0x88766a },
     rubyRat: { radius: 24, value: 651, weight: 0.2, color: 0x88766a },
@@ -154,6 +156,15 @@ export class Collectable {
                 g.beginPath().moveTo(-12, -14).lineTo(-7, -20).lineTo(1, -20)
                     .lineTo(6, -14).lineTo(-3, -5).closePath().fillPath().strokePath();
                 g.lineStyle(1, 0xe8ffff).lineBetween(-12, -14, 6, -14).lineBetween(-7, -20, -3, -5);
+            } else if (kind === 'tntRat') {
+                // A strapped red bundle and exposed fuse distinguish the mobile TNT.
+                g.fillStyle(0xbd3c2d).lineStyle(2, 0x633128);
+                g.fillRoundedRect(-15, -23, 23, 15, 3).strokeRoundedRect(-15, -23, 23, 15, 3);
+                g.lineStyle(2, 0xf08056).lineBetween(-12, -20, 4, -20);
+                g.lineStyle(3, 0x564337).lineBetween(-9, -23, -9, -7).lineBetween(2, -23, 2, -7);
+                g.lineStyle(2, 0xe8cd87).lineBetween(7, -20, 12, -24).lineBetween(12, -24, 16, -21);
+                g.fillStyle(0xffd45d).fillCircle(16, -21, 3);
+                g.fillStyle(0xff773c).fillCircle(16, -21, 1.5);
             } else if (kind === 'rubyRat') {
                 g.fillStyle(0xe83864).lineStyle(2, 0x751d42);
                 g.beginPath().moveTo(-7, -23).lineTo(1, -23).lineTo(7, -16)
@@ -322,7 +333,9 @@ export class Collectable {
         }
     }
 
-    get isRat(): boolean { return this.kind === 'rat' || this.kind === 'diamondRat' || this.kind === 'rubyRat'; }
+    get isRat(): boolean { return this.kind === 'rat' || this.kind === 'diamondRat' || this.kind === 'rubyRat' || this.kind === 'tntRat'; }
+
+    get isExplosive(): boolean { return this.kind === 'tnt' || this.kind === 'tntRat'; }
 
     hideTreasureLabel(): void {
         this.treasureLabel?.destroy();
@@ -556,6 +569,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
         case 'tnt': return [400, 820];
         case 'diamond': return [800, 880];
         case 'ruby': return [560, 860];
+        case 'tntRat':
         case 'diamondRat':
         case 'rubyRat': return [570, 700];
         case 'giant': return [700, 840];
@@ -571,7 +585,7 @@ export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, n
 
 const isStaticHazard = (kind: OreKind): boolean => kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
 const isQuarryTreasure = (kind: OreKind): boolean => ['diamond', 'ruby', 'moneyBag', 'mysteryBag', 'treasureChest'].includes(kind);
-const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat' && kind !== 'rubyRat';
+const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind !== 'tnt' && kind !== 'rat' && kind !== 'diamondRat' && kind !== 'rubyRat' && kind !== 'tntRat';
 
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
     const isQuarry = (level.mine ?? 'quarry') === 'quarry';
@@ -648,16 +662,24 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         ...(level.tnt > 0 ? ['tnt' as const] : [])
     ];
     for (let i = 0; i < densityExtra; i++) kinds.push(routeKind(additions[i % additions.length]));
-    if ((level.mine ?? 'quarry') === 'quarry') {
-        // Roll extras once for this seeded layout, never again on placement retries.
-        // Chest and mystery guarantees replace their generic density spawns.
-        const chestCount = 1 + (random() < 0.4 ? 1 : 0);
-        const mysteryCount = 2 + (random() < 0.5 ? 1 : 0) + (random() < 0.2 ? 1 : 0);
-        // Cash bags keep their existing population plus two guaranteed additions.
-        const mixedTreasure = kinds.filter(kind => kind !== 'treasureChest' && kind !== 'mysteryBag');
-        kinds.splice(0, kinds.length, ...mixedTreasure,
-            ...Array<OreKind>(chestCount).fill('treasureChest'),
-            ...Array<OreKind>(mysteryCount).fill('mysteryBag'), 'moneyBag', 'moneyBag');
+    const quarryRocks = isQuarry ? rollQuarryRocks(level.levelNumber ?? 1, random) : undefined;
+    if (isQuarry) {
+        // Replace every generic valuable spawn, including width/density additions.
+        // One progression pool controls guarantees and independent bonus rolls.
+        const valuableKinds = new Set<OreKind>(quarryTreasureRules(level.levelNumber ?? 1).map(rule => rule.kind));
+        const ordinary = kinds.filter(kind => !valuableKinds.has(kind));
+        kinds.splice(0, kinds.length, ...ordinary,
+            ...rollQuarryTreasure(level.levelNumber ?? 1, random));
+        // Special rocks have their own visible gems, in addition to the loose
+        // gem pool. Mounting consumes these additions, preserving loose minimums.
+        const neededGems = quarryRocks!.mounted + quarryRocks!.combined;
+        while (kinds.filter(kind => kind === 'rock').length < quarryRocks!.deposit) kinds.push('rock');
+        // Reuse ordinary obstacles as deep hosts rather than adding excess rocks.
+        while (kinds.filter(kind => kind === 'mediumRock' || kind === 'heavyRock').length < neededGems) {
+            const ordinaryRock = kinds.indexOf('rock');
+            if (ordinaryRock >= 0 && kinds.filter(kind => kind === 'rock').length > quarryRocks!.deposit) kinds[ordinaryRock] = 'mediumRock';
+            else kinds.push('mediumRock');
+        }
     }
     if (level.mine === 'goldBasin') {
         // Quarry keeps its mixed treasure; this route focuses on heavy gold.
@@ -686,11 +708,21 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         const gemsAndSupplies = kinds.filter(kind => !['small', 'medium', 'large', 'giant', 'goldRush'].includes(kind));
         kinds.splice(0, kinds.length, ...gemsAndSupplies);
     }
+    // Replace ordinary rats only, preserving gem carriers and total population.
+    // Roll once before layout retries so crowded layouts cannot reroll the count.
+    let tntRats = 0;
+    for (let i = 0; i < kinds.length; i++) {
+        if (kinds[i] === 'rat' && tntRats < 2 && random() < 0.25) {
+            kinds[i] = 'tntRat';
+            tntRats++;
+        }
+    }
     const densityHazards = additions.slice(0, Math.min(densityExtra, additions.length)).map(routeKind).filter(isStaticHazard);
-    const placementPriority = (kind: OreKind): number => isQuarry && kind === 'tnt' ? 80
+    const placementPriority = (kind: OreKind): number => quarryRocks && quarryRocks.mounted + quarryRocks.combined > 0
+        && (kind === 'mediumRock' || kind === 'heavyRock') ? 90 : isQuarry && kind === 'tnt' ? 80
         : level.mine === 'gemHollow'
         && (kind === 'diamond' || kind === 'ruby') ? 100
-        : (level.mine ?? 'quarry') === 'quarry' && isQuarryTreasure(kind) ? 35 : TYPES[kind].radius;
+        : TYPES[kind].radius;
     kinds.sort((a, b) => placementPriority(b) - placementPriority(a));
     // Extra Quarry treasure can need more placement attempts in narrow windows.
     const placementAttempts = (level.mine ?? 'quarry') === 'quarry' ? 600 : 300;
@@ -700,6 +732,9 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         if (layout === 50) {
             for (const kind of densityHazards) {
                 const index = kinds.lastIndexOf(kind);
+                const requiredHosts = (quarryRocks?.mounted ?? 0) + (quarryRocks?.combined ?? 0);
+                if (quarryRocks && (kind === 'mediumRock' || kind === 'heavyRock')
+                    && kinds.filter(candidate => candidate === 'mediumRock' || candidate === 'heavyRock').length <= requiredHosts) continue;
                 if (index >= 0) {
                     if (level.mine === 'gemHollow') kinds.splice(index, 1);
                     else kinds[index] = kind === 'largeRock' ? 'large' : kind === 'heavyRock' ? 'large' : 'medium';
@@ -725,7 +760,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         if (layout === 150) {
             const smallRock = kinds.indexOf('rock');
             const depositHosts = kinds.filter(kind => kind === 'rock' || kind === 'largeRock').length;
-            if (smallRock >= 0 && (level.mine !== 'goldBasin' || depositHosts > 1)) kinds.splice(smallRock, 1);
+            if (smallRock >= 0 && (!quarryRocks || kinds.filter(kind => kind === 'rock').length > quarryRocks.deposit) && (level.mine !== 'goldBasin' || depositHosts > 1)) kinds.splice(smallRock, 1);
         }
         // Narrow Quarry layouts can use slimmer blockers without losing treasure or objects.
         if (isQuarry && layout === 250) {
@@ -735,20 +770,21 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             kinds.sort((a, b) => placementPriority(b) - placementPriority(a));
         }
         if (isQuarry && layout === 400) {
-            let keptGemHost = false;
+            let keptGemHosts = 0;
+            const requiredGemHosts = Math.max(1, (quarryRocks?.mounted ?? 0) + (quarryRocks?.combined ?? 0));
             for (let i = 0; i < kinds.length; i++) {
                 if (kinds[i] !== 'mediumRock') continue;
-                if (!keptGemHost) keptGemHost = true;
+                if (keptGemHosts < requiredGemHosts) keptGemHosts++;
                 else kinds[i] = 'rock';
             }
             // Prefer the special gem host over an excess of ordinary blockers.
-            for (let removed = 0; removed < 2; removed++) {
-                if (kinds.filter(kind => kind === 'rock').length <= 1) break;
+            while (kinds.filter(kind => kind === 'rock').length > Math.max(1, quarryRocks?.deposit ?? 0)) {
                 kinds.splice(kinds.lastIndexOf('rock'), 1);
             }
             kinds.sort((a, b) => placementPriority(b) - placementPriority(a));
         }
         const positions: { x: number; y: number; radius: number; kind: OreKind }[] = [];
+        const reservedRockGems: { x: number; y: number; radius: number; hostX: number; hostY: number }[] = [];
         for (const [index, kind] of kinds.entries()) {
             const radius = TYPES[kind].radius;
             const [baseMinY, baseMaxY] = spawnDepthRange(kind, level.minimumDepth);
@@ -771,7 +807,10 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             }
             if (level.mine === 'gemHollow' && kind === 'largeRock') minY = Math.max(minY, 620);
             if (level.mine === 'goldBasin' && kind === 'largeRock') minY = 650;
-            if (isQuarry && kind === 'mediumRock') minY = Math.max(minY, 620);
+            if (isQuarry && (kind === 'mediumRock' || kind === 'heavyRock')) {
+                const requiredHosts = (quarryRocks?.mounted ?? 0) + (quarryRocks?.combined ?? 0);
+                minY = reservedRockGems.length < requiredHosts ? Math.max(minY, 620) : level.minimumDepth;
+            }
             if (['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) {
                 // Favor the middle; keep the chosen band through position retries.
                 const depthRoll = random();
@@ -793,9 +832,33 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 minY = Math.max(minY, level.minimumDepth);
                 maxY = Math.max(minY, maxY);
             }
+            if (isQuarry && layout >= 400 && (kind === 'large' || kind === 'giant' || scatteredQuarryTreasure)) {
+                // Keep rolled populations in crowded layouts by using available
+                // middle space before any treasure would be lost.
+                minY = Math.max(level.minimumDepth, 390);
+                maxY = 860;
+            }
+            if (isQuarry && layout >= 400 && (kind === 'medium' || kind === 'small')) {
+                // Preserve nugget counts when their usual narrow depth bands fill up.
+                minY = kind === 'small' ? 310 : 340;
+                maxY = 850;
+            }
+            if (isQuarry && layout >= 400 && scatteredQuarryTreasure) {
+                minY = 310;
+                maxY = 880;
+            }
+            const treasureSpacing = isQuarry && layout >= 400 ? 45 : 90;
             for (let attempt = 0; attempt < 2000; attempt++) {
                 let x = 65 + random() * (WORLD.width - 130);
                 let y = minY + random() * (maxY - minY);
+                const rockGemCount = (quarryRocks?.mounted ?? 0) + (quarryRocks?.combined ?? 0);
+                if (quarryRocks && reservedRockGems.length < rockGemCount
+                    && (kind === 'mediumRock' || kind === 'heavyRock')) {
+                    // Spread precision hosts laterally so their aiming paths stay distinct.
+                    if (layout >= 400) y = 700 + (reservedRockGems.length % 2) * 110 + random() * 25;
+                    x = 65 + (reservedRockGems.length + 0.15 + random() * 0.7)
+                        * (WORLD.width - 130) / rockGemCount;
+                }
                 const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
                 const rock = kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
                 if (level.layout === 'goldPocket') {
@@ -805,7 +868,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                         : level.mine === 'gemHollow' ? Math.max(minY, 600) + random() * (850 - Math.max(minY, 600))
                         : 380 + random() * 470;
                 } else if (level.layout === 'ratTunnels') {
-                    if (kind === 'rat') y = RAT_LANE_Y + random() * 8 - 4;
+                    if (kind === 'rat' || kind === 'tntRat') y = RAT_LANE_Y + random() * 8 - 4;
                     // Leave an actual open horizontal route for the nuisance rats.
                     else if (y + radius > RAT_LANE_Y - (level.ratLaneMargin ?? 38)
                         && y - radius < RAT_LANE_Y + (level.ratLaneMargin ?? 38)) continue;
@@ -829,21 +892,38 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 const dx = x - WORLD.centerX;
                 const dy = y - WORLD.pivotY;
                 if (x - radius < 40 || x + radius > WORLD.width - 40 || y + radius > WORLD.floorY || Math.hypot(dx, dy) > WORLD.spawnRange - radius || Math.abs(Math.atan2(dx, dy)) > WORLD.maxAngle) continue;
-                if (positions.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + (layout < 50 ? 18 : 10))) continue;
+                if (positions.some(other => Math.hypot(x - other.x, y - other.y) < radius + other.radius + (layout < 50 ? 18 : isQuarry && layout >= 400 ? 4 : 10))) continue;
                 if (scatteredGem && positions.some(other => (other.kind === 'diamond' || other.kind === 'ruby')
                     && (Math.hypot(x - other.x, y - other.y) < 130
                         || Math.abs(Math.atan2(dx, dy) - Math.atan2(other.x - WORLD.centerX, other.y - WORLD.pivotY)) < 0.045))) continue;
                 if (scatteredQuarryTreasure && positions.some(other => isQuarryTreasure(other.kind)
-                    && Math.hypot(x - other.x, y - other.y) < 90)) continue;
+                    && Math.hypot(x - other.x, y - other.y) < treasureSpacing)) continue;
                 // Include the other barrel's hit radius, plus a gap beyond the blast edge.
                 if (kind === 'tnt' && positions.some(other => other.kind === 'tnt'
                     && Math.hypot(x - other.x, y - other.y) < TNT_BLAST_RADIUS + Math.max(radius, other.radius) + 25)) continue;
+                if (reservedRockGems.some(gem => Math.hypot(x - gem.x, y - gem.y) < radius + gem.radius + 10
+                    || isQuarryTreasure(kind) && Math.hypot(x - gem.x, y - gem.y) < treasureSpacing)) continue;
                 const candidate = { x, y, radius, kind };
                 const hazards = positions.filter(other => isStaticHazard(other.kind));
+                const layeredQuarry = isQuarry && layout >= 400;
                 if (isStaticHazard(kind)) {
                     hazards.push(candidate);
-                    if (positions.some(other => needsAimingGap(other.kind) && findClearAim(other, hazards) === null)) continue;
-                } else if (needsAimingGap(kind) && findClearAim(candidate, hazards) === null) continue;
+                    if (!layeredQuarry && positions.some(other => needsAimingGap(other.kind) && findClearAim(other, hazards) === null)) continue;
+                } else if (!layeredQuarry && needsAimingGap(kind) && findClearAim(candidate, hazards) === null) continue;
+                if (!layeredQuarry && isStaticHazard(kind) && reservedRockGems.some(gem => findExposedGemAim(gem, hazards) === null)) continue;
+                const requiredRockGems = (quarryRocks?.mounted ?? 0) + (quarryRocks?.combined ?? 0);
+                if (quarryRocks && reservedRockGems.length < requiredRockGems
+                    && (kind === 'mediumRock' || kind === 'heavyRock')) {
+                    const gem = [-1, 1].map(side => ({ x: x + side * radius * 0.62,
+                        y: y - radius * 0.65, radius: TYPES.diamond.radius, hostX: x, hostY: y }))
+                        .find(gem => gem.y - gem.radius >= 580
+                            && !positions.some(other => Math.hypot(gem.x - other.x, gem.y - other.y) < gem.radius + other.radius + 10
+                                || isQuarryTreasure(other.kind) && Math.hypot(gem.x - other.x, gem.y - other.y) < 90)
+                            && !reservedRockGems.some(other => Math.hypot(gem.x - other.x, gem.y - other.y) < 90)
+                            && findExposedGemAim(gem, layeredQuarry ? [candidate] : [...hazards, candidate]) !== null);
+                    if (!gem) continue;
+                    reservedRockGems.push(gem);
+                }
                 positions.push(candidate);
                 break;
             }
@@ -853,13 +933,32 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             const rocks = positions.filter(p => isStaticHazard(p.kind));
             const deposits = rocks.filter(p => (level.mine !== 'goldBasin' || p.kind === 'largeRock') && p.kind !== 'mediumRock' && p.kind !== 'heavyRock'
                 && (p.kind !== 'largeRock' || p.y >= 620)
-                && findClearAim(p, rocks.filter(other => other !== p)) !== null);
-            if (deposits.length === 0 && level.mine !== 'goldBasin') continue;
-            const deposit = deposits.length ? deposits[Math.floor(random() * deposits.length)] : undefined;
+                && (isQuarry || findClearAim(p, rocks.filter(other => other !== p)) !== null));
+            if (quarryRocks && reservedRockGems.length !== quarryRocks.mounted + quarryRocks.combined) continue;
+            if (deposits.length < (quarryRocks?.deposit ?? (level.mine !== 'goldBasin' ? 1 : 0))) continue;
+            const selectedDeposits = new Set<typeof positions[number]>();
+            const depositCount = quarryRocks?.deposit ?? (deposits.length ? 1 : 0);
+            const remainingDeposits = [...deposits];
+            for (let i = 0; i < depositCount; i++) {
+                const index = Math.floor(random() * remainingDeposits.length);
+                selectedDeposits.add(remainingDeposits.splice(index, 1)[0]);
+            }
             // Swap gems after placement: both carriers share a size and depth range.
-            const objects = positions.map(({ x, y, kind }) => new Collectable(scene, x, y,
-                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random, deposit?.x === x && deposit?.y === y, level.mine === 'gemHollow'));
-            if (level.mine === 'goldBasin') {
+            const objects = positions.map(position => {
+                const { x, y, kind } = position;
+                return new Collectable(scene, x, y,
+                kind === 'diamondRat' && random() < 0.25 ? 'rubyRat' : kind, level.ratSpeed, random, selectedDeposits.has(position), level.mine === 'gemHollow');
+            });
+            if (quarryRocks) {
+                // Reserved space preserves every rolled special rock without
+                // requiring its gem to fit somewhere else in the mine first.
+                for (const [index, reserved] of reservedRockGems.entries()) {
+                    const host = objects.find(object => object.x === reserved.hostX && object.y === reserved.hostY)!;
+                    const gem = new Collectable(scene, reserved.x, reserved.y, 'diamond', level.ratSpeed, random);
+                    objects.push(gem);
+                    host.mountGem(gem, random, index < quarryRocks.combined);
+                }
+            } else if (level.mine === 'goldBasin') {
                 if (hasGemRock) perchLooseGem(objects, random, true, 0, 0, true);
             } else {
                 const gemGap = level.mine === 'gemHollow' ? 130 : 0;

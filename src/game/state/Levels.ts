@@ -3,6 +3,7 @@ import { LayoutKind, LAYOUT_ORDER } from './Layouts';
 
 export interface LevelConfig {
     mine?: MineKind;
+    levelNumber?: number;
     layout: LayoutKind;
     target: number;
     rocks: number;
@@ -59,6 +60,7 @@ function densityAdjustedTarget(baseTarget: number, index: number): number {
 
 export const LEVELS: readonly LevelConfig[] = BASE_LEVELS.map((level, index) => ({
     ...level,
+    levelNumber: index + 1,
     target: densityAdjustedTarget(level.target, index),
     // More hazards should tighten shots, never turn the mine into a solid wall.
     largeRocks: Math.min(3, level.largeRocks),
