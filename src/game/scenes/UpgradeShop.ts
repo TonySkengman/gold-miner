@@ -17,6 +17,8 @@ export class UpgradeShop extends Scene {
         let dynamite = data.dynamite;
         let upgrades = { ...emptyUpgrades(), ...data.upgrades };
         let hovered: ShopItemKind | null = null;
+        let confirmingForfeit = false;
+        let leaving = false;
         drawShop(this);
         addSoundButton(this, 32, 16);
         this.add.text(WORLD.centerX, 80, data.failed ? `LEVEL ${data.level} FAILED — RESTOCK & RETRY` : data.result?.finalLevel ? 'ALL LEVELS CLEARED!' : `LEVEL ${data.level - 1} CLEARED!`, { fontFamily: 'Arial', fontSize: 30, fontStyle: 'bold', color: '#483126' }).setOrigin(0.5);
@@ -75,6 +77,7 @@ export class UpgradeShop extends Scene {
                 showDescription();
             });
             card.on('pointerdown', () => {
+                if (confirmingForfeit || leaving) return;
                 hovered = kind;
                 const purchase = purchaseUpgrade(kind, money, upgrades, dynamite, bonuses, lives);
                 if (purchase) {
@@ -89,8 +92,10 @@ export class UpgradeShop extends Scene {
                 refresh();
             });
         });
-        const next = this.add.text(WORLD.centerX, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-        next.once('pointerdown', () => {
+        const next = this.add.text(WORLD.centerX + 180, 867, `START LEVEL ${data.level}`, { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 28, y: 16 } }).setOrigin(0.5).setData('responsiveAnchor', 'center').setInteractive({ useHandCursor: true });
+        next.on('pointerdown', () => {
+            if (confirmingForfeit || leaving) return;
+            leaving = true;
             if (data.result && (lives === 0 || (data.result.won && data.result.finalLevel))) {
                 this.scene.start('GameOver', { ...data.result, lives, money, upgrades, dynamite });
                 return;
@@ -99,6 +104,45 @@ export class UpgradeShop extends Scene {
                 lives, mine: data.mine, level: data.level, money, upgrades, dynamite, bonuses, levelSeed: data.levelSeed
             });
         });
+        const forfeit = this.add.text(WORLD.centerX - 220, 867, 'FORFEIT RUN', {
+            fontFamily: 'Arial', fontSize: 22, color: '#ffffff', backgroundColor: '#8e493c', padding: { x: 24, y: 18 }
+        }).setOrigin(0.5).setData('responsiveAnchor', 'center').setInteractive({ useHandCursor: true });
+        const shade = this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.82)
+            .setData('responsiveFullWidth', true).setData('responsiveAnchor', 'center').setInteractive();
+        const panel = this.add.rectangle(WORLD.centerX, 480, 680, 300, 0xffedbb)
+            .setStrokeStyle(4, 0xc29659).setData('responsiveAnchor', 'center');
+        const heading = this.add.text(WORLD.centerX, 393, 'FORFEIT THIS RUN?', {
+            fontFamily: 'Arial', fontSize: 32, fontStyle: 'bold', color: '#70452a'
+        }).setOrigin(0.5).setData('responsiveAnchor', 'center');
+        const warning = this.add.text(WORLD.centerX, 468, 'Your progress in this run will be lost.\nReturn to the main menu?', {
+            fontFamily: 'Arial', fontSize: 22, color: '#483126', align: 'center', lineSpacing: 10
+        }).setOrigin(0.5).setData('responsiveAnchor', 'center');
+        const cancel = this.add.text(WORLD.centerX - 150, 563, 'KEEP PLAYING', {
+            fontFamily: 'Arial', fontSize: 22, color: '#ffffff', backgroundColor: '#547f3b', padding: { x: 20, y: 14 }
+        }).setOrigin(0.5).setData('responsiveAnchor', 'center').setInteractive({ useHandCursor: true });
+        const confirm = this.add.text(WORLD.centerX + 150, 563, 'FORFEIT RUN', {
+            fontFamily: 'Arial', fontSize: 22, color: '#ffffff', backgroundColor: '#8e493c', padding: { x: 20, y: 14 }
+        }).setOrigin(0.5).setData('responsiveAnchor', 'center').setInteractive({ useHandCursor: true });
+        const confirmation = [shade, panel, heading, warning, cancel, confirm];
+        confirmation.forEach((item, index) => item.setDepth(100 + index).setVisible(false));
+        const showConfirmation = (visible: boolean) => {
+            confirmingForfeit = visible;
+            confirmation.forEach(item => item.setVisible(visible));
+        };
+        forfeit.on('pointerdown', () => {
+            if (!leaving) showConfirmation(true);
+        });
+        const keepPlaying = () => {
+            if (!leaving) showConfirmation(false);
+        };
+        cancel.on('pointerdown', keepPlaying);
+        confirm.on('pointerdown', () => {
+            if (!confirmingForfeit || leaving) return;
+            leaving = true;
+            this.scene.start('MainMenu');
+        });
+        this.input.keyboard?.on('keydown-ESC', keepPlaying);
+        this.events.once('shutdown', () => this.input.keyboard?.off('keydown-ESC', keepPlaying));
         this.add.text(WORLD.centerX, 926, `${MINES[data.mine ?? 'quarry'].name} mode • Fixed for this run • Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
         responsiveLayout(this);

@@ -25,7 +25,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 
 ## How to play
 
-Reach each level’s earnings target within 60 seconds. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $5,100 on level 20. Start with three lives; failing a level costs one life, and losing all lives ends the run unless you buy a life vial in the post-level shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
+Reach each level’s earnings target within 60 seconds, or 90 seconds in Gold Basin. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $5,100 on level 20. Start with three lives; failing a level costs one life, and losing all lives ends the run unless you buy a life vial in the post-level shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
 
 **Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Every completed attempt takes you to the shop, whether you pass or fail. Passing advances to the next level; failing costs a life and lets you restock before retrying the same layout with your restored starting money and supplies. At zero lives, buy a life vial to retry or end the run. Clearing the final level also opens the shop before the final results.
 
@@ -125,7 +125,7 @@ Before starting a run, choose a game mode. It stays fixed for every level and re
 | Mode | Entry fee | Treasure added | Target |
 |---|---:|---|---|
 | Treasure Hollow | Free | Mixed treasure; 1–2 chests, 2–4 mystery bags and 2 extra cash bags | Standard |
-| Gold Basin | Free | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, rounded to $50 |
+| Gold Basin | Free | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, then reduced 10%; rounded to $50 |
 | Gem Hollow | Free | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
 
 All three mines are free to enter, including with zero money. Choose between mixed treasure, heavy gold and precision gems. Treasure Hollow guarantees one chest and two mystery bags, with a 40% chance of a second chest and independent 50% and 20% chances for two additional mystery bags (up to four total). These rolls replace generic chest/mystery spawns, run once per seeded layout, and stay fixed on retry. Cash bags retain their existing spawns plus two extra. Other object pools and all current targets are unchanged. The selected mode persists through the shop, every cleared level and every retry. Failed attempts restore starting money and supplies and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
@@ -142,10 +142,20 @@ Gem Hollow adds two large rocks, two medium rocks and two small rocks as precisi
 
 The game-mode selection screen explains each playstyle: Treasure Hollow rewards varied catches and sustained streaks; Gold Basin rewards heavy-haul planning, potion use, time-vial collection and avoiding TNT; Gem Hollow rewards accurate shots through rock gaps, perfect catches and Gem Polish.
 
-Treasure Hollow scatters diamonds, rubies, bags and chests at least 90 pixels apart. Placement favors the middle band (y=390–700), with some treasure deeper (y=600–860); crowded layouts can use the full y=390–860 range without reducing spacing. Treasure Hollow diamonds do not cluster around TNT and its cash bags are not forced deeper by the Deep Mine layout. Mounted gems also preserve the treasure spacing. Treasure counts, values and targets are unchanged. Crowded Treasure Hollow layouts can use slimmer rocks while keeping the same number of objects and all treasure.
+Treasure Hollow scatters diamonds, rubies, bags and chests at least 90 pixels apart. Placement favors the middle band (y=390–700), with some treasure deeper (y=600–860); crowded layouts can use the full y=390–860 range without reducing spacing. Treasure Hollow diamonds do not cluster around TNT and its cash bags are not forced deeper by the Deep Mine layout. Mounted gems also preserve the treasure spacing. Treasure counts, values and targets are unchanged. Crowded Treasure Hollow layouts can use slimmer rocks while keeping all treasure.
 
 Gold Basin has a seeded 50% chance of a deep large gem-bearing rock. Only large rocks can host embedded gems or hidden deposits in Gold Basin; its existing diamond can be mounted on the large host. Medium and small rocks remain ordinary.
 
 Crowded Gold Basin layouts may drop up to four small and two medium gold nuggets, preserving giant/large gold, gem-bearing large rocks and all rolled supply minimums/extras.
 
 Game-mode cards focus on the illustrated entrance, playstyle, a short description of what makes each mode different, and quieter subtext explaining its rewards and tradeoffs. Exact spawn counts are omitted from these cards; level targets remain on the level briefing.
+
+Strength charges are not consumed by catching Strength, Gold Rush, time or Streak vials. Other catches still use a charge. Gold Basin starts with 90 seconds (105 with the shop Extra time bonus) and its previous targets are reduced by 10%, rounded to the nearest $50. Catchable time vials still add 15 seconds each. Treasure Hollow and Gem Hollow retain their current targets and 60-second base timer. The level briefing and gameplay use the same mode duration.
+
+The shop includes a Forfeit Run button after any attempt. Confirming ends the run and returns to the main menu; Keep Playing or Escape closes the confirmation without changing purchases, money or supplies. Shop purchases and level progression are blocked while the confirmation is open.
+
+Treasure Hollow trades two small and two medium nuggets for two giant nuggets, one large nugget and one diamond. Its density allowance is raised by 8 percentage points (with at least six density additions), and wider windows favor large gold, cash bags and gems over small/medium filler. Giant nuggets can occupy the deeper middle as well as the bottom. Chest and mystery-bag chances, treasure spacing, targets and timers are unchanged.
+
+Treasure Hollow also raises its combined gem-studded/embedded rock roll from 50% to 75%. Existing hidden-deposit rocks and exposed embedded gems remain part of its mix. Placement keeps a deep medium gem host even when crowded-layout fallbacks slim down other rocks; the most crowded layouts may remove up to two additional ordinary rocks instead of sacrificing treasure or the gem host; mounted gems still respect treasure spacing and exposed-gem aiming checks.
+
+A brass analog countdown clock beside the miner replaces the HUD timer. A Time Left label underneath shows the exact seconds remaining, alongside the clock’s remaining-time ring and moving hand. It turns red for the final 10 seconds, reflects collected time vials and stops with the game when paused.

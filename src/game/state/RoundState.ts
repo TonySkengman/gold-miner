@@ -2,7 +2,7 @@ import { MILESTONES, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
 import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses } from './Upgrades';
 import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
-import { mineConfig, type MineKind } from './Mines';
+import { mineConfig, roundDuration, type MineKind } from './Mines';
 import { LEVELS, LevelConfig } from './Levels';
 import type { OreKind } from '../objects/Collectable';
 
@@ -50,7 +50,7 @@ export class RoundState {
         this.lives = this.startingLives = Math.max(1, Math.min(5, Math.floor(lives)));
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
         this.bonuses = { ...emptyBonuses(), ...bonuses };
-        this.remaining = bonuses.extraTime ? 75 : 60;
+        this.remaining = roundDuration(mine, this.bonuses.extraTime);
         this.upgrades = { ...emptyUpgrades(), ...upgrades };
         this.dynamite = startingDynamite;
         this.config = mineConfig(this.level, mine);
@@ -93,10 +93,12 @@ export class RoundState {
 
     activateGoldRush(): void { this.goldRushCatches += 3 + this.upgrades.vialBelt; }
 
-    /** Strength uses every latch; gold rush uses only boosted gold nugget catches. */
+    /** Vials preserve Strength charges; Gold Rush uses only boosted gold nugget catches. */
     consumeCatch(kind: OreKind): number {
         const goldMultiplier = this.goldRushValue(100, kind) / 100;
-        this.strengthCatches = Math.max(0, this.strengthCatches - 1);
+        if (!['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) {
+            this.strengthCatches = Math.max(0, this.strengthCatches - 1);
+        }
         if (goldMultiplier > 1) this.goldRushCatches--;
         return goldMultiplier;
     }

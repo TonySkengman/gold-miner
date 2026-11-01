@@ -6,7 +6,7 @@ import { drawEnvironment } from '../art/drawEnvironment';
 import { drawShopProduct } from '../art/drawShop';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { LEVELS } from '../state/Levels';
-import { MINES, mineConfig, type MineKind } from '../state/Mines';
+import { MINES, mineConfig, roundDuration, type MineKind } from '../state/Mines';
 import { LAYOUTS } from '../state/Layouts';
 import { MILESTONES } from '../state/Milestones';
 import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses } from '../state/Upgrades';
@@ -45,7 +45,7 @@ export class LevelBriefing extends Scene {
         text(257, 'GOLD TARGET', 21, '#e5c58f');
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
-        text(428, `${bonuses.extraTime > 0 ? 75 : 60} SECONDS`, 25, '#bcf58b');
+        text(428, `${roundDuration(data.mine, bonuses.extraTime)} SECONDS`, 25, '#bcf58b');
         text(480, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [

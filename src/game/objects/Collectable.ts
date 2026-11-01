@@ -576,7 +576,7 @@ const needsAimingGap = (kind: OreKind): boolean => !isStaticHazard(kind) && kind
 export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0], random: () => number = Math.random): Collectable[] {
     const isQuarry = (level.mine ?? 'quarry') === 'quarry';
     // Roll once per seeded level, not on placement retries. Quarry bonus treasure is rolled below before placement retries.
-    const hasGemRock = random() < 0.5;
+    const hasGemRock = random() < (isQuarry ? 0.75 : 0.5);
     const hasChest = random() < 0.5;
     const hasRuby = random() < 0.35;
     // Place the largest objects first; retry the whole layout if it becomes crowded.
@@ -594,6 +594,13 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         ...Array<OreKind>(level.rats).fill('rat'),
         ...Array<OreKind>(level.diamondRats).fill('diamondRat')
     ];
+    if (isQuarry) {
+        // Trade low-value filler for a few big catches while keeping a mixed mine.
+        for (const kind of ['small', 'small', 'medium', 'medium'] as const) {
+            kinds.splice(kinds.indexOf(kind), 1);
+        }
+        kinds.push('giant', 'giant', 'large', 'diamond');
+    }
     if (level.mine === 'goldBasin') {
         kinds.push('giant', 'giant', 'giant', 'giant', 'giant', 'giant', 'giant', 'large', 'large');
         if (hasGemRock) kinds.push('largeRock');
@@ -612,7 +619,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
     const widthExtra = Math.max(0, Math.round((WORLD.width / 1024 - 1) * 12));
     // Narrow windows need fewer additions to keep deep, large objects placeable.
     const density = Math.min(0.45, 0.10 + (WORLD.width / 1024 - 1) * 0.7);
-    const densityExtra = Math.max(5, Math.ceil((kinds.length + widthExtra) * density));
+    const densityExtra = Math.max(isQuarry ? 6 : 5, Math.ceil((kinds.length + widthExtra) * (density + (isQuarry ? 0.08 : 0))));
     const routeKind = (kind: OreKind): OreKind => {
         if (level.mine === 'gemHollow') {
             if (kind === 'large') return 'diamond';
@@ -622,6 +629,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
     };
     const widthAdditions: OreKind[] = level.mine === 'goldBasin'
         ? ['giant', 'large', 'small', 'small', 'large', 'small', 'strengthPotion', 'goldRush']
+        : isQuarry ? ['large', 'moneyBag', 'rock', 'small', 'diamond', 'medium', 'ruby', 'large']
         : ['small', 'medium', 'rock', 'small', 'moneyBag', 'medium', 'heavyRock', 'diamond'];
     for (let i = 0; i < widthExtra; i++) kinds.push(routeKind(widthAdditions[i % widthAdditions.length]));
     const additions: OreKind[] = level.mine === 'goldBasin' ? [
@@ -725,8 +733,16 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             kinds.sort((a, b) => placementPriority(b) - placementPriority(a));
         }
         if (isQuarry && layout === 400) {
+            let keptGemHost = false;
             for (let i = 0; i < kinds.length; i++) {
-                if (kinds[i] === 'mediumRock') kinds[i] = 'rock';
+                if (kinds[i] !== 'mediumRock') continue;
+                if (!keptGemHost) keptGemHost = true;
+                else kinds[i] = 'rock';
+            }
+            // Prefer the special gem host over an excess of ordinary blockers.
+            for (let removed = 0; removed < 2; removed++) {
+                if (kinds.filter(kind => kind === 'rock').length <= 1) break;
+                kinds.splice(kinds.lastIndexOf('rock'), 1);
             }
             kinds.sort((a, b) => placementPriority(b) - placementPriority(a));
         }
@@ -741,7 +757,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 : level.mine === 'goldBasin' && (kind === 'small' || kind === 'medium') ? 800 : baseMaxY;
             // Large groups of giant nuggets need room across the middle and bottom.
             let minY = scatteredGem ? Math.max(440, level.minimumDepth)
-                : level.mine === 'goldBasin' && kind === 'giant' ? 390 : baseMinY;
+                : level.mine === 'goldBasin' && kind === 'giant' ? 390
+                : isQuarry && kind === 'giant' ? 430 : baseMinY;
             // Dense layouts can spread large gold through the deeper middle too.
             if (layout >= 100) {
                 if (kind === 'giant') minY -= 80;
@@ -754,7 +771,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             }
             if (level.mine === 'gemHollow' && kind === 'largeRock') minY = Math.max(minY, 620);
             if (level.mine === 'goldBasin' && kind === 'largeRock') minY = 650;
-            if (level.mine === 'goldBasin' && ['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) minY = 310;
+            if (isQuarry && kind === 'mediumRock') minY = Math.max(minY, 620);
+            if ((isQuarry || level.mine === 'goldBasin') && ['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) minY = 310;
             if (level.mine === 'gemHollow' && (kind === 'mediumRock' || kind === 'rock')) {
                 minY = Math.max(minY, 600);
             }
@@ -766,7 +784,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 const rock = kind === 'rock' || kind === 'mediumRock' || kind === 'heavyRock' || kind === 'largeRock';
                 if (level.layout === 'goldPocket') {
                     if (gold) x = WORLD.centerX - (WORLD.width - 160) * 0.45 + random() * (WORLD.width - 160) * 0.9;
-                    if (rock) y = level.mine === 'goldBasin' && kind === 'largeRock' ? 650 + random() * 200
+                    if (rock) y = isQuarry && kind === 'mediumRock' ? minY + random() * (850 - minY)
+                        : level.mine === 'goldBasin' && kind === 'largeRock' ? 650 + random() * 200
                         : level.mine === 'gemHollow' ? Math.max(minY, 600) + random() * (850 - Math.max(minY, 600))
                         : 380 + random() * 470;
                 } else if (level.layout === 'ratTunnels') {

@@ -1,3 +1,4 @@
+import { MineClock } from '../ui/MineClock';
 import { MINES, type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { catchFeedbackY } from '../objects/Aiming';
@@ -38,12 +39,17 @@ export class Game extends Scene {
     private goldRushText: GameObjects.Text;
     private buffIcons: GameObjects.Graphics[] = [];
     private passiveBuffTexts: GameObjects.Text[] = [];
-    private timeText: GameObjects.Text;
+    private mineClock: MineClock;
     private livesIcons: GameObjects.Graphics;
     private displayedLives = -1;
     private depositHint: GameObjects.Text;
 
     constructor() { super('Game'); }
+
+    private get statusX(): number {
+        // Reserve space for the right-hand level panel on narrow windows.
+        return WORLD.centerX + Math.min(230, 150 + Math.max(0, (WORLD.width - 1024) / 2));
+    }
 
     create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number; mine?: MineKind } = {}): void {
         this.levelSeed = data.levelSeed ?? newLevelSeed();
@@ -57,6 +63,7 @@ export class Game extends Scene {
         this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses, data.lives, data.mine);
         drawEnvironment(this, this.round.config.layout, this.round.mine);
         this.miner = new MinerAnimator(this);
+        this.mineClock = new MineClock(this, this.round.remaining);
         this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
         for (const object of this.objects) {
             if (this.round.bonuses.prospectorsLens && object.kind === 'treasureChest') {
@@ -129,17 +136,18 @@ export class Game extends Scene {
         this.scoreText = this.add.text(32, 29, '', style);
         this.milestoneProgress = new MilestoneProgress(this);
         this.progressText = this.add.text(WORLD.centerX, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
-        this.timeText = this.add.text(WORLD.width - 34, 29, '', style).setOrigin(1, 0);
         this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\n${MINES[this.round.mine].name}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
         }).setOrigin(1, 0);
-        this.streakText = this.add.text(WORLD.width - 34, 224, '', {
-            fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe06a',
-            backgroundColor: '#483126', padding: { x: 10, y: 7 }, align: 'right'
-        }).setOrigin(1, 0);
-        this.add.rectangle(WORLD.centerX + 178, 131, 190, 40, 0xffedbb);
-        this.livesIcons = drawLives(this, WORLD.centerX + 178, 131, this.round.lives);
+        this.streakText = this.add.text(this.statusX, 164, '', {
+            fontFamily: 'Arial', fontSize: 16, fontStyle: 'bold', color: '#ffe06a',
+            backgroundColor: '#483126', padding: { x: 8, y: 7 }, align: 'center'
+        }).setOrigin(0.5, 0).setData('responsiveAnchor', 'center');
+        this.streakText.setData('responsiveRedraw', () => this.streakText.setX(this.statusX));
+        const lifeBar = this.add.rectangle(this.statusX, 131, 190, 40, 0xffedbb).setData('responsiveAnchor', 'center');
+        lifeBar.setData('responsiveRedraw', () => lifeBar.setX(this.statusX));
+        this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100);
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
@@ -162,6 +170,9 @@ export class Game extends Scene {
             padding: { x: 8, y: 5 }
         }).setVisible(false);
         this.passiveBuffTexts.push(this.streakVialText);
+        // Keep the left buff column clear of the clock and its time label.
+        [this.strengthText, this.goldRushText, ...this.passiveBuffTexts]
+            .forEach(text => text.setWordWrapWidth(210));
         const buffKinds: BuffKind[] = ['strength', 'goldRush'];
         if (this.round.bonuses.luck) buffKinds.push('luck');
         if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
@@ -186,7 +197,7 @@ export class Game extends Scene {
             event.stopPropagation();
             pause();
         });
-        const finishButton = this.add.text(WORLD.width - 34, 166, 'Finish Level', {
+        const finishButton = this.add.text(WORLD.width - 34, 196, 'Finish Level', {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
             backgroundColor: '#547f3b', padding: { x: 16, y: 10 }
         }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
@@ -237,6 +248,8 @@ export class Game extends Scene {
         }).setOrigin(0.5, 1).setDepth(11).setVisible(false);
         this.updateHud();
         responsiveLayout(this, oldWidth => {
+            this.displayedLives = -1;
+            this.updateHud();
             for (const object of this.objects) {
                 if (object.isMountedGem) continue;
                 object.moveTo(65 + (object.x - 65) * (WORLD.width - 130) / (oldWidth - 130), object.y);
@@ -294,12 +307,12 @@ export class Game extends Scene {
     }
 
     private showCollectionValue(value: number, label = `+$${value}`): void {
-        const popup = this.add.text(WORLD.centerX + 53, 195, label, {
+        const popup = this.add.text(WORLD.centerX, 320, label, {
             fontFamily: 'Arial', fontSize: 28, fontStyle: 'bold', color: '#ffe06a',
             stroke: '#483126', strokeThickness: 4
-        }).setOrigin(0, 0.5).setDepth(10);
+        }).setOrigin(0.5, 0).setDepth(10);
         this.tweens.add({
-            targets: popup, y: 155, alpha: 0, duration: 1100,
+            targets: popup, y: 290, alpha: 0, duration: 1100,
             ease: 'Sine.easeOut', onComplete: () => popup.destroy()
         });
     }
@@ -334,7 +347,7 @@ export class Game extends Scene {
     private updateHud(): void {
         if (this.displayedLives !== this.round.lives) {
             this.livesIcons.destroy();
-            this.livesIcons = drawLives(this, WORLD.centerX + 178, 131, this.round.lives);
+            this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
             this.displayedLives = this.round.lives;
         }
         const deposit = this.claw.hauledDeposit;
@@ -386,9 +399,7 @@ export class Game extends Scene {
         this.dynamiteInventory.update(this.round.dynamite);
         this.scoreText.setText(`MONEY  $${this.round.money}`);
         this.progressText.setText(`LEVEL GOLD  $${this.round.score} / $${this.round.target}`);
-        this.timeText.setText(this.round.finished && this.claw.hasPendingCatch
-            ? 'FINAL HAUL!' : `TIME  ${Math.ceil(this.round.remaining)}s`);
-        this.timeText.setColor(this.round.remaining <= 10 ? '#ff9b7c' : '#fff3cc');
+        this.mineClock.update(this.round.remaining, this.round.finished && this.claw.hasPendingCatch);
     }
 
 }
