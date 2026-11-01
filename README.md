@@ -25,7 +25,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 
 ## How to play
 
-Reach each level’s earnings target within 60 seconds, or 90 seconds in Gold Basin. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $5,100 on level 20. Start with three lives; failing a level costs one life, and losing all lives ends the run unless you buy a life vial in the post-level shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
+Reach each level’s earnings target within 60 seconds, or 90 seconds in Gold Basin. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $7,200 on level 30 in Treasure Hollow (other modes apply their own target scaling). Start with three lives; failing a level costs one life, and losing all lives ends the run unless you buy a life vial in the post-level shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
 
 **Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Every completed attempt takes you to the shop, whether you pass or fail. Passing advances to the next level; failing costs a life and lets you restock before retrying the same layout with your restored starting money and supplies. At zero lives, buy a life vial to retry or end the run. Clearing the final level also opens the shop before the final results.
 
@@ -45,7 +45,7 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 
 ## Features
 
-- 20 levels with increasing targets and four cave layouts: Gold Pocket, Rat Tunnels, Explosive Cavern, and Deep Mine.
+- 30 levels per mode with increasing targets and four cave layouts: Gold Pocket, Rat Tunnels, Explosive Cavern, and Deep Mine.
 - Four gold-nugget sizes worth $50, $100, $200, and $350; diamonds worth $450 and rubies worth $650 before upgrades.
 - Four rock sizes worth $12, $16, $18, and $20.
 - Cash bags worth $150–$400, with a $250 minimum when Luck is active.
@@ -134,7 +134,7 @@ Mine routes also have distinct scenery: Treasure Hollow uses earthy stone, Gold 
 
 Gold Basin keeps only a medium rock and a small rock, removes ordinary large/heavy rocks (apart from the rare large gem host), scales TNT and time vials with progression, and uses a dedicated density pool favoring giant/large gold and supplies, with no extra medium nuggets or rocks. Only two base medium nuggets remain. Its giant nuggets spread across the middle and bottom to keep crowded layouts playable.
 
-Gold Basin specializes in gold: at most one loose diamond and one cash bag, no loose rubies, gem-carrying rats, mystery bags or treasure chests, and one Streak vial. Strength and Gold Rush vials each have minimums of 2 on levels 1–6, 3 on levels 7–12 and 4 on levels 13–20, plus an independent 40% chance of one extra. Minimum supplies per round: levels 1–6 have 2 time vials and 3 TNT barrels, levels 7–12 have 3 time vials and 4 TNT barrels, and levels 13–20 have 4 time vials and 5 TNT barrels. Gold Basin also rolls a 40% chance of one extra TNT barrel, plus independent 50% and 20% chances of one extra time vial each. Bonus rolls are fixed per seeded layout and retries keep the same supplies. Each time vial adds 15 seconds when collected; extra time must be earned by catching the vials. Its density pool adds gold rather than gems and bags. Treasure Hollow retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
+Gold Basin specializes in gold: at most one loose diamond and one cash bag, no loose rubies, gem-carrying rats, mystery bags or treasure chests, and one Streak vial. Strength and Gold Rush vials each have minimums of 2 on levels 1–6, 3 on levels 7–12 and 4 on levels 13–30, plus an independent 40% chance of one extra. Minimum supplies per round: levels 1–6 have 2 time vials and 3 TNT barrels, levels 7–12 have 3 time vials and 4 TNT barrels, and levels 13–30 have 4 time vials and 5 TNT barrels. Gold Basin also rolls a 40% chance of one extra TNT barrel, plus independent 50% and 20% chances of one extra time vial each. Bonus rolls are fixed per seeded layout and retries keep the same supplies. Each time vial adds 15 seconds when collected; extra time must be earned by catching the vials. Its density pool adds gold rather than gems and bags. Treasure Hollow retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
 
 Gold Basin and Gem Hollow retain their increased targets: their previous rounded targets are raised by 35%, rounded again to the nearest $50. Treasure Hollow targets stay unchanged. Gem Hollow contains no gold nuggets of any size and no catchable Gold Rush potions, including in crowded-layout fallbacks. Its rock deposits also contain gems rather than gold; its existing scattered gem population remains the focus. Catchable Strength vials are available to help haul rocks and chests.
 
@@ -159,3 +159,13 @@ Treasure Hollow trades two small and two medium nuggets for two giant nuggets, o
 Treasure Hollow also raises its combined gem-studded/embedded rock roll from 50% to 75%. Existing hidden-deposit rocks and exposed embedded gems remain part of its mix. Placement keeps a deep medium gem host even when crowded-layout fallbacks slim down other rocks; the most crowded layouts may remove up to two additional ordinary rocks instead of sacrificing treasure or the gem host; mounted gems still respect treasure spacing and exposed-gem aiming checks.
 
 A brass analog countdown clock beside the miner replaces the HUD timer. A Time Left label underneath shows the exact seconds remaining, alongside the clock’s remaining-time ring and moving hand. It turns red for the final 10 seconds, reflects collected time vials and stops with the game when paused.
+
+### Levels 21–30
+
+Each game mode now has 30 levels. Levels 1–20 retain their existing configurations. Every added level raises the target, increases rat speed and pushes the general minimum spawn depth down by two pixels (402–420). Rat speed grows from 1.64x on level 21 to 2x on level 30, with a larger share of rats carrying gems in the late levels. Overall populations stay bounded rather than filling every opening with extra objects. Static rock counts and TNT populations stay capped to preserve aiming gaps and keep narrow-window layouts placeable. Endgame Rat Tunnels cap barrels at five and reserve the physical rat clearance (28 pixels on either side of the lane) rather than an oversized empty strip. Each mode retains its treasure mix, timer and supply rules. The final victory screen now follows level 30.
+
+| Level | Treasure Hollow target | Gold Basin target | Gem Hollow target |
+|---|---:|---:|---:|
+| 21 | $5,300 | $7,450 | $8,550 |
+| 25 | $6,150 | $8,550 | $10,000 |
+| 30 | $7,200 | $10,100 | $11,700 |

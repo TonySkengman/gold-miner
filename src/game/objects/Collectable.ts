@@ -791,7 +791,8 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 } else if (level.layout === 'ratTunnels') {
                     if (kind === 'rat') y = RAT_LANE_Y + random() * 8 - 4;
                     // Leave an actual open horizontal route for the nuisance rats.
-                    else if (y + radius > RAT_LANE_Y - 38 && y - radius < RAT_LANE_Y + 38) continue;
+                    else if (y + radius > RAT_LANE_Y - (level.ratLaneMargin ?? 38)
+                        && y - radius < RAT_LANE_Y + (level.ratLaneMargin ?? 38)) continue;
                 } else if (level.layout === 'explosiveCavern') {
                     const anchors = positions.filter(position => kind === 'tnt'
                         ? position.kind === 'giant' || position.kind === 'large'

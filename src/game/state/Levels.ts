@@ -18,6 +18,7 @@ export interface LevelConfig {
     strengthVials?: number;
     goldRushVials?: number;
     ratSpeed: number;
+    ratLaneMargin?: number;
 }
 
 const BASE_LEVELS: readonly Omit<LevelConfig, 'layout' | 'heavyRocks'>[] = [
@@ -26,21 +27,24 @@ const BASE_LEVELS: readonly Omit<LevelConfig, 'layout' | 'heavyRocks'>[] = [
     { target: 1050, rocks: 4, largeRocks: 2, minimumDepth: 350, diamonds: 1, moneyBags: 1, rats: 2, diamondRats: 0, tnt: 2, ratSpeed: 1 },
     { target: 1250, rocks: 5, largeRocks: 2, minimumDepth: 365, diamonds: 1, moneyBags: 2, rats: 3, diamondRats: 1, tnt: 3, ratSpeed: 1 },
     { target: 1450, rocks: 5, largeRocks: 3, minimumDepth: 380, diamonds: 2, moneyBags: 2, rats: 4, diamondRats: 2, tnt: 4, ratSpeed: 1 },
-    // Extend the introduction into a 20-level run. Cap crowding rather than
+    // Extend the introduction into a 30-level run. Cap crowding rather than
     // adding objects forever; higher targets and faster rats keep the pressure on.
-    ...Array.from({ length: 15 }, (_, index): Omit<LevelConfig, 'layout' | 'heavyRocks'> => {
+    ...Array.from({ length: 25 }, (_, index): Omit<LevelConfig, 'layout' | 'heavyRocks'> => {
         const step = index + 1;
-        const largeRocks = 3 + Math.floor(step / 6);
+        // Preserve levels 1–20; late difficulty grows without unbounded crowding.
+        const populationStep = Math.min(step, 15);
+        const lateStep = Math.max(0, step - 15);
+        const largeRocks = 3 + Math.floor(populationStep / 6);
         return {
             target: 1450 + step * 150,
             rocks: 8 - largeRocks,
             largeRocks,
-            minimumDepth: Math.min(400, 380 + step * 2),
-            diamonds: 2 + Math.floor(step / 4),
-            moneyBags: 2 + Math.floor(step / 6),
-            rats: 4 + Math.floor(step / 6),
-            diamondRats: 2 + Math.floor(step / 8),
-            tnt: 4 + Math.floor(step / 6),
+            minimumDepth: Math.min(400, 380 + step * 2) + lateStep * 2,
+            diamonds: 2 + Math.floor(populationStep / 4),
+            moneyBags: 2 + Math.floor(populationStep / 6),
+            rats: 4 + Math.floor(populationStep / 6) - Math.floor(lateStep / 5),
+            diamondRats: 2 + Math.floor(populationStep / 8) + Math.floor(lateStep / 5),
+            tnt: 4 + Math.floor(populationStep / 6),
             ratSpeed: 1 + step * 0.04
         };
     })
@@ -61,5 +65,10 @@ export const LEVELS: readonly LevelConfig[] = BASE_LEVELS.map((level, index) => 
     rocks: Math.min(level.rocks, 6 - Math.min(3, level.largeRocks))
         - (index >= 10 && LAYOUT_ORDER[index % LAYOUT_ORDER.length] === 'ratTunnels' ? 1 : 0),
     heavyRocks: index >= 2 ? 1 : 0,
-    layout: LAYOUT_ORDER[index % LAYOUT_ORDER.length]
+    // Endgame rat lanes already remove placement space; avoid packing them with barrels.
+    tnt: index >= 20 && LAYOUT_ORDER[index % LAYOUT_ORDER.length] === 'ratTunnels'
+        ? Math.min(5, level.tnt) : level.tnt,
+    layout: LAYOUT_ORDER[index % LAYOUT_ORDER.length],
+    ...(index >= 20 && LAYOUT_ORDER[index % LAYOUT_ORDER.length] === 'ratTunnels'
+        ? { ratLaneMargin: 28 } : {})
 }));
