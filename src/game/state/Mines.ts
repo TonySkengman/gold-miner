@@ -2,9 +2,9 @@ import { LEVELS, type LevelConfig } from './Levels';
 
 export type MineKind = 'quarry' | 'goldBasin' | 'gemHollow';
 export const MINES = {
-    quarry: { name: 'Old Quarry', fee: 0, targetMultiplier: 1, description: 'A balanced mix of gold, gems and supplies.', detail: 'Standard treasure • Standard target', color: 0xcca676 },
-    goldBasin: { name: 'Gold Basin', fee: 600, targetMultiplier: 1.15, description: 'Heavy gold with scarce gems and bags. No chests or gem-carrying rats.', detail: '+7 giant +2 large gold • Less filler • Higher target', color: 0xffd45d },
-    gemHollow: { name: 'Gem Hollow', fee: 900, targetMultiplier: 1.2, description: 'Scattered gems between extra rocks. Aim through the gaps.', detail: '+4 diamonds +3 rubies • No gold • Higher target', color: 0x78dfeb }
+    quarry: { name: 'Treasure Hollow', fee: 0, targetMultiplier: 1, playstyle: 'VARIETY & STREAKS', description: 'A varied mix of gold, gems, chests and bags. Quick catches and steady streaks reward adaptable play.', subtext: 'More chests and bags offer varied rewards, with a lower earnings target.', color: 0xcca676 },
+    goldBasin: { name: 'Gold Basin', fee: 0, targetMultiplier: 1.15, playstyle: 'HEAVY HAULS & TIMING', description: 'Giant gold and few loose gems. Use plentiful Strength, Gold Rush and time vials to plan heavy hauls around TNT.', subtext: 'Slow hauls and higher targets. Catch vials to keep going; blasts can destroy your gold.', color: 0xffd45d },
+    gemHollow: { name: 'Gem Hollow', fee: 0, targetMultiplier: 1.2, playstyle: 'PRECISION & PERFECT CATCHES', description: 'Scattered diamonds and rubies, no gold. Aim through rock gaps for perfect catches; Gem Polish rewards precision.', subtext: 'Small targets and higher stakes. Misses cost time; careful aim avoids heavy rock hauls.', color: 0x78dfeb }
 } as const;
 
 export function mineConfig(level: number, mine: MineKind = 'quarry'): LevelConfig {
@@ -13,7 +13,10 @@ export function mineConfig(level: number, mine: MineKind = 'quarry'): LevelConfi
         rocks: 1,
         largeRocks: 0,
         heavyRocks: 0,
-        tnt: Math.min(3, base.tnt)
+        tnt: Math.min(5, 3 + Math.floor((level - 1) / 6)),
+        timeVials: Math.min(4, 2 + Math.floor((level - 1) / 6)),
+        strengthVials: Math.min(4, 2 + Math.floor((level - 1) / 6)),
+        goldRushVials: Math.min(4, 2 + Math.floor((level - 1) / 6))
     } : mine === 'gemHollow' ? { tnt: Math.min(3, base.tnt) } : {};
     const previousTarget = Math.round(base.target * MINES[mine].targetMultiplier / 50) * 50;
     const target = mine === 'quarry' ? previousTarget : Math.round(previousTarget * 1.35 / 50) * 50;

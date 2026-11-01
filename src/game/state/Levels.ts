@@ -14,6 +14,9 @@ export interface LevelConfig {
     rats: number;
     diamondRats: number;
     tnt: number;
+    timeVials?: number;
+    strengthVials?: number;
+    goldRushVials?: number;
     ratSpeed: number;
 }
 

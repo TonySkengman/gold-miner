@@ -1,4 +1,4 @@
-import { type MineKind } from '../state/Mines';
+import { MINES, type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { catchFeedbackY } from '../objects/Aiming';
 import { BuffKind, drawBuffIcon } from '../ui/BuffIcon';
@@ -130,7 +130,7 @@ export class Game extends Scene {
         this.milestoneProgress = new MilestoneProgress(this);
         this.progressText = this.add.text(WORLD.centerX, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
         this.timeText = this.add.text(WORLD.width - 34, 29, '', style).setOrigin(1, 0);
-        this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}`, {
+        this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\n${MINES[this.round.mine].name}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }
         }).setOrigin(1, 0);
@@ -313,7 +313,7 @@ export class Game extends Scene {
         this.scene.start('UpgradeShop', {
             lives,
             failed: !this.round.won,
-            mine: this.round.won ? undefined : this.round.mine,
+            mine: this.round.mine,
             levelSeed: this.round.won ? undefined : this.levelSeed,
             bonuses: this.round.won ? this.round.nextBonuses : this.round.bonuses,
             dynamite: this.round.won ? this.round.dynamite : this.round.startingDynamite,

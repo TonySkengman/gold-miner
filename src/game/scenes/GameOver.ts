@@ -27,11 +27,11 @@ export class GameOver extends Scene {
         button.on('pointerout', () => button.setFillStyle(0x547f3b));
         button.once('pointerdown', () => {
             if (runOver) {
-                this.scene.start('LevelBriefing', { level: 1, money: 0, dynamite: 3, lives: 3 });
+                this.scene.start('MineSelection', { level: 1, money: 0, dynamite: 3, lives: 3 });
                 return;
             }
-            this.scene.start(result.won && !result.finalLevel ? 'UpgradeShop' : 'LevelBriefing', {
-                mine: result.won ? undefined : result.mine,
+            this.scene.start(result.won ? (result.finalLevel ? 'MineSelection' : 'UpgradeShop') : 'LevelBriefing', {
+                mine: result.won && result.finalLevel ? undefined : result.mine,
                 lives: result.won && result.finalLevel ? 3 : result.lives,
                 levelSeed: result.won ? undefined : result.levelSeed,
                 bonuses: result.won ? (result.finalLevel ? undefined : remainingBonuses(result.bonuses)) : result.bonuses,

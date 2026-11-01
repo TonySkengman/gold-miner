@@ -1,33 +1,37 @@
 import { Scene } from 'phaser';
-import { MINES, mineConfig, type MineKind } from '../state/Mines';
-import type { Upgrades, LevelBonuses } from '../state/Upgrades';
+import { LEVELS } from '../state/Levels';
+import { newLevelSeed } from '../state/Random';
+import { MINES, type MineKind } from '../state/Mines';
+import { emptyUpgrades, emptyBonuses, type Upgrades, type LevelBonuses } from '../state/Upgrades';
 import { WORLD } from '../state/World';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 
 interface MineSelectionData {
-    level: number; money: number; lives: number; upgrades: Upgrades;
-    dynamite: number; bonuses: LevelBonuses;
+    levelSeed?: number;
+    level: number; money: number; lives: number; upgrades?: Upgrades;
+    dynamite: number; bonuses?: LevelBonuses;
 }
 
 export class MineSelection extends Scene {
     constructor() { super('MineSelection'); }
 
     create(data: MineSelectionData): void {
+        const prepared = { ...data, levelSeed: data.levelSeed ?? newLevelSeed(), upgrades: { ...emptyUpgrades(), ...data.upgrades }, bonuses: { ...emptyBonuses(), ...data.bonuses } };
         this.cameras.main.setBackgroundColor(0x252a25);
         addSoundButton(this, 32, 16);
         const label = (x: number, y: number, value: string, size = 22, color = '#fff3cc', width = 250) =>
             this.add.text(x, y, value, { fontFamily: 'Arial', fontSize: size, color, align: 'center', wordWrap: { width }, lineSpacing: 8 })
                 .setOrigin(0.5).setData('responsiveAnchor', 'center');
-        label(WORLD.centerX, 105, `CHOOSE YOUR NEXT MINE — LEVEL ${data.level}`, 32, '#ffda69', 900).setFontStyle('bold');
-        label(WORLD.centerX, 169, `MONEY $${data.money} • Entry is paid once. Retries keep your mine and layout.`, 20, '#e5c58f', 900);
+        label(WORLD.centerX, 105, 'CHOOSE YOUR GAME MODE', 32, '#ffda69', 900).setFontStyle('bold');
+        label(WORLD.centerX, 169, 'Choose once for this run.', 20, '#e5c58f', 900);
         let entering = false;
         (Object.keys(MINES) as MineKind[]).forEach((kind, index) => {
             const mine = MINES[kind];
             const x = WORLD.centerX + (index - 1) * 294;
-            const affordable = data.money >= mine.fee;
-            this.add.rectangle(x, 498, 278, 556, kind === 'gemHollow' ? 0x2a2b45 : kind === 'goldBasin' ? 0x493821 : 0x3c3329).setStrokeStyle(3, mine.color).setData('responsiveAnchor', 'center');
+            this.add.rectangle(x, 508, 278, 576, kind === 'gemHollow' ? 0x2a2b45 : kind === 'goldBasin' ? 0x493821 : 0x3c3329).setStrokeStyle(3, mine.color).setData('responsiveAnchor', 'center');
             label(x, 261, mine.name, 27, '#ffda69').setFontStyle('bold');
+            label(x, 289, mine.playstyle, 13, '#bcf58b').setFontStyle('bold');
             const g = this.add.graphics().setPosition(x, 367).setData('responsiveAnchor', 'center');
             g.fillStyle(kind === 'gemHollow' ? 0x525579 : kind === 'goldBasin' ? 0x9a793e : 0x746351).fillRoundedRect(-92, -66, 184, 132, 53);
             g.fillStyle(kind === 'gemHollow' ? 0x151b38 : 0x111816).fillRoundedRect(-67, -48, 134, 114, 42);
@@ -55,23 +59,20 @@ export class MineSelection extends Scene {
                 if (kind === 'gemHollow') g.fillTriangle(side * 94, 39, side * 113, 64, side * 74, 64);
                 else g.fillEllipse(side * 91, 57, 38, 27);
             }
-            label(x, 477, `TARGET $${mineConfig(data.level, kind).target}`, 27, '#bcf58b').setFontStyle('bold');
-            label(x, 547, mine.description, 19);
-            label(x, 629, mine.detail, 17, '#e5c58f');
-            const button = this.add.text(x, 715, mine.fee ? `ENTER — $${mine.fee}` : 'ENTER — FREE', {
+            label(x, 525, mine.description, 18);
+            label(x, 650, mine.subtext, 15, '#e5c58f', 238);
+            const button = this.add.text(x, 741, 'START RUN', {
                 fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
-                backgroundColor: affordable ? '#547f3b' : '#827968', padding: { x: 18, y: 15 }
+                backgroundColor: '#547f3b', padding: { x: 18, y: 15 }
             }).setOrigin(0.5).setData('responsiveAnchor', 'center');
-            if (affordable) button.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+            button.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
                 if (entering) return;
                 entering = true;
                 soundEffects.unlock();
-                soundEffects.play('buy');
-                this.scene.start('LevelBriefing', { ...data, mine: kind, money: data.money - mine.fee });
+                this.scene.start('LevelBriefing', { ...prepared, mine: kind });
             });
-            else label(x, 756, 'Not enough money', 15, '#f3a790');
         });
-        label(WORLD.centerX, 840, 'Paid routes add treasure and raise the target. Your starting money never counts toward it.', 20, '#e5c58f', 900);
+        label(WORLD.centerX, 840, `Your mode lasts for the full ${LEVELS.length}-level run, including retries.`, 20, '#e5c58f', 900);
         responsiveLayout(this);
     }
 }

@@ -116,26 +116,36 @@ A catchable purple Streak vial appears in each mine. Collecting it doubles strea
 
 The shop Streak vial grants x2 streak bonuses for the entire next level. With that shop buff active, collecting a mine Streak vial grants x3 for 15 seconds before returning to x2. Without the shop buff, the mine vial still grants x2 for 30 seconds. Extra shop charges cover future levels; they do not stack multipliers.
 
-### Starting potions and mine routes
+### Starting potions and run modes
 
 Strength potions ($500) and Gold Rush potions ($600) can be stocked in the shop. One of each purchased supply activates per round: Strength doubles retrieval speed for 3 catches; Gold Rush adds 50% value for 3 gold catches. Vial Belt adds one catch per tier. Mine potions add their full catches to the remaining effect without increasing its multiplier, including Strength from mystery bags. Active catches expire after the round; unused shop stock covers future rounds. Failed attempts restore starting supplies.
 
-After shopping for a new level, choose a mine entrance:
+Before starting a run, choose a game mode. It stays fixed for every level and retry in that run:
 
-| Mine | Entry fee | Treasure added | Target |
+| Mode | Entry fee | Treasure added | Target |
 |---|---:|---|---|
-| Old Quarry | Free | Standard mix | Standard |
-| Gold Basin | $600 | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, rounded to $50 |
-| Gem Hollow | $900 | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
+| Treasure Hollow | Free | Mixed treasure; 1–2 chests, 2–4 mystery bags and 2 extra cash bags | Standard |
+| Gold Basin | Free | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, rounded to $50 |
+| Gem Hollow | Free | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
 
-Fees come from saved money and never count toward the target. Paid routes add treasure to the existing mix. The selected route and seeded layout remain on retry, with no second entry fee; starting money is restored to its amount after entry. Level 1 starts in Old Quarry.
+All three mines are free to enter, including with zero money. Choose between mixed treasure, heavy gold and precision gems. Treasure Hollow guarantees one chest and two mystery bags, with a 40% chance of a second chest and independent 50% and 20% chances for two additional mystery bags (up to four total). These rolls replace generic chest/mystery spawns, run once per seeded layout, and stay fixed on retry. Cash bags retain their existing spawns plus two extra. Other object pools and all current targets are unchanged. The selected mode persists through the shop, every cleared level and every retry. Failed attempts restore starting money and supplies and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
 
-Mine routes also have distinct scenery: Old Quarry uses earthy stone, Gold Basin has amber strata, gold seams and timber supports, and Gem Hollow has blue-violet stone, cool lanterns and wall crystals. Gold Basin retains its extra heavy gold, while Gem Hollow replaces extra-density large and giant gold with diamonds and rubies; entrance previews match each environment.
+Mine routes also have distinct scenery: Treasure Hollow uses earthy stone, Gold Basin has amber strata, gold seams and timber supports, and Gem Hollow has blue-violet stone, cool lanterns and wall crystals. Gold Basin retains its extra heavy gold, while Gem Hollow replaces extra-density large and giant gold with diamonds and rubies; entrance previews match each environment.
 
-Gold Basin keeps only a medium rock and a small rock, removes large/heavy rocks, caps TNT barrels at three, and uses a dedicated density pool favoring giant/large gold and supplies, with no extra medium nuggets or rocks. Only two base medium nuggets remain. Its giant nuggets spread across the middle and bottom to keep crowded layouts playable.
+Gold Basin keeps only a medium rock and a small rock, removes ordinary large/heavy rocks (apart from the rare large gem host), scales TNT and time vials with progression, and uses a dedicated density pool favoring giant/large gold and supplies, with no extra medium nuggets or rocks. Only two base medium nuggets remain. Its giant nuggets spread across the middle and bottom to keep crowded layouts playable.
 
-Gold Basin specializes in gold: at most one loose diamond and one cash bag, no rubies, gem-carrying rats, mystery bags or treasure chests, and one of each catchable potion. Its density pool adds gold rather than gems and bags. Old Quarry retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
+Gold Basin specializes in gold: at most one loose diamond and one cash bag, no loose rubies, gem-carrying rats, mystery bags or treasure chests, and one Streak vial. Strength and Gold Rush vials each have minimums of 2 on levels 1–6, 3 on levels 7–12 and 4 on levels 13–20, plus an independent 40% chance of one extra. Minimum supplies per round: levels 1–6 have 2 time vials and 3 TNT barrels, levels 7–12 have 3 time vials and 4 TNT barrels, and levels 13–20 have 4 time vials and 5 TNT barrels. Gold Basin also rolls a 40% chance of one extra TNT barrel, plus independent 50% and 20% chances of one extra time vial each. Bonus rolls are fixed per seeded layout and retries keep the same supplies. Each time vial adds 15 seconds when collected; extra time must be earned by catching the vials. Its density pool adds gold rather than gems and bags. Treasure Hollow retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
 
-Both paid routes raise their previous rounded targets by 35%, rounded again to the nearest $50. Old Quarry targets stay unchanged. Gem Hollow contains no gold nuggets of any size and no catchable Gold Rush potions, including in crowded-layout fallbacks. Its rock deposits also contain gems rather than gold; its existing scattered gem population remains the focus. Catchable Strength vials are available to help haul rocks and chests.
+Gold Basin and Gem Hollow retain their increased targets: their previous rounded targets are raised by 35%, rounded again to the nearest $50. Treasure Hollow targets stay unchanged. Gem Hollow contains no gold nuggets of any size and no catchable Gold Rush potions, including in crowded-layout fallbacks. Its rock deposits also contain gems rather than gold; its existing scattered gem population remains the focus. Catchable Strength vials are available to help haul rocks and chests.
 
 Gem Hollow adds two large rocks, two medium rocks and two small rocks as precision obstacles. Placement rejects rocks that block the last usable aiming gap to a gem, so clearing rocks is optional. TNT is capped at three barrels to leave room for the extra rocks. Existing gem spacing and gold-free generation still apply.
+
+The game-mode selection screen explains each playstyle: Treasure Hollow rewards varied catches and sustained streaks; Gold Basin rewards heavy-haul planning, potion use, time-vial collection and avoiding TNT; Gem Hollow rewards accurate shots through rock gaps, perfect catches and Gem Polish.
+
+Treasure Hollow scatters diamonds, rubies, bags and chests at least 90 pixels apart. Placement favors the middle band (y=390–700), with some treasure deeper (y=600–860); crowded layouts can use the full y=390–860 range without reducing spacing. Treasure Hollow diamonds do not cluster around TNT and its cash bags are not forced deeper by the Deep Mine layout. Mounted gems also preserve the treasure spacing. Treasure counts, values and targets are unchanged. Crowded Treasure Hollow layouts can use slimmer rocks while keeping the same number of objects and all treasure.
+
+Gold Basin has a seeded 50% chance of a deep large gem-bearing rock. Only large rocks can host embedded gems or hidden deposits in Gold Basin; its existing diamond can be mounted on the large host. Medium and small rocks remain ordinary.
+
+Crowded Gold Basin layouts may drop up to four small and two medium gold nuggets, preserving giant/large gold, gem-bearing large rocks and all rolled supply minimums/extras.
+
+Game-mode cards focus on the illustrated entrance, playstyle, a short description of what makes each mode different, and quieter subtext explaining its rewards and tradeoffs. Exact spawn counts are omitted from these cards; level targets remain on the level briefing.

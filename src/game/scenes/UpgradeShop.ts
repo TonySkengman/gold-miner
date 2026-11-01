@@ -1,8 +1,7 @@
-import { MINES, mineConfig, type MineKind } from '../state/Mines';
+import { MINES, type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { WORLD } from '../state/World';
 import type { Result } from './GameOver';
-import { LAYOUTS } from '../state/Layouts';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { drawShop, drawShopProduct } from '../art/drawShop';
 import { Scene } from 'phaser';
@@ -45,7 +44,7 @@ export class UpgradeShop extends Scene {
             stock.setText(`Strength: ${bonuses.strengthPotion}  •  Gold Rush: ${bonuses.goldRush}  •  Lives: ${lives}/5  •  Streak x2: ${bonuses.streakVial}  •  Lens: ${bonuses.prospectorsLens}  •  Dynamite: ${dynamite}  •  Luck: ${bonuses.luck}  •  Extra time: ${bonuses.extraTime}  •  Lightweight Grip: ${bonuses.lightweightGrip}`);
             balance.setText(`MONEY  $${money}`);
             next.setText(data.result?.won && data.result.finalLevel ? 'VIEW RESULTS'
-                : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'CHOOSE MINE FOR'} LEVEL ${data.level}`);
+                : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'START'} LEVEL ${data.level}`);
             refreshers.forEach(update => update());
             showDescription();
         };
@@ -96,11 +95,11 @@ export class UpgradeShop extends Scene {
                 this.scene.start('GameOver', { ...data.result, lives, money, upgrades, dynamite });
                 return;
             }
-            this.scene.start(data.failed ? 'LevelBriefing' : 'MineSelection', {
+            this.scene.start('LevelBriefing', {
                 lives, mine: data.mine, level: data.level, money, upgrades, dynamite, bonuses, levelSeed: data.levelSeed
             });
         });
-        this.add.text(WORLD.centerX, 926, `${LAYOUTS[mineConfig(data.level, data.mine).layout].name}  •  ${data.failed ? MINES[data.mine ?? 'quarry'].name + ' • Target: $' + mineConfig(data.level, data.mine).target : 'Choose your next mine after shopping'}  •  Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, 926, `${MINES[data.mine ?? 'quarry'].name} mode • Fixed for this run • Buying is optional`, { fontFamily: 'Arial', fontSize: 19, color: '#483126' }).setOrigin(0.5);
         refresh();
         responsiveLayout(this);
     }
