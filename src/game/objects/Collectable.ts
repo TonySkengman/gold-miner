@@ -772,7 +772,14 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             if (level.mine === 'gemHollow' && kind === 'largeRock') minY = Math.max(minY, 620);
             if (level.mine === 'goldBasin' && kind === 'largeRock') minY = 650;
             if (isQuarry && kind === 'mediumRock') minY = Math.max(minY, 620);
-            if ((isQuarry || level.mine === 'goldBasin') && ['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) minY = 310;
+            if (['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) {
+                // Favor the middle; keep the chosen band through position retries.
+                const depthRoll = random();
+                [minY, maxY] = depthRoll < 0.15 ? [350, 440]
+                    : depthRoll < 0.85 ? [440, 700] : [700, 820];
+                minY = Math.max(minY, level.minimumDepth);
+                maxY = Math.max(minY, maxY);
+            }
             if (level.mine === 'gemHollow' && (kind === 'mediumRock' || kind === 'rock')) {
                 minY = Math.max(minY, 600);
             }
