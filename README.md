@@ -180,6 +180,8 @@ Gold Basin and Gem Hollow retain their increased targets: their previous rounded
 
 Gem Hollow adds two large rocks, two medium rocks and two small rocks as precision obstacles. Placement rejects rocks that block the last usable aiming gap to a gem, so clearing rocks is optional. TNT is capped at three barrels to leave room for the extra rocks. Existing gem spacing and gold-free generation still apply.
 
+Gem Hollow cash bags use two independent 75% rolls per seeded layout, capped at two bags: 6.25% chance of none, 37.5% of one, and 56.25% of two. These replace all base-level, width and density cash-bag additions. Retries keep the same rolls; mystery bags and treasure chests are separate.
+
 The game-mode selection screen explains each playstyle: Treasure Hollow rewards varied catches and sustained streaks; Gold Basin rewards heavy-haul planning, vial use, time-vial collection and avoiding TNT; Gem Hollow rewards accurate shots through rock gaps, perfect catches and Gem Polish.
 
 Treasure Hollow normally scatters diamonds, rubies, bags and chests at least 90 pixels apart; crowded layouts may use 45 pixels and the full buried depth range to preserve rolled treasure counts. Rich late-game layouts can place treasure behind rocks that must be cleared first; gems remain precisely catchable from their own host once intervening rocks are cleared. Placement favors the middle band (y=390–700), with some treasure deeper (y=600–860); crowded layouts can use the full y=390–860 range. Treasure Hollow diamonds do not cluster around TNT and its cash bags are not forced deeper by the Deep Mine layout. Mounted gems also preserve the treasure spacing. Values and targets are unchanged. Crowded Treasure Hollow layouts can use slimmer rocks while keeping all treasure.

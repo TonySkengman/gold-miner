@@ -696,8 +696,11 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
     }
     if (level.mine === 'gemHollow') {
         // Keep the precision route free of nuggets, including width/density filler.
-        const gemsAndSupplies = kinds.filter(kind => !['small', 'medium', 'large', 'giant', 'goldRush'].includes(kind));
-        kinds.splice(0, kinds.length, ...gemsAndSupplies);
+        const gemsAndSupplies = kinds.filter(kind => !['small', 'medium', 'large', 'giant', 'goldRush', 'moneyBag'].includes(kind));
+        // Replace all base/width/density bags with two independent seeded rolls.
+        // Roll before placement retries so the count stays fixed for this layout.
+        const cashBags = Number(random() < 0.75) + Number(random() < 0.75);
+        kinds.splice(0, kinds.length, ...gemsAndSupplies, ...Array<OreKind>(cashBags).fill('moneyBag'));
     }
     // Replace ordinary rats only, preserving gem carriers and total population.
     // Roll once before layout retries so crowded layouts cannot reroll the count.
