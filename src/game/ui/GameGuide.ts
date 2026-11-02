@@ -45,7 +45,7 @@ Free TNT and chain reactions always use their normal blast radius. Place explosi
 Aim through an object's centre for 35% faster reeling throughout the haul. Cash treasure also earns a 35% perfect bonus, rounded up to the next $10, on delivery. Vials and non-cash rewards receive the reel boost without a perfect cash bonus. Rocks, empty rats, TNT and chest-opening hits do not qualify. Dynamiting the catch forfeits the delivery bonus.
 
 Catch streaks
-Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step is 1.5% of the selected mine's earnings target, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
+Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step uses the selected mine's earnings target: 0.75% in Gold Basin, 1.5% in Treasure Hollow, or 3% in Gem Hollow, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
 
 Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an embedded gem advance it; gem-studded deposits without a visible gem are neutral. Once you extract a visible gem, its ordinary host rock breaks the streak. Vials, opening chests and TNT are neutral. Dynamiting a qualifying catch preserves its streak progress but loses its payout. Each level and retry starts at zero.`],
     ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching Strength, Gold Rush, time or Streak vials does not consume a Strength charge.
@@ -69,7 +69,7 @@ Both tools can be ON together. Safety Grip lets you catch TNT; then choose betwe
 If time runs out while an object is hooked, its haul and rewards finish before the result is decided, including TNT disarming. You cannot launch a new shot at zero time. A delivered time vial adds 15 seconds and resumes play.
 
 Milestones
-150% of target: +$150. 175%: +$400. 200%: +1 dynamite. Each reward is available once per level. Bonus cash is spendable but does not count toward the target or trigger more milestones.
+150% of target: bonus cash equal to 10% of the target. 175%: bonus cash equal to 20% of the target. Cash rewards round to the nearest $5. 200%: +1 dynamite on levels 1–15, +2 on levels 16–30, or +3 whenever the target is at least $7,000. Each reward is available once per level. Bonus cash is spendable but does not count toward the target or trigger more milestones.
 
 Passing and failing
 Every attempt opens the shop unless you fail on your last life. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rewards, rat movement settings and starting supplies. Shop purchases can help with the retry.

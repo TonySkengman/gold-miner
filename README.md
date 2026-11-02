@@ -42,9 +42,9 @@ Keep mining after reaching the target to earn extra rewards:
 
 | Retrieved earnings | Bonus |
 | --- | --- |
-| 150% of the target | $150 |
-| 175% of the target | $400 |
-| 200% of the target | One dynamite stick |
+| 150% of the target | 10% of the target in cash, rounded to the nearest $5 |
+| 175% of the target | 20% of the target in cash, rounded to the nearest $5 |
+| 200% of the target | 1 dynamite on levels 1–15; 2 on levels 16–30; 3 whenever the target is at least $7,000 |
 
 Each reward can be earned once per level. The HUD shows progress toward the next bonus. Bonus cash adds to your balance but does not count toward the target or other milestones. You can still use **Finish Level** whenever you want.
 
@@ -131,11 +131,11 @@ Aim through the centre of valuable objects for a **Perfect catch**: a gold flash
 
 ### Catch streaks
 
-All gold nuggets (including small and medium), diamonds, rubies, diamond- and ruby-carrying rats, cash bags, mystery bags, and treasure chests advance the catch streak immediately when the claw latches onto them. Mystery bags and treasure chests count regardless of their contents. A chest advances the streak on the second hit when the claw latches onto it, not on the first hit that opens it. Each streak step is 1.5% of the selected mine’s earnings target, rounded to the nearest $5. Catch 3 awards one step, catch 4 awards two steps, catch 5 awards three steps, and each further qualifying catch adds another step to its bonus, without a cap or automatic reset. For a $2,000 target, the step is $30: catches 3, 4 and 5 award $30, $60 and $90 respectively. From streak 3 onward, each qualifying latch triggers a bouncing streak-number popup and golden burst at the object, showing the bonus due on delivery. Streak bonuses are paid when the object reaches the surface and count toward level gold and spendable money. Dynamiting a qualifying catch preserves its streak progress but forfeits its payout.
+All gold nuggets (including small and medium), diamonds, rubies, diamond- and ruby-carrying rats, cash bags, mystery bags, and treasure chests advance the catch streak immediately when the claw latches onto them. Mystery bags and treasure chests count regardless of their contents. A chest advances the streak on the second hit when the claw latches onto it, not on the first hit that opens it. Each streak step uses the selected mine’s earnings target: 0.75% in Gold Basin, 1.5% in Treasure Hollow, or 3% in Gem Hollow, rounded to the nearest $5. Catch 3 awards one step, catch 4 awards two steps, catch 5 awards three steps, and each further qualifying catch adds another step to its bonus, without a cap or automatic reset. For a $2,000 target in Treasure Hollow, the step is $30: catches 3, 4 and 5 award $30, $60 and $90 respectively. From streak 3 onward, each qualifying latch triggers a bouncing streak-number popup and golden burst at the object, showing the bonus due on delivery. Streak bonuses are paid when the object reaches the surface and count toward level gold and spendable money. Dynamiting a qualifying catch preserves its streak progress but forfeits its payout.
 
 Catching an empty rat or an ordinary stone without a gem immediately breaks the streak, even if you dynamite it afterward. Catching a whole rock containing an embedded diamond or ruby advances the streak and earns the normal streak bonus, including combined gem-studded rocks. Gem-studded deposits without an embedded gem stay neutral: they preserve the streak without advancing it. Once an embedded gem is caught separately, its ordinary host rock breaks the streak if caught. An empty shot also resets it. Catching a gem separately from its rock advances the streak normally. Utility items stay neutral: they neither advance nor break the streak. Opening a chest and hitting TNT also preserve it. Every level and retry starts at zero.
 
-A catchable purple Streak vial appears in each mine. Collecting it multiplies the target-scaled streak bonuses by 1.5 for 30 seconds. For a $2,000 target, catches 3, 4 and 5 pay $45, $90 and $135 respectively. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
+A catchable purple Streak vial appears in each mine. Collecting it multiplies the target-scaled streak bonuses by 1.5 for 30 seconds. For a $2,000 target in Treasure Hollow, catches 3, 4 and 5 pay $45, $90 and $135 respectively. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
 
 The shop Streak vial grants x1.5 streak bonuses for the entire next level. With that shop buff active, collecting a mine Streak vial grants x2 for 15 seconds before returning to x1.5. Without the shop buff, the mine vial still grants x1.5 for 30 seconds. Extra shop charges cover future levels; they do not stack multipliers.
 

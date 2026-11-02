@@ -1,4 +1,4 @@
-import { MILESTONES, Milestone } from './Milestones';
+import { milestonesFor, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
 import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses } from './Upgrades';
 import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
@@ -44,12 +44,13 @@ export class RoundState {
     missShot(): void { this.catchStreak = 0; }
 
     /** Round the target-based step once so every catch adds the same amount. */
-    get streakBonusStep(): number { return Math.round(this.target * 0.015 / 5) * 5; }
+    get streakBonusStep(): number { return Math.round(this.target * (this.mine === 'goldBasin' ? 0.0075 : this.mine === 'gemHollow' ? 0.03 : 0.015) / 5) * 5; }
 
     get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * this.streakBonusStep * this.streakMultiplier; }
 
     bonusMoney = 0;
     private claimedMilestones = 0;
+    readonly milestones: readonly Milestone[];
     strengthCatches = 0;
     goldRushCatches = 0;
     dynamite: number;
@@ -68,6 +69,7 @@ export class RoundState {
         this.upgrades = { ...emptyUpgrades(), ...upgrades };
         this.dynamite = startingDynamite;
         this.config = mineConfig(this.level, mine);
+        this.milestones = milestonesFor(this.target, this.level);
         if (this.bonuses.strengthPotion > 0) this.activateStrength();
         if (this.bonuses.goldRush > 0) this.activateGoldRush();
     }
@@ -134,13 +136,13 @@ export class RoundState {
         return this.won ? this.money : this.startingMoney + Math.floor((this.money - this.startingMoney) / 2);
     }
 
-    get nextMilestone(): Milestone | undefined { return MILESTONES[this.claimedMilestones]; }
+    get nextMilestone(): Milestone | undefined { return this.milestones[this.claimedMilestones]; }
 
     get milestoneProgress(): number {
         const next = this.nextMilestone;
         if (!next) return 1;
         const previous = this.claimedMilestones === 0 ? this.target
-            : Math.ceil(this.target * MILESTONES[this.claimedMilestones - 1].fraction);
+            : Math.ceil(this.target * this.milestones[this.claimedMilestones - 1].fraction);
         const threshold = Math.ceil(this.target * next.fraction);
         return Math.max(0, Math.min(1, (this.score - previous) / (threshold - previous)));
     }

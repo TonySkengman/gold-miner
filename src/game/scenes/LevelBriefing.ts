@@ -9,7 +9,7 @@ import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { LEVELS } from '../state/Levels';
 import { MINES, mineConfig, roundDuration, type MineKind } from '../state/Mines';
 import { LAYOUTS } from '../state/Layouts';
-import { MILESTONES } from '../state/Milestones';
+import { milestonesFor } from '../state/Milestones';
 import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses } from '../state/Upgrades';
 import { menuButton, RUN_START_Y } from '../ui/menuButton';
 
@@ -84,7 +84,7 @@ export class LevelBriefing extends Scene {
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
         text(wrapped ? 790 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
-        text(wrapped ? 816 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
+        text(wrapped ? 816 : 786, milestonesFor(config.target, level).map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
         let starting = false;
         menuButton(this, WORLD.centerX, RUN_START_Y, 'START MINING', () => {
