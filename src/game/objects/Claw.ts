@@ -17,6 +17,8 @@ export class Claw {
     private swingDirection = 1;
     private length = 30;
     private caught: Collectable | null = null;
+    private disarmRemaining = 0;
+    private disarmLabel: GameObjects.Text | null = null;
     private caughtValue = 0;
     private perfectBonus = 0;
     private perfectHaul = false;
@@ -50,7 +52,7 @@ export class Claw {
     get haulingWeight(): number { return this.isHauling ? this.caught!.haulingWeight(this.lightweightGrip) : 0; }
 
     get retrievalSpeed(): number {
-        return this.mode === 'retracting' && !this.dynamite
+        return this.mode === 'retracting' && !this.dynamite && this.disarmRemaining <= 0
             ? 275.4 * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
@@ -73,6 +75,9 @@ export class Claw {
 
     throwDynamite(): boolean {
         if (this.mode !== 'retracting' || !this.caught || this.dynamite) return false;
+        this.disarmRemaining = 0;
+        this.disarmLabel?.destroy();
+        this.disarmLabel = null;
         soundEffects.play('throw');
         this.thrownPowderScale = this.powderRadiusScale;
         this.throwElapsed = 0;
@@ -167,12 +172,11 @@ export class Claw {
                 }
                 first.prepareCatch();
                 if (first.isExplosive) {
-                    const label = this.scene.add.text(first.x, first.y - first.radius - 25, 'DISARMED • +1 DYNAMITE ON DELIVERY', {
+                    this.disarmRemaining = 2.5;
+                    this.disarmLabel = this.scene.add.text(first.x, first.y - first.radius - 25, 'DISARMING… 2.5s', {
                         fontFamily: 'Arial', fontSize: 15, fontStyle: 'bold', color: '#bcf58b',
                         backgroundColor: '#253d29', padding: { x: 8, y: 4 }
                     }).setOrigin(0.5).setDepth(17);
-                    this.scene.tweens.add({ targets: label, alpha: 0, y: label.y - 20, delay: 650,
-                        duration: 350, onComplete: () => label.destroy() });
                 }
                 // Snapshot both boosts before spending a charge, so the final charged haul stays boosted.
                 this.haulingStrength = this.strengthBoost();
@@ -204,6 +208,19 @@ export class Claw {
         } else {
             if (this.dynamite) {
                 this.updateDynamite(seconds, objects);
+                this.draw();
+                return;
+            }
+            if (this.disarmRemaining > 0) {
+                this.disarmRemaining = Math.max(0, this.disarmRemaining - seconds);
+                this.disarmLabel?.setText(`DISARMING… ${this.disarmRemaining.toFixed(1)}s`);
+                if (this.disarmRemaining === 0) {
+                    const label = this.disarmLabel;
+                    this.disarmLabel = null;
+                    label?.setText('DISARMED • +1 DYNAMITE ON DELIVERY');
+                    if (label) this.scene.tweens.add({ targets: label, alpha: 0, y: label.y - 20,
+                        delay: 650, duration: 350, onComplete: () => label.destroy() });
+                }
                 this.draw();
                 return;
             }

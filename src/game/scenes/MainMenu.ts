@@ -18,7 +18,7 @@ export class MainMenu extends Scene {
         this.add.text(WORLD.centerX, 385, `${LEVELS.length} caves. One fortune to make.`, { fontFamily: 'Arial', fontSize: 25, color: '#fff3cc' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 450, 'HOW TO PLAY', { fontFamily: 'Arial', fontSize: 25, fontStyle: 'bold', color: '#ffda69' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 625,
-            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\n←    Toggle Blast Powder (when owned)\n→    Toggle Safety Grip (when owned)\nP / ESC    Pause or resume\n\nReach the level target before time runs out.\nFinish Level ends the round early. Below target means a loss.\nBlast gem-studded rocks to scatter treasure you can catch.\nSafety Grip: deliver TNT for +1 dynamite. Set Safety Grip before launch.\nYou have 3 lives per run. Each failed level costs one.',
+            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\n←    Toggle Blast Powder (when owned)\n→    Toggle Safety Grip (when owned)\nP / ESC    Pause or resume\n\nReach the level target before time runs out.\nFinish Level ends the round early. Below target means a loss.\nBlast gem-studded rocks to scatter treasure you can catch.\nSafety Grip: disarm TNT for 2.5s, then deliver for +1 dynamite. Set Safety Grip before launch.\nYou have 3 lives per run. Each failed level costs one.',
             { fontFamily: 'Arial', fontSize: 20, color: '#fff3cc', align: 'center', lineSpacing: 5 }
         ).setOrigin(0.5);
         let starting = false;
