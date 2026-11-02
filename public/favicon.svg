@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-18 -18 36 36" overflow="visible">
+  <!-- Same outline, facets, colors, and sparkle as the mine's small gold nugget (r = 15). -->
+  <g transform="translate(1.5 3) scale(1.1)">
+  <path d="M-14.25 1.5 -10.5 -8.25 -4.2 -9 .75 -14.1 9.75 -10.2 13.95 -.75 9.75 9.75 -1.5 13.5 -9.75 9.75Z"
+        fill="#ffdf49" stroke="#986019" stroke-width="3"/>
+  <path d="M-10.5 -7.5 -3.75 -9.75 -5.25 1.5Z M-3.75 -9.75 7.5 -9 1.5 -1.5Z" fill="#ffe889"/>
+  <path d="M1.5 -1.5 12.75 -.75 9 9Z M-9 9 9 9 -1.5 12Z" fill="#d99a20"/>
+  <path d="M-9.4 -4.95h8 M-5.4 -8.95v8" fill="none" stroke="#fff6c7" stroke-width="2"/>
+  </g>
+</svg>
