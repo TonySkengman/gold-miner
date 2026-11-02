@@ -517,6 +517,19 @@ export class Game extends Scene {
         this.round.remaining = 0;
         soundEffects.play(this.round.won ? 'win' : 'lose');
         const lives = this.round.won ? this.round.lives : Math.max(0, this.round.startingLives - 1);
+        const result = {
+            toolToggles: { ...this.toolToggles },
+            lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
+            dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
+            upgrades: this.round.upgrades,
+            money: this.round.retainedMoney, startingMoney: this.round.startingMoney,
+            score: this.round.score, target: this.round.target, won: this.round.won,
+            level: this.round.level, finalLevel: this.round.finalLevel
+        };
+        if (!this.round.won && lives === 0) {
+            this.scene.start('GameOver', result);
+            return;
+        }
         this.scene.start('UpgradeShop', {
             toolToggles: { ...this.toolToggles },
             lives,
@@ -528,15 +541,7 @@ export class Game extends Scene {
             level: this.round.won && !this.round.finalLevel ? this.round.level + 1 : this.round.level,
             money: this.round.retainedMoney,
             upgrades: this.round.upgrades,
-            result: {
-                toolToggles: { ...this.toolToggles },
-                lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
-                dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
-                upgrades: this.round.upgrades,
-                money: this.round.retainedMoney, startingMoney: this.round.startingMoney,
-                score: this.round.score, target: this.round.target, won: this.round.won,
-                level: this.round.level, finalLevel: this.round.finalLevel
-            }
+            result
         });
     }
 

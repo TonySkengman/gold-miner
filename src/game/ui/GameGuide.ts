@@ -72,9 +72,9 @@ Milestones
 150% of target: +$150. 175%: +$400. 200%: +1 dynamite. Each reward is available once per level. Bonus cash is spendable but does not count toward the target or trigger more milestones.
 
 Passing and failing
-Every attempt opens the shop. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rewards, rat movement settings and starting supplies. Shop purchases can help with the retry.
+Every attempt opens the shop unless you fail on your last life. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rewards, rat movement settings and starting supplies. Shop purchases can help with the retry.
 
-At zero lives, buy a life vial in the shop to retry, or end the run. Life vials restore one life, up to five. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu asks for confirmation before ending your run.`]
+Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials restore one life, up to five. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu asks for confirmation before ending your run.`]
 ];
 
 /** Native modal keeps long instructions scrollable and keyboard accessible at any viewport size. */
