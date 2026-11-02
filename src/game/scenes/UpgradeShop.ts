@@ -131,13 +131,13 @@ export class UpgradeShop extends Scene {
             this.add.text(x + 12, y + 29, subtitle, { fontFamily: 'Arial', fontSize: 17, color: '#d9bc8c' }).setData('responsiveAnchor', 'center');
         };
         category(productsLeft + 8, 139, productsWidth - 16, 'CONSUMABLES', 'One charge per round • Stock up for future levels');
-        const bottomStep = productsWidth / 6;
-        category(productsLeft + 8, 583, bottomStep * 4 - 16, 'PERMANENT UPGRADES', 'Keep every tier for the rest of this run');
-        category(productsLeft + bottomStep * 4 + 8, 583, bottomStep * 2 - 16, 'SUPPLIES', 'Restore lives • Carry dynamite forward');
+        const bottomStep = productsWidth / 7;
+        category(productsLeft + 8, 583, bottomStep * 5 - 16, 'PERMANENT UPGRADES', 'Keep every tier for the rest of this run');
+        category(productsLeft + bottomStep * 5 + 8, 583, bottomStep * 2 - 16, 'SUPPLIES', 'Lives • Dynamite stock');
         const refreshers: (() => void)[] = [];
         const refresh = () => {
             const roundStock = Object.values(bonuses).reduce((total, count) => total + count, 0);
-            stock.setText(`LIVES  ${lives} / 5     •     DYNAMITE  ${dynamite}     •     ROUND ITEMS  ${roundStock}     •     UPGRADE TIERS  ${upgrades.strength + upgrades.gold + upgrades.diamonds + upgrades.vialBelt} / 12`);
+            stock.setText(`LIVES  ${lives} / 5     •     DYNAMITE  ${dynamite}     •     ROUND ITEMS  ${roundStock}     •     UPGRADE TIERS  ${upgrades.strength + upgrades.gold + upgrades.diamonds + upgrades.vialBelt + upgrades.blastPowder} / 15`);
             balance.setText(`$${money.toLocaleString('en-US')}`);
             next.setText(data.result?.won && data.result.finalLevel ? 'VIEW RESULTS'
                 : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'START'} LEVEL ${data.level}`);
@@ -146,19 +146,19 @@ export class UpgradeShop extends Scene {
         };
         const shopOrder: ShopItemKind[] = [
             // One-round consumables.
-            'strengthPotion', 'goldRush', 'streakVial', 'extraTime', 'blastPowder',
+            'strengthPotion', 'goldRush', 'streakVial', 'extraTime',
             'luck', 'momentum', 'lightweightGrip', 'prospectorsLens',
             // Upgrades that last for the run.
-            'strength', 'diamonds', 'gold', 'vialBelt',
+            'strength', 'diamonds', 'gold', 'vialBelt', 'blastPowder',
             // Immediate recovery and carried supplies.
             'lifeVial', 'dynamite'
         ];
         shopOrder.forEach((kind, index) => {
-            const consumable = index < 9;
-            const columns = index < 5 ? 5 : 4;
-            const step = productsWidth / (consumable ? columns : 6);
-            const x = productsLeft + step / 2 + (consumable ? (index < 5 ? index : index - 5) : index - 9) * step;
-            const y = consumable ? 290 + (index < 5 ? 0 : 1) * 185 : 733;
+            const consumable = index < 8;
+            const columns = 4;
+            const step = productsWidth / (consumable ? columns : 7);
+            const x = productsLeft + step / 2 + (consumable ? index % 4 : index - 8) * step;
+            const y = consumable ? 290 + Math.floor(index / 4) * 185 : 733;
             const cardWidth = step - 16;
             const cardHeight = consumable ? 170 : 164;
             const permanent = isPermanentUpgrade(kind);
@@ -172,7 +172,7 @@ export class UpgradeShop extends Scene {
                 fontFamily: 'Arial', fontSize: titleSize, fontStyle: 'bold', color: '#483126', align: 'center'
             }).setOrigin(0.5, 0).setData('responsiveAnchor', 'center');
             // Keep names above the artwork instead of wrapping into the icon space.
-            if (title.width > cardWidth - 20) title.setFontSize(Math.max(14, Math.floor(titleSize * (cardWidth - 20) / title.width)));
+            if (title.width > cardWidth - 20) title.setFontSize(Math.max(11, Math.floor(titleSize * (cardWidth - 20) / title.width)));
             const tier = this.add.text(x, y + 34, '', { fontFamily: 'Arial', fontSize: 18, color: '#70452a' }).setOrigin(0.5).setData('responsiveAnchor', 'center');
             const priceTag = this.add.text(x, y + 64, '', { fontFamily: 'Arial', fontSize: 20, fontStyle: 'bold', color: '#ffffff', padding: { x: 14, y: 4 } }).setOrigin(0.5).setData('responsiveAnchor', 'center');
             refreshers.push(() => {
@@ -181,6 +181,7 @@ export class UpgradeShop extends Scene {
                 tier.setText(isPermanentUpgrade(kind) ? `TIER ${upgrades[kind]} / ${UPGRADE_LIMIT}`
                     : kind === 'lifeVial' ? `LIVES: ${lives} / 5` : kind === 'dynamite' ? `OWNED: ${dynamite}` : `ROUNDS: ${bonuses[kind]}`);
                 priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'FULL') : `BUY $${price}`);
+                priceTag.setScale(Math.min(1, (cardWidth - 12) / priceTag.width));
                 priceTag.setBackgroundColor(maxed || money < price ? '#827968' : '#547f3b');
             });
             card.on('pointerover', () => {

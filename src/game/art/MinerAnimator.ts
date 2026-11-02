@@ -1,3 +1,4 @@
+import { soundEffects } from '../audio/SoundEffects';
 import { WORLD } from '../state/World';
 import type { OreKind } from '../objects/Collectable';
 import { GameObjects, Scene } from 'phaser';
@@ -7,11 +8,14 @@ export class MinerAnimator {
     private readonly body: GameObjects.Container;
     private readonly mechanism: GameObjects.Graphics;
     private phase = 0;
+    private enginePhase = 0;
+    private feedRemaining = 0;
+    private ignitionPending = false;
     private effort = 0;
     private reaction: 'celebrate' | 'disappointed' | null = null;
     private reactionRemaining = 0;
 
-    constructor(scene: Scene) {
+    constructor(private readonly scene: Scene) {
         // Boots stay planted while the upper body leans around the hips.
         scene.add.graphics().setPosition(WORLD.centerX - 512, 0).setData('responsiveAnchor', 'center').setDepth(6).fillStyle(0x49372d)
             .fillRoundedRect(484, 195, 26, 10, 3).fillRoundedRect(516, 195, 26, 10, 3);
@@ -40,20 +44,38 @@ export class MinerAnimator {
         this.update(0, 0, false);
     }
 
+    activateOverdrive(): void {
+        this.feedRemaining = 0.6;
+        this.ignitionPending = true;
+        soundEffects.play('throw');
+        const label = this.scene.add.text(WORLD.centerX + 80, 105, 'DYNAMITE OVERDRIVE! x2', {
+            fontFamily: 'Arial', fontSize: 16, fontStyle: 'bold', color: '#ffe06a',
+            backgroundColor: '#483126', padding: { x: 8, y: 4 }
+        }).setOrigin(0.5).setDepth(17).setData('responsiveAnchor', 'center');
+        this.scene.tweens.add({ targets: label, alpha: 0, delay: 650, duration: 300,
+            onComplete: () => label.destroy() });
+    }
+
     reactTo(kind: OreKind): void {
         this.reaction = kind === 'diamond' || kind === 'ruby' || kind === 'diamondRat' || kind === 'rubyRat' || kind === 'treasureChest' ? 'celebrate'
             : kind === 'rat' ? 'disappointed' : null;
         this.reactionRemaining = this.reaction ? 1.3 : 0;
     }
 
-    update(seconds: number, retrievalSpeed: number, loaded: boolean, weight = 0): void {
+    update(seconds: number, retrievalSpeed: number, loaded: boolean, weight = 0, overdrive = false): void {
+        this.feedRemaining = Math.max(0, this.feedRemaining - seconds);
+        if (this.ignitionPending && this.feedRemaining <= 0.3) {
+            this.ignitionPending = false;
+            soundEffects.play('explosion');
+        }
+        this.enginePhase += seconds * (overdrive ? 18 : 2);
         this.reactionRemaining = Math.max(0, this.reactionRemaining - seconds);
         if (this.reactionRemaining === 0 || loaded) this.reaction = null;
         const celebrating = this.reaction === 'celebrate';
         const disappointed = this.reaction === 'disappointed';
         const targetEffort = loaded ? Math.max(0, Math.min(1, (weight - 0.6) / 4.2)) : 0;
         this.effort += (targetEffort - this.effort) * (1 - Math.exp(-seconds * 10));
-        this.phase = (this.phase + seconds * Math.min(5, retrievalSpeed / 35)) % (Math.PI * 2);
+        this.phase = (this.phase + seconds * Math.min(overdrive ? 12 : 5, retrievalSpeed / 35)) % (Math.PI * 2);
         // Heavy loads have a slow sticking point followed by a forceful pull.
         const crankAngle = this.phase + this.effort * 0.7 * Math.sin(this.phase);
         const stroke = (1 + Math.sin(crankAngle)) / 2;
@@ -67,6 +89,40 @@ export class MinerAnimator {
             y: 195 + crouch + (x - 512) * Math.sin(lean) + (y - 195) * Math.cos(lean)
         });
         const g = this.mechanism.clear();
+        // Belt-driven engine sits beside the winch; only the engine shakes.
+        const shake = overdrive ? Math.sin(this.enginePhase * 3) * 1.5 : 0;
+        g.lineStyle(4, 0x44382b).lineBetween(529, 202, 573, 199).lineBetween(529, 215, 573, 213);
+        g.fillStyle(0x49372d).fillRoundedRect(560, 222, 65, 8, 3);
+        g.fillStyle(overdrive ? 0x8c5837 : 0x536269).lineStyle(2, 0x263238)
+            .fillRoundedRect(566 + shake, 177, 54, 45, 6).strokeRoundedRect(566 + shake, 177, 54, 45, 6);
+        g.fillStyle(0x252d30).fillRect(578 + shake, 164, 25, 15);
+        g.fillStyle(0x11191c).fillEllipse(590 + shake, 164, 27, 9);
+        g.fillStyle(0x333d42).fillRect(612 + shake, 163, 8, 23);
+        g.fillStyle(overdrive ? 0xffcf65 : 0xb7c2c5).fillCircle(591 + shake, 191, 7);
+        g.lineStyle(2, 0x453126).lineBetween(591 + shake, 191,
+            591 + shake + Math.cos(this.enginePhase) * 5, 191 + Math.sin(this.enginePhase) * 5);
+        g.lineStyle(2, 0x30383b);
+        for (let i = 0; i < 3; i++) g.lineBetween(602 + shake, 200 + i * 5, 614 + shake, 200 + i * 5);
+        g.fillStyle(0x829298).fillCircle(573, 207, 11);
+        g.lineStyle(3, overdrive ? 0xffcf65 : 0x39464d).lineBetween(573, 207,
+            573 + Math.cos(this.enginePhase) * 9, 207 + Math.sin(this.enginePhase) * 9);
+        if (overdrive || this.feedRemaining > 0 && this.feedRemaining <= 0.3) {
+            for (let i = 0; i < 4; i++) {
+                const travel = (this.enginePhase * 0.22 + i / 4) % 1;
+                g.fillStyle(0xb7b2a5, (1 - travel) * 0.55)
+                    .fillCircle(616 + Math.sin(i + travel * 4) * 6, 161 - travel * 40, 3 + travel * 8);
+                const a = this.enginePhase + i * Math.PI / 2;
+                g.lineStyle(2, 0xffcf65, 0.8).lineBetween(573 + Math.cos(a) * 14, 207 + Math.sin(a) * 14,
+                    573 + Math.cos(a) * 21, 207 + Math.sin(a) * 21);
+            }
+        }
+        if (this.feedRemaining > 0.3) {
+            const t = (0.6 - this.feedRemaining) / 0.3;
+            const stickX = 545 + t * 45;
+            const stickY = 164 - Math.sin(t * Math.PI) * 22;
+            g.fillStyle(0xc43c2f).fillRoundedRect(stickX - 3, stickY - 8, 6, 16, 2);
+            g.lineStyle(2, 0xe9c477).lineBetween(stickX, stickY - 8, stickX + 2, stickY - 12);
+        }
         // Rotating spool spokes remain aligned with the rope pivot.
         g.fillStyle(0x414b50).fillCircle(512, 207, 17);
         g.fillStyle(0xc2945f).fillCircle(512, 207, 13);
@@ -79,7 +135,15 @@ export class MinerAnimator {
         const handY = 207 - Math.cos(crankAngle) * 17;
         g.lineStyle(4, 0x414b50).lineBetween(529, 207, 541, 207).lineBetween(541, 207, handX, handY);
         g.fillStyle(0x61422c).fillRoundedRect(handX - 6, handY - 4, 12, 8, 3);
-        if (celebrating || disappointed) {
+        if (this.feedRemaining > 0.3) {
+            const shoulder = bodyPoint(532, 174);
+            g.lineStyle(10, 0xb94d39).lineBetween(shoulder.x, shoulder.y, 539, 178);
+            g.lineStyle(7, 0xf1c08e).lineBetween(539, 178, 547, 164);
+            g.fillStyle(0xf1c08e).fillCircle(547, 164, 5);
+            const left = bodyPoint(491, 173);
+            g.lineStyle(10, 0xb94d39).lineBetween(left.x, left.y, left.x - 8, left.y + 17);
+            g.fillStyle(0xf1c08e).fillCircle(left.x - 8, left.y + 17, 5);
+        } else if (celebrating || disappointed) {
             for (const side of [-1, 1]) {
                 const shoulder = bodyPoint(512 + side * 21, 174);
                 const hand = bodyPoint(512 + side * (celebrating ? 38 : 25), celebrating ? 132 : 198);

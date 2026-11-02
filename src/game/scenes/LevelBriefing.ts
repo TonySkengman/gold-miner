@@ -46,12 +46,13 @@ export class LevelBriefing extends Scene {
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
         text(428, `${roundDuration(data.mine, bonuses.extraTime)} SECONDS`, 25, '#bcf58b');
-        text(480, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
+        text(454, '→ during a haul: spend 1 dynamite to power winch overdrive x2.', 16, '#bcf58b');
+        text(492, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
         ];
-        if (bonuses.blastPowder > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: 'Area blast ON\n← / click: toggle' });
+        if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ON\n← / click: toggle` });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Cash bags +$200 each' });
         if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+2s per perfect\nUp to +10s' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: '+15 seconds' });
@@ -80,7 +81,7 @@ export class LevelBriefing extends Scene {
                 fontFamily: 'Arial', fontSize: wrapped ? 12 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
-        if (bonuses.blastPowder > 0) text(wrapped ? 805 : 729, 'Blast Powder: bigger caught items = bigger blasts. Starts ON; ← / click to toggle.', 16, '#bcf58b');
+        if ((data.upgrades?.blastPowder ?? 0) > 0) text(wrapped ? 805 : 729, 'Blast Powder: bigger caught items = bigger blasts. Starts ON; ← / click to toggle.', 16, '#bcf58b');
         text(wrapped ? 835 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
         text(wrapped ? 866 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 

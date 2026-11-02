@@ -14,7 +14,7 @@ import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { WORLD } from '../state/World';
-import { cashBagValue, LevelBonuses, Upgrades } from '../state/Upgrades';
+import { blastPowderScale, cashBagValue, LevelBonuses, Upgrades } from '../state/Upgrades';
 import { Scene, GameObjects } from 'phaser';
 import { Claw } from '../objects/Claw';
 import { Collectable, generateCollectables } from '../objects/Collectable';
@@ -150,7 +150,7 @@ export class Game extends Scene {
         this.scoreText = this.add.text(32, 29, '', style);
         this.milestoneProgress = new MilestoneProgress(this);
         this.progressText = this.add.text(WORLD.centerX, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
-        const levelPanel = this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\nMode: ${MINES[this.round.mine].name}\nLevel name: ${LAYOUTS[this.round.config.layout].name}`, {
+        const levelPanel = this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\nMode: ${MINES[this.round.mine].name}\nLevel Name: ${LAYOUTS[this.round.config.layout].name}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }, lineSpacing: 4
         }).setOrigin(1, 0);
@@ -164,8 +164,9 @@ export class Game extends Scene {
         this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
         const leftHudStart = this.children.length;
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 124);
-        let blastEnabled = this.round.bonuses.blastPowder > 0;
-        this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 : 1);
+        let blastEnabled = this.round.upgrades.blastPowder > 0;
+        this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
+        this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 * this.claw.powderRadiusScale : 1);
         const blastPanel = this.add.rectangle(32, 158, 300, 66, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
         this.add.rectangle(42, 158, 280, 1, 0xc29659).setOrigin(0);
@@ -178,14 +179,15 @@ export class Game extends Scene {
             padding: { x: 8, y: 3 }
         });
         const refreshBlastToggle = () => blastToggle
-            .setText(this.round.bonuses.blastPowder > 0
-                ? `${blastEnabled ? 'ON' : 'OFF'} — click / [←]` : 'NOT OWNED — buy in shop')
+            .setText(this.round.upgrades.blastPowder > 0
+                ? `T${this.round.upgrades.blastPowder} ${blastEnabled ? 'ON' : 'OFF'} — click / [←]` : 'NOT OWNED — buy in shop')
             .setBackgroundColor(blastEnabled ? '#547f3b' : '#70452a');
         refreshBlastToggle();
         const toggleBlastPowder = () => {
-            if (this.ended || this.round.finished || this.round.bonuses.blastPowder <= 0) return;
+            if (this.ended || this.round.finished || this.round.upgrades.blastPowder <= 0) return;
             blastEnabled = !blastEnabled;
-            this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 : 1);
+            this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
+            this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 * this.claw.powderRadiusScale : 1);
             refreshBlastToggle();
         };
         blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
@@ -286,7 +288,7 @@ export class Game extends Scene {
             updateAutoFinishButton();
         });
         this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
-        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: drop claw   •   ↑: dynamite   •   ←: toggle Blast Powder', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: Launch claw   •   ↑: Dynamite   •   ←: Blast Powder   •   →: Overdrive (1 stick)', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
         const launch = () => { soundEffects.unlock(); if (!this.ended && !this.round.finished) this.claw.launch(); };
         const keyboard = this.input.keyboard;
         const onKey = (event: KeyboardEvent) => { if (!event.repeat) launch(); };
@@ -298,10 +300,20 @@ export class Game extends Scene {
                 this.updateHud();
             }
         };
+        const onOverdrive = (event: KeyboardEvent) => {
+            soundEffects.unlock();
+            if (event.repeat || this.ended || this.round.dynamite <= 0) return;
+            if (this.claw.activateOverdrive()) {
+                this.round.dynamite--;
+                this.miner.activateOverdrive();
+                this.updateHud();
+            }
+        };
         const onPauseKey = (event: KeyboardEvent) => { if (!event.repeat) pause(); };
         const onBlastPowder = (event: KeyboardEvent) => { if (!event.repeat) toggleBlastPowder(); };
-        keyboard?.addCapture(['DOWN', 'UP', 'LEFT', 'P', 'ESC']);
+        keyboard?.addCapture(['DOWN', 'UP', 'LEFT', 'RIGHT', 'P', 'ESC']);
         keyboard?.on('keydown-LEFT', onBlastPowder);
+        keyboard?.on('keydown-RIGHT', onOverdrive);
         keyboard?.on('keydown-P', onPauseKey);
         keyboard?.on('keydown-ESC', onPauseKey);
         this.game.events.on('blur', pause);
@@ -314,9 +326,10 @@ export class Game extends Scene {
             keyboard?.off('keydown-DOWN', onKey);
             keyboard?.off('keydown-UP', onDynamite);
             keyboard?.off('keydown-LEFT', onBlastPowder);
+            keyboard?.off('keydown-RIGHT', onOverdrive);
             keyboard?.off('keydown-P', onPauseKey);
             keyboard?.off('keydown-ESC', onPauseKey);
-            keyboard?.removeCapture(['DOWN', 'UP', 'LEFT', 'P', 'ESC']);
+            keyboard?.removeCapture(['DOWN', 'UP', 'LEFT', 'RIGHT', 'P', 'ESC']);
             this.game.events.off('blur', pause);
             this.events.off('resume', onResume);
             this.input.off('pointerdown', launch);
@@ -349,7 +362,7 @@ export class Game extends Scene {
                 this.round.remaining > 0 ? this.round.remaining : Infinity);
             for (const object of this.objects) object.update(step, this.objects);
             this.claw.update(step, this.objects);
-            this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight);
+            this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight, this.claw.isOverdriving);
             this.round.update(step);
             pending -= step;
             if (this.autoFinishLevel && this.round.won) break;

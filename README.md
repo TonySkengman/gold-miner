@@ -20,6 +20,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 | Down Arrow or click the playfield | Launch the claw |
 | Up Arrow | Throw dynamite at a caught object |
 | Left Arrow or click Blast Powder | Toggle Blast Powder ON/OFF when owned |
+| Right Arrow | Spend one dynamite to activate winch overdrive: immediately double retrieval speed for the current catch |
 | P or Esc | Pause or resume |
 | Finish Level | End the level immediately |
 | Auto Finish Level | Toggle automatic finishing when the gold target is reached (starts OFF) |
@@ -72,7 +73,7 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
 | Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
 | Gold polish | +15% gold nugget value per tier; stacks with Gold Rush | $1,250 / $2,500 / $3,750 |
-| Blast Powder | One-round size-based dynamite area blasts and +50% TNT radius; toggle with Left Arrow or click | $1,500 |
+| Blast Powder | Tier 1 unlocks size-based dynamite blasts and +50% TNT radius; tiers 2/3 add +20%/+40% radius over tier 1; lasts for the run | $1,500 / $3,000 / $4,500 |
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
 | Dynamite | One additional stick | $750 |
@@ -85,13 +86,19 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Streak vial | Multiplies streak bonuses by 1.5 for the full next level; mine vials boost to x2 for 15 seconds | $1,000 |
 | Life vial | Immediately restores one life, up to five | $3,000 |
 
-Winch, Gem Polish, Gold Polish, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, Momentum, Blast Powder, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch, Gem Polish, Gold Polish, Blast Powder, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, Momentum, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+
+### Dynamite Overdrive
+
+Dynamite Overdrive is available from the start without a shop unlock. Press **Right Arrow** at any point while hauling a caught item to spend one dynamite and immediately double retrieval speed for the rest of that haul. It stacks with Strength, winch upgrades, perfect-catch speed and distance compensation. The caught item survives and retains its value, perfect bonus and streak payout. The miner tosses a stick into an engine beside the winch. The engine bangs, shakes and puffs smoke, its gears spark, and the winch spins faster. A “DYNAMITE OVERDRIVE! x2” popup confirms activation; the caught object has no exhaust trail.
+
+Only one boost is allowed per catch; repeated presses cost nothing. Aiming, extending, empty returns, and a destructive dynamite throw already in flight cannot be boosted. It also works during the final haul at zero seconds. Pressing Up Arrow afterward can still destroy the boosted catch at the cost of another stick, subject to the normal destructive-throw timer rules. Boosts reset after delivery or destruction and never affect later catches. Blast Powder affects destructive explosions only, not overdrive strength.
 
 ### Blast Powder and Gold Polish
 
-Blast Powder starts ON when a stocked charge is active. Press **Left Arrow** or click its toggle in the combined dynamite/Blast Powder HUD to switch it ON or OFF. Active buffs occupy a separate column beside this panel. Switching OFF does not save the round’s charge; failed attempts restore starting supplies like other round consumables.
+Blast Powder is a permanent upgrade for the current run, with three tiers. It stays unlocked through cleared levels and failed attempts, and starts ON each round when owned. Press **Left Arrow** or click its toggle in the combined dynamite/Blast Powder HUD to switch it ON or OFF. Active buffs occupy a separate column beside this panel. The HUD shows the owned tier and ON/OFF state. No round charge is consumed; new runs reset the upgrade.
 
-With Blast Powder ON, thrown dynamite destroys the caught item and blasts nearby free objects. The blast radius is **2.5 times the caught item’s radius**: small gold produces a 37.5-pixel blast, medium gold 80 pixels, large gold 120 pixels, and giant gold 180 pixels. Nearby TNT barrels and TNT rats trigger chain reactions with a boosted radius of 187.5 pixels (normally 125). Explosion visuals match their damage radius. Destroyed objects award no money; blasted gem deposits release their remaining treasure after the explosions so the released loot survives. With Blast Powder OFF or unowned, thrown dynamite destroys only the caught item, and TNT uses its normal radius.
+With Blast Powder ON, thrown dynamite destroys the caught item and blasts nearby free objects. At tier 1, the blast radius is **2.5 times the caught item’s radius**: small gold produces a 37.5-pixel blast, medium gold 80 pixels, large gold 120 pixels, and giant gold 180 pixels. Nearby TNT barrels and TNT rats trigger chain reactions with a boosted radius of 187.5 pixels (normally 125). Tiers 2 and 3 multiply both dynamite and TNT radii by 1.2 and 1.4 relative to tier 1 (giant-gold blasts: 180/216/252 pixels; TNT: 187.5/225/262.5 pixels). Explosion visuals match their damage radius. Destroyed objects award no money; blasted gem deposits release their remaining treasure after the explosions so the released loot survives. With Blast Powder OFF or unowned, thrown dynamite destroys only the caught item, and TNT uses its normal radius.
 
 Gold Polish lasts for the run and adds 15% gold nugget value per tier, up to 45%. It applies to all four nugget sizes, including nuggets released from deposits, and multiplies with Gold Rush. At tier 3, a $200 large nugget pays $290 normally or $435 with Gold Rush, before perfect-catch and streak bonuses. Perfect-catch cash bonuses use the boosted nugget value; Gold Polish does not increase gems, bags, chests, or streak bonuses.
 

@@ -11,6 +11,8 @@ type ClawMode = 'idle' | 'extending' | 'retracting';
 
 export class Claw {
     blastRadius = TNT_BLAST_RADIUS;
+    powderRadiusScale = 0;
+    private overdriveActive = false;
     private mode: ClawMode = 'idle';
     private angle = -0.8;
     private swingDirection = 1;
@@ -39,6 +41,8 @@ export class Claw {
 
     get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
 
+    get isOverdriving(): boolean { return this.overdriveActive && this.isHauling; }
+
     get hauledDeposit(): Collectable | null {
         return this.isHauling && this.caught?.gemDeposit ? this.caught : null;
     }
@@ -47,7 +51,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
+            ? 275.4 * (this.caught && this.overdriveActive ? 2 : 1) * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
     resize(oldWidth: number): void {
@@ -61,10 +65,18 @@ export class Claw {
 
     launch(): void {
         if (this.mode === 'idle') {
+            this.overdriveActive = false;
             this.distanceReturnMultiplier = 1;
             this.mode = 'extending';
             soundEffects.play('launch');
         }
+    }
+
+    /** Return true only when a stick should be spent. Works during the final haul. */
+    activateOverdrive(): boolean {
+        if (!this.isHauling || this.overdriveActive) return false;
+        this.overdriveActive = true;
+        return true;
     }
 
     throwDynamite(): boolean {
@@ -91,13 +103,14 @@ export class Claw {
         const blasted = this.caught;
         blasted.destroy();
         if (this.blastRadius > TNT_BLAST_RADIUS) {
-            detonateArea(blasted.x, blasted.y, dynamiteBlastRadius(blasted.radius), objects,
+            detonateArea(blasted.x, blasted.y, dynamiteBlastRadius(blasted.radius) * this.powderRadiusScale, objects,
                 (blastX, blastY, radius) => showBarrelExplosion(this.scene, blastX, blastY, radius),
                 deposit => releaseGemDeposit(this.scene, deposit, objects), this.blastRadius);
         }
         // Release caught treasure after the area blast so the new loot survives it.
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
+        this.overdriveActive = false;
         this.perfectHaul = false;
         this.perfectBonus = 0;
         if (this.blastRadius > TNT_BLAST_RADIUS) return;
@@ -202,6 +215,7 @@ export class Claw {
                     this.onCollect(this.caughtValue, this.caught, this.perfectBonus);
                     this.caught.destroy();
                     this.caught = null;
+                    this.overdriveActive = false;
                     this.perfectHaul = false;
                 }
                 this.mode = 'idle';

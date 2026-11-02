@@ -8,8 +8,8 @@ export class DynamiteInventory {
 
     constructor(scene: Scene, x: number, y: number, panelHeight = 58) {
         scene.add.rectangle(x, y, 300, panelHeight, 0xffedbb).setOrigin(0);
-        scene.add.text(x + 10, y + 5, 'DYNAMITE  [↑]', {
-            fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#483126'
+        scene.add.text(x + 10, y + 5, 'DYNAMITE  ↑ DESTROY / → OVERDRIVE', {
+            fontFamily: 'Arial', fontSize: 12, fontStyle: 'bold', color: '#483126'
         });
         this.icons = scene.add.graphics().setPosition(x + 10, y + 23);
         this.empty = scene.add.text(x + 10, y + 28, 'EMPTY', {
