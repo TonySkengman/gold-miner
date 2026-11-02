@@ -43,7 +43,10 @@ export class RoundState {
 
     missShot(): void { this.catchStreak = 0; }
 
-    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * 20 * this.streakMultiplier; }
+    /** Round the target-based step once so every catch adds the same amount. */
+    get streakBonusStep(): number { return Math.round(this.target * 0.015 / 5) * 5; }
+
+    get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * this.streakBonusStep * this.streakMultiplier; }
 
     bonusMoney = 0;
     private claimedMilestones = 0;

@@ -45,7 +45,7 @@ Free TNT and chain reactions always use their normal blast radius. Place explosi
 Aim through an object's centre for 35% faster reeling throughout the haul. Cash treasure also earns a 35% perfect bonus, rounded up to the next $10, on delivery. Vials and non-cash rewards receive the reel boost without a perfect cash bonus. Rocks, empty rats, TNT and chest-opening hits do not qualify. Dynamiting the catch forfeits the delivery bonus.
 
 Catch streaks
-Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Catch 3 adds $20, catch 4 adds $40, catch 5 adds $60, and each further qualifying catch adds another $20. Delivery pays the bonus; it counts toward the target.
+Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step is 1.5% of the selected mine's earnings target, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
 
 Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an embedded gem advance it; gem-studded deposits without a visible gem are neutral. Once you extract a visible gem, its ordinary host rock breaks the streak. Vials, opening chests and TNT are neutral. Dynamiting a qualifying catch preserves its streak progress but loses its payout. Each level and retry starts at zero.`],
     ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching Strength, Gold Rush, time or Streak vials does not consume a Strength charge.
