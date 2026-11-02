@@ -1,7 +1,7 @@
 import { releaseGemDeposit } from './GemDeposits';
 import { catchFeedbackY, clawCollisionRadius } from './Aiming';
 import { soundEffects } from '../audio/SoundEffects';
-import { detonateBarrel, showBarrelExplosion } from './Explosions';
+import { detonateArea, dynamiteBlastRadius, detonateBarrel, showBarrelExplosion, TNT_BLAST_RADIUS } from './Explosions';
 import { WORLD } from '../state/World';
 import { GameObjects, Scene } from 'phaser';
 import { Collectable } from './Collectable';
@@ -10,6 +10,7 @@ import { treasureRewardValue } from '../state/TreasureRewards';
 type ClawMode = 'idle' | 'extending' | 'retracting';
 
 export class Claw {
+    blastRadius = TNT_BLAST_RADIUS;
     private mode: ClawMode = 'idle';
     private angle = -0.8;
     private swingDirection = 1;
@@ -89,10 +90,17 @@ export class Claw {
         this.dynamite = null;
         const blasted = this.caught;
         blasted.destroy();
+        if (this.blastRadius > TNT_BLAST_RADIUS) {
+            detonateArea(blasted.x, blasted.y, dynamiteBlastRadius(blasted.radius), objects,
+                (blastX, blastY, radius) => showBarrelExplosion(this.scene, blastX, blastY, radius),
+                deposit => releaseGemDeposit(this.scene, deposit, objects), this.blastRadius);
+        }
+        // Release caught treasure after the area blast so the new loot survives it.
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
         this.perfectHaul = false;
         this.perfectBonus = 0;
+        if (this.blastRadius > TNT_BLAST_RADIUS) return;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);
@@ -140,8 +148,8 @@ export class Claw {
                 this.length = hitLength;
                 if (first.isExplosive) {
                     this.mode = 'retracting';
-                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y),
-                        deposit => releaseGemDeposit(this.scene, deposit, objects));
+                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y, this.blastRadius),
+                        deposit => releaseGemDeposit(this.scene, deposit, objects), this.blastRadius);
                     this.draw();
                     return;
                 }

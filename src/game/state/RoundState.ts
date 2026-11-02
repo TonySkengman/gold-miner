@@ -98,7 +98,7 @@ export class RoundState {
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
-        return { momentum: stock.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+        return { blastPowder: stock.blastPowder, momentum: stock.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
             prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 
@@ -111,7 +111,8 @@ export class RoundState {
             this.strengthCatches = Math.max(0, this.strengthCatches - 1);
         }
         if (goldMultiplier > 1) this.goldRushCatches--;
-        return goldMultiplier;
+        const gold = ['small', 'medium', 'large', 'giant'].includes(kind);
+        return goldMultiplier * (gold ? 1 + this.upgrades.gold * 0.15 : 1);
     }
 
     addTime(): void { this.remaining += 15; }

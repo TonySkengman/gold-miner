@@ -131,13 +131,13 @@ export class UpgradeShop extends Scene {
             this.add.text(x + 12, y + 29, subtitle, { fontFamily: 'Arial', fontSize: 17, color: '#d9bc8c' }).setData('responsiveAnchor', 'center');
         };
         category(productsLeft + 8, 139, productsWidth - 16, 'CONSUMABLES', 'One charge per round • Stock up for future levels');
-        const bottomStep = productsWidth / 5;
-        category(productsLeft + 8, 583, bottomStep * 3 - 16, 'PERMANENT UPGRADES', 'Keep every tier for the rest of this run');
-        category(productsLeft + bottomStep * 3 + 8, 583, bottomStep * 2 - 16, 'SUPPLIES', 'Restore lives • Carry dynamite forward');
+        const bottomStep = productsWidth / 6;
+        category(productsLeft + 8, 583, bottomStep * 4 - 16, 'PERMANENT UPGRADES', 'Keep every tier for the rest of this run');
+        category(productsLeft + bottomStep * 4 + 8, 583, bottomStep * 2 - 16, 'SUPPLIES', 'Restore lives • Carry dynamite forward');
         const refreshers: (() => void)[] = [];
         const refresh = () => {
             const roundStock = Object.values(bonuses).reduce((total, count) => total + count, 0);
-            stock.setText(`LIVES  ${lives} / 5     •     DYNAMITE  ${dynamite}     •     ROUND ITEMS  ${roundStock}     •     UPGRADE TIERS  ${upgrades.strength + upgrades.diamonds + upgrades.vialBelt} / 9`);
+            stock.setText(`LIVES  ${lives} / 5     •     DYNAMITE  ${dynamite}     •     ROUND ITEMS  ${roundStock}     •     UPGRADE TIERS  ${upgrades.strength + upgrades.gold + upgrades.diamonds + upgrades.vialBelt} / 12`);
             balance.setText(`$${money.toLocaleString('en-US')}`);
             next.setText(data.result?.won && data.result.finalLevel ? 'VIEW RESULTS'
                 : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'START'} LEVEL ${data.level}`);
@@ -146,18 +146,19 @@ export class UpgradeShop extends Scene {
         };
         const shopOrder: ShopItemKind[] = [
             // One-round consumables.
-            'strengthPotion', 'goldRush', 'streakVial', 'extraTime',
+            'strengthPotion', 'goldRush', 'streakVial', 'extraTime', 'blastPowder',
             'luck', 'momentum', 'lightweightGrip', 'prospectorsLens',
             // Upgrades that last for the run.
-            'strength', 'diamonds', 'vialBelt',
+            'strength', 'diamonds', 'gold', 'vialBelt',
             // Immediate recovery and carried supplies.
             'lifeVial', 'dynamite'
         ];
         shopOrder.forEach((kind, index) => {
-            const consumable = index < 8;
-            const step = productsWidth / (consumable ? 4 : 5);
-            const x = productsLeft + step / 2 + (consumable ? index % 4 : index - 8) * step;
-            const y = consumable ? 290 + Math.floor(index / 4) * 185 : 733;
+            const consumable = index < 9;
+            const columns = index < 5 ? 5 : 4;
+            const step = productsWidth / (consumable ? columns : 6);
+            const x = productsLeft + step / 2 + (consumable ? (index < 5 ? index : index - 5) : index - 9) * step;
+            const y = consumable ? 290 + (index < 5 ? 0 : 1) * 185 : 733;
             const cardWidth = step - 16;
             const cardHeight = consumable ? 170 : 164;
             const permanent = isPermanentUpgrade(kind);

@@ -121,6 +121,18 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.fillRoundedRect(-13, 8, 26, 20, 6).strokeRoundedRect(-13, 8, 26, 20, 6);
     } else if (kind === 'luck' || kind === 'momentum') {
         drawMineVial(g, kind, 2.4);
+    } else if (kind === 'blastPowder') {
+        // A sealed powder tin with an expanding blast emblem.
+        g.fillStyle(0x754936).lineStyle(3, 0x39291f)
+            .fillRoundedRect(-30, -30, 60, 66, 7).strokeRoundedRect(-30, -30, 60, 66, 7);
+        g.fillStyle(0xbba176).fillRoundedRect(-34, -38, 68, 13, 3);
+        g.fillStyle(0xffd36a).fillCircle(0, 3, 21);
+        g.lineStyle(3, 0xa84626).strokeCircle(0, 3, 15);
+        for (let i = 0; i < 8; i++) {
+            const a = i * Math.PI / 4;
+            g.lineBetween(Math.cos(a) * 8, 3 + Math.sin(a) * 8,
+                Math.cos(a) * 18, 3 + Math.sin(a) * 18);
+        }
     } else if (kind === 'extraTime') {
         drawTimeVial(g, 2.4);
     } else if (kind === 'strength') {
@@ -133,6 +145,18 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.fillStyle(0x39464d).fillCircle(-27, 0, 6).fillCircle(27, 0, 6);
         g.lineStyle(7, 0x39464d).lineBetween(27, 0, 61, 0).lineBetween(61, 0, 61, -25);
         g.fillStyle(0x79512e).fillRoundedRect(52, -32, 18, 13, 4);
+    } else if (kind === 'gold') {
+        // Polished nugget and bright glints distinguish gold polish from gem polish.
+        g.fillStyle(0xe5a923).lineStyle(3, 0x94621d);
+        g.beginPath().moveTo(-44, 12).lineTo(-32, -21).lineTo(-9, -32)
+            .lineTo(25, -24).lineTo(45, 4).lineTo(30, 31).lineTo(-18, 36)
+            .closePath().fillPath().strokePath();
+        g.fillStyle(0xffdf69).fillTriangle(-32, -21, -9, -32, -18, 36);
+        g.fillStyle(0xffca3e).fillTriangle(-9, -32, 25, -24, 30, 31);
+        g.lineStyle(4, 0xfff6cd).lineBetween(26, -43, 26, -23)
+            .lineBetween(16, -33, 36, -33);
+        g.lineStyle(3, 0xfff6cd).lineBetween(-43, -1, -43, 13)
+            .lineBetween(-50, 6, -36, 6);
     } else if (kind === 'diamonds') {
         g.save().translateCanvas(-21, 2).scaleCanvas(0.7, 0.7);
         g.fillStyle(0x70e6f5).lineStyle(3, 0x287e9a);

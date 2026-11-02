@@ -6,8 +6,8 @@ export class DynamiteInventory {
     private readonly empty: GameObjects.Text;
     private previousCount = -1;
 
-    constructor(scene: Scene, x: number, y: number) {
-        scene.add.rectangle(x, y, 300, 58, 0xffedbb).setOrigin(0);
+    constructor(scene: Scene, x: number, y: number, panelHeight = 58) {
+        scene.add.rectangle(x, y, 300, panelHeight, 0xffedbb).setOrigin(0);
         scene.add.text(x + 10, y + 5, 'DYNAMITE  [↑]', {
             fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#483126'
         });

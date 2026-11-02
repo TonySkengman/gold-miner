@@ -1,3 +1,5 @@
+import { drawShopProduct } from '../art/drawShop';
+import { TNT_BLAST_RADIUS } from '../objects/Explosions';
 import { MineClock } from '../ui/MineClock';
 import { MINES, type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
@@ -161,7 +163,32 @@ export class Game extends Scene {
         lifeBar.setData('responsiveRedraw', () => lifeBar.setX(this.statusX));
         this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
         const leftHudStart = this.children.length;
-        this.dynamiteInventory = new DynamiteInventory(this, 32, 100);
+        this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 124);
+        let blastEnabled = this.round.bonuses.blastPowder > 0;
+        this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 : 1);
+        const blastPanel = this.add.rectangle(32, 158, 300, 66, 0xffedbb).setOrigin(0)
+            .setInteractive({ useHandCursor: true });
+        this.add.rectangle(42, 158, 280, 1, 0xc29659).setOrigin(0);
+        drawShopProduct(this, 59, 191, 'blastPowder', 0.5);
+        this.add.text(86, 168, 'BLAST POWDER:', {
+            fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#483126'
+        });
+        const blastToggle = this.add.text(86, 192, '', {
+            fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#ffffff',
+            padding: { x: 8, y: 3 }
+        });
+        const refreshBlastToggle = () => blastToggle
+            .setText(this.round.bonuses.blastPowder > 0
+                ? `${blastEnabled ? 'ON' : 'OFF'} — click to toggle` : 'NOT OWNED — buy in shop')
+            .setBackgroundColor(blastEnabled ? '#547f3b' : '#70452a');
+        refreshBlastToggle();
+        blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            event.stopPropagation();
+            if (this.ended || this.round.finished || this.round.bonuses.blastPowder <= 0) return;
+            blastEnabled = !blastEnabled;
+            this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 : 1);
+            refreshBlastToggle();
+        });
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
             backgroundColor: '#253d29', padding: { x: 10, y: 6 }
@@ -198,14 +225,14 @@ export class Game extends Scene {
         if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
         buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
-        addSoundButton(this, 32, 166);
+        addSoundButton(this, 32, 232);
         const pause = () => {
             if (this.ended || this.pausing || this.scene.isPaused()) return;
             this.pausing = true;
             this.scene.launch('PauseMenu');
             this.scene.pause();
         };
-        const pauseButton = this.add.text(172, 166, 'Pause [P]', {
+        const pauseButton = this.add.text(172, 232, 'Pause [P]', {
             fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
             padding: { x: 12, y: 8 }
         }).setInteractive({ useHandCursor: true });
