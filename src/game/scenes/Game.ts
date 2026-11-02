@@ -1,5 +1,4 @@
 import { drawShopProduct } from '../art/drawShop';
-import { TNT_BLAST_RADIUS } from '../objects/Explosions';
 import { MineClock } from '../ui/MineClock';
 import { MINES, type MineKind } from '../state/Mines';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
@@ -175,7 +174,6 @@ export class Game extends Scene {
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 146);
         let blastEnabled = this.round.upgrades.blastPowder > 0;
         this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
-        this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 * this.claw.powderRadiusScale : 1);
         const blastPanel = this.add.rectangle(32, 158, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
         this.add.rectangle(42, 158, 280, 1, 0xc29659).setOrigin(0);
@@ -217,7 +215,6 @@ export class Game extends Scene {
             if (this.ended || this.round.upgrades.blastPowder <= 0) return;
             blastEnabled = !blastEnabled;
             this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
-            this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 * this.claw.powderRadiusScale : 1);
             refreshBlastToggle();
         };
         blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {

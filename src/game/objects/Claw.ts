@@ -10,7 +10,6 @@ import { treasureRewardValue } from '../state/TreasureRewards';
 type ClawMode = 'idle' | 'extending' | 'retracting';
 
 export class Claw {
-    blastRadius = TNT_BLAST_RADIUS;
     powderRadiusScale = 0;
     safetyGrip = false;
     private mode: ClawMode = 'idle';
@@ -28,7 +27,6 @@ export class Claw {
     private readonly grabReach = 18;
     private dynamite: GameObjects.Graphics | null = null;
     private throwElapsed = 0;
-    private thrownBlastRadius = TNT_BLAST_RADIUS;
     private thrownPowderScale = 0;
     private readonly graphic: GameObjects.Graphics;
     private get origin(): { x: number; y: number } { return { x: WORLD.centerX, y: WORLD.pivotY }; }
@@ -76,7 +74,6 @@ export class Claw {
     throwDynamite(): boolean {
         if (this.mode !== 'retracting' || !this.caught || this.dynamite) return false;
         soundEffects.play('throw');
-        this.thrownBlastRadius = this.blastRadius;
         this.thrownPowderScale = this.powderRadiusScale;
         this.throwElapsed = 0;
         this.dynamite = this.scene.add.graphics().setDepth(6);
@@ -98,17 +95,18 @@ export class Claw {
         this.dynamite = null;
         const blasted = this.caught;
         blasted.destroy();
-        if (this.thrownBlastRadius > TNT_BLAST_RADIUS) {
-            detonateArea(blasted.x, blasted.y, dynamiteBlastRadius(blasted.radius) * this.thrownPowderScale, objects,
+        if (this.thrownPowderScale > 0) {
+            const radius = (blasted.isExplosive ? TNT_BLAST_RADIUS * 1.5 : dynamiteBlastRadius(blasted.radius)) * this.thrownPowderScale;
+            detonateArea(blasted.x, blasted.y, radius, objects,
                 (blastX, blastY, radius) => showBarrelExplosion(this.scene, blastX, blastY, radius),
-                deposit => releaseGemDeposit(this.scene, deposit, objects), this.thrownBlastRadius);
+                deposit => releaseGemDeposit(this.scene, deposit, objects));
         }
         // Release caught treasure after the area blast so the new loot survives it.
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
         this.perfectHaul = false;
         this.perfectBonus = 0;
-        if (this.thrownBlastRadius > TNT_BLAST_RADIUS) return;
+        if (this.thrownPowderScale > 0) return;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);
@@ -156,8 +154,8 @@ export class Claw {
                 this.length = hitLength;
                 if (first.isExplosive && !this.safetyGrip) {
                     this.mode = 'retracting';
-                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y, this.blastRadius),
-                        deposit => releaseGemDeposit(this.scene, deposit, objects), this.blastRadius);
+                    detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y),
+                        deposit => releaseGemDeposit(this.scene, deposit, objects));
                     this.draw();
                     return;
                 }
