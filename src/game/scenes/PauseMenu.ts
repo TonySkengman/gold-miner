@@ -1,13 +1,13 @@
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { WORLD } from '../state/World';
-import { Scene } from 'phaser';
+import { Scene, GameObjects } from 'phaser';
 import { addSoundButton } from '../audio/SoundEffects';
 import { menuButton } from '../ui/menuButton';
 
 export class PauseMenu extends Scene {
     constructor() { super('PauseMenu'); }
 
-    create(): void {
+    create(data: { confirmExit?: boolean } = {}): void {
         this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.78).setData('responsiveFullWidth', true).setInteractive();
         this.add.rectangle(WORLD.centerX, 480, 720, 560, 0xffedbb).setStrokeStyle(4, 0xc29659);
         this.add.text(WORLD.centerX, 280, 'PAUSED', { fontFamily: 'Arial', fontSize: 46, fontStyle: 'bold', color: '#70452a' }).setOrigin(0.5);
@@ -21,20 +21,52 @@ export class PauseMenu extends Scene {
             this.scene.stop();
         };
         menuButton(this, WORLD.centerX, resumeY, 'RESUME', resume);
-        menuButton(this, WORLD.centerX, resumeY + 90, 'END RUN & MAIN MENU', () => {
+        let confirming = false;
+        menuButton(this, WORLD.centerX, resumeY + 90, 'END RUN & MAIN MENU', () => showConfirmation(true));
+        const pauseHud = [...this.children.list];
+        const shade = this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.9)
+            .setData('responsiveFullWidth', true).setInteractive().setDepth(30);
+        const panel = this.add.rectangle(WORLD.centerX, 480, 680, 300, 0xffedbb).setStrokeStyle(4, 0xc29659).setDepth(31);
+        const heading = this.add.text(WORLD.centerX, 390, 'RETURN TO MAIN MENU?', {
+            fontFamily: 'Arial', fontSize: 30, fontStyle: 'bold', color: '#70452a'
+        }).setOrigin(0.5).setDepth(32);
+        const warning = this.add.text(WORLD.centerX, 465, 'Your progress in this run will be lost.\nAre you sure you want to leave?', {
+            fontFamily: 'Arial', fontSize: 22, color: '#483126', align: 'center', lineSpacing: 10
+        }).setOrigin(0.5).setDepth(32);
+        const cancel = menuButton(this, WORLD.centerX - 160, 560, 'CANCEL', () => {
+            if (data.confirmExit) resume();
+            else showConfirmation(false);
+        }).setDepth(32);
+        const confirm = menuButton(this, WORLD.centerX + 150, 560, 'END RUN', () => {
             if (leaving) return;
             leaving = true;
             this.scene.stop('Game');
             this.scene.start('MainMenu');
-        });
-        const onKey = (event: KeyboardEvent) => { if (!event.repeat) resume(); };
+        }).setDepth(32);
+        confirm.setBackgroundColor('#8e493c');
+        confirm.on('pointerover', () => confirm.setBackgroundColor('#a85848'));
+        confirm.on('pointerout', () => confirm.setBackgroundColor('#8e493c'));
+        const confirmation = [shade, panel, heading, warning, cancel, confirm];
+        const showConfirmation = (visible: boolean) => {
+            confirming = visible;
+            confirmation.forEach(item => item.setVisible(visible));
+            pauseHud.forEach(item => {
+                if (item instanceof GameObjects.Text || item instanceof GameObjects.Rectangle) item.setVisible(!visible);
+            });
+        };
+        showConfirmation(data.confirmExit ?? false);
+        const onKey = (event: KeyboardEvent) => {
+            if (event.repeat) return;
+            if (confirming && !data.confirmExit) showConfirmation(false);
+            else resume();
+        };
         this.input.keyboard?.on('keydown-P', onKey);
         this.input.keyboard?.on('keydown-ESC', onKey);
         this.events.once('shutdown', () => {
             this.input.keyboard?.off('keydown-P', onKey);
             this.input.keyboard?.off('keydown-ESC', onKey);
         });
-        addSoundButton(this, 32, 24);
+        addSoundButton(this, 32, 24).setVisible(!data.confirmExit);
         responsiveLayout(this);
     }
 }

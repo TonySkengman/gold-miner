@@ -2,7 +2,7 @@ import type { Scene } from 'phaser';
 import { soundEffects } from '../audio/SoundEffects';
 import type { Collectable } from './Collectable';
 
-export const TNT_BLAST_RADIUS = 125;
+export const TNT_BLAST_RADIUS = 135;
 
 /** Bigger hauled objects produce a wider powder-assisted dynamite blast. */
 export const dynamiteBlastRadius = (caughtRadius: number): number => caughtRadius * 2.5;

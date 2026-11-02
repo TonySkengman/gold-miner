@@ -155,9 +155,20 @@ export class Game extends Scene {
         }, () => this.round.missShot());
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(WORLD.centerX, 44, WORLD.width, 88, 0x483126).setData('responsiveFullWidth', true);
-        this.scoreText = this.add.text(32, 29, '', style);
+        const moneyX = 166;
+        this.add.rectangle(moneyX, 44, 268, 44, 0x263e2c)
+            .setStrokeStyle(2, 0xcbb26b).setData('responsiveAnchor', 'left');
+        const bill = this.add.graphics().setPosition(moneyX - 91, 44).setScale(0.75).setData('responsiveAnchor', 'left');
+        bill.fillStyle(0x80af76).fillRoundedRect(-30, -19, 60, 38, 4);
+        bill.lineStyle(2, 0xd4e5a4).strokeRoundedRect(-25, -14, 50, 28, 3);
+        bill.fillStyle(0xb8d394).fillEllipse(0, 0, 22, 27);
+        this.add.text(moneyX - 91, 44, '$', { fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#315538' })
+            .setOrigin(0.5).setData('responsiveAnchor', 'left');
+        this.scoreText = this.add.text(moneyX + 30, 44, '', {
+            fontFamily: 'Arial', fontSize: 28, fontStyle: 'bold', color: '#fff1af'
+        }).setOrigin(0.5).setData('responsiveAnchor', 'left');
         this.milestoneProgress = new MilestoneProgress(this);
-        this.progressText = this.add.text(WORLD.centerX, 29, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
+        this.progressText = this.add.text(WORLD.centerX, 12, '', { ...style, fontSize: 22 }).setOrigin(0.5, 0);
         const levelPanel = this.add.text(WORLD.width - 34, 112, `LEVEL ${this.round.level} / ${LEVELS.length}\nMode: ${MINES[this.round.mine].name}\nLevel Name: ${LAYOUTS[this.round.config.layout].name}`, {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#483126',
             backgroundColor: '#ffedbb', padding: { x: 12, y: 8 }, lineSpacing: 4
@@ -308,11 +319,11 @@ export class Game extends Scene {
         };
         leftHud.setData('responsiveRedraw', layoutLeftHud);
         layoutLeftHud();
-        addSoundButton(this, WORLD.width - 284, 24).setData('responsiveAnchor', 'right');
-        const pause = () => {
+        const soundButton = addSoundButton(this, WORLD.width - 284, 24).setData('responsiveAnchor', 'right');
+        const pause = (confirmExit = false) => {
             if (this.ended || this.pausing || this.scene.isPaused()) return;
             this.pausing = true;
-            this.scene.launch('PauseMenu');
+            this.scene.launch('PauseMenu', { confirmExit });
             this.scene.pause();
         };
         const pauseButton = this.add.text(WORLD.width - 32, 24, 'Pause [P]', {
@@ -323,6 +334,21 @@ export class Game extends Scene {
             event.stopPropagation();
             pause();
         });
+        const controlGap = pauseButton.x - pauseButton.width - (soundButton.x + soundButton.width);
+        const menuButton = this.add.text(soundButton.x - controlGap, 24, 'Main Menu', {
+            fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
+            padding: { x: 12, y: 8 }
+        }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setDepth(20).setInteractive({ useHandCursor: true });
+        menuButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            event.stopPropagation();
+            pause(true);
+        });
+        menuButton.setX(WORLD.width - 32);
+        soundButton.setX(menuButton.x - menuButton.width - controlGap - soundButton.width);
+        pauseButton.setX(soundButton.x - controlGap);
+        for (const button of [pauseButton, soundButton, menuButton]) {
+            button.setY(44 - button.height / 2);
+        }
         const finishButtonsX = levelPanel.x - levelPanel.width - 18;
         const finishButton = this.add.text(finishButtonsX, 112, 'Finish Level', {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
@@ -374,7 +400,8 @@ export class Game extends Scene {
         keyboard?.on('keydown-RIGHT', onSafetyGrip);
         keyboard?.on('keydown-P', onPauseKey);
         keyboard?.on('keydown-ESC', onPauseKey);
-        this.game.events.on('blur', pause);
+        const onBlur = () => pause();
+        this.game.events.on('blur', onBlur);
         const onResume = () => { this.pausing = false; };
         this.events.on('resume', onResume);
         keyboard?.on('keydown-DOWN', onKey);
@@ -388,7 +415,7 @@ export class Game extends Scene {
             keyboard?.off('keydown-P', onPauseKey);
             keyboard?.off('keydown-ESC', onPauseKey);
             keyboard?.removeCapture(['DOWN', 'UP', 'LEFT', 'RIGHT', 'P', 'ESC']);
-            this.game.events.off('blur', pause);
+            this.game.events.off('blur', onBlur);
             this.events.off('resume', onResume);
             this.input.off('pointerdown', launch);
         });
@@ -552,7 +579,9 @@ export class Game extends Scene {
         }
         this.streakText.setText(`CATCH STREAK  ${this.round.catchStreak}\nCurrent bonus: +$${this.round.currentStreakBonus}`);
         this.dynamiteInventory.update(this.round.dynamite);
-        this.scoreText.setText(`MONEY  $${this.round.money}`);
+        this.scoreText.setText(`$${this.round.money.toLocaleString('en-US')}`);
+        this.scoreText.setScale(Math.min(1, 168 / this.scoreText.width));
+        this.progressText.setY(this.round.won ? 12 : 20);
         this.progressText.setText(`LEVEL GOLD  $${this.round.score} / $${this.round.target}`);
         this.mineClock.update(this.round.remaining, this.round.finished && this.claw.hasPendingCatch);
     }
