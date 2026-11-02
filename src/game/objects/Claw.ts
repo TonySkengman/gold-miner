@@ -100,8 +100,11 @@ export class Claw {
         this.dynamite = null;
         const blasted = this.caught;
         blasted.destroy();
-        if (this.thrownPowderScale > 0) {
-            const radius = (blasted.isExplosive ? TNT_BLAST_RADIUS * 1.5 : dynamiteBlastRadius(blasted.radius)) * this.thrownPowderScale;
+        const areaBlast = this.thrownPowderScale > 0 || blasted.isExplosive;
+        if (areaBlast) {
+            const radius = this.thrownPowderScale > 0
+                ? (blasted.isExplosive ? TNT_BLAST_RADIUS * 1.5 : dynamiteBlastRadius(blasted.radius)) * this.thrownPowderScale
+                : TNT_BLAST_RADIUS;
             detonateArea(blasted.x, blasted.y, radius, objects,
                 (blastX, blastY, radius) => showBarrelExplosion(this.scene, blastX, blastY, radius),
                 deposit => releaseGemDeposit(this.scene, deposit, objects));
@@ -111,7 +114,7 @@ export class Claw {
         this.caught = null;
         this.perfectHaul = false;
         this.perfectBonus = 0;
-        if (this.thrownPowderScale > 0) return;
+        if (areaBlast) return;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);
