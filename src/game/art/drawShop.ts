@@ -121,6 +121,11 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.fillRoundedRect(-13, 8, 26, 20, 6).strokeRoundedRect(-13, 8, 26, 20, 6);
     } else if (kind === 'luck' || kind === 'momentum') {
         drawMineVial(g, kind, 2.4);
+    } else if (kind === 'safetyGrip') {
+        g.fillStyle(0x547f3b).lineStyle(4, 0x304d2c).beginPath()
+            .moveTo(-32, -36).lineTo(32, -36).lineTo(28, 7).lineTo(0, 37)
+            .lineTo(-28, 7).closePath().fillPath().strokePath();
+        g.lineStyle(7, 0xd4efb8).lineBetween(-17, -3, -4, 11).lineBetween(-4, 11, 20, -17);
     } else if (kind === 'blastPowder') {
         // A sealed powder tin with an expanding blast emblem.
         g.fillStyle(0x754936).lineStyle(3, 0x39291f)

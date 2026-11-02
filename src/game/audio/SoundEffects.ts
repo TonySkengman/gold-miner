@@ -93,7 +93,7 @@ class SoundEffects {
 
 export const soundEffects = new SoundEffects();
 
-export function addSoundButton(scene: Scene, x: number, y: number): void {
+export function addSoundButton(scene: Scene, x: number, y: number) {
     const button = scene.add.text(x, y, '', {
         fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
         padding: { x: 12, y: 8 }
@@ -106,4 +106,5 @@ export function addSoundButton(scene: Scene, x: number, y: number): void {
         soundEffects.toggleMute();
         refresh();
     });
+    return button;
 }

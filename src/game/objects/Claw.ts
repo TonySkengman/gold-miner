@@ -12,7 +12,7 @@ type ClawMode = 'idle' | 'extending' | 'retracting';
 export class Claw {
     blastRadius = TNT_BLAST_RADIUS;
     powderRadiusScale = 0;
-    private overdriveActive = false;
+    safetyGrip = false;
     private mode: ClawMode = 'idle';
     private angle = -0.8;
     private swingDirection = 1;
@@ -41,8 +41,6 @@ export class Claw {
 
     get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
 
-    get isOverdriving(): boolean { return this.overdriveActive && this.isHauling; }
-
     get hauledDeposit(): Collectable | null {
         return this.isHauling && this.caught?.gemDeposit ? this.caught : null;
     }
@@ -51,7 +49,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite
-            ? 275.4 * (this.caught && this.overdriveActive ? 2 : 1) * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
+            ? 275.4 * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
     resize(oldWidth: number): void {
@@ -65,18 +63,10 @@ export class Claw {
 
     launch(): void {
         if (this.mode === 'idle') {
-            this.overdriveActive = false;
             this.distanceReturnMultiplier = 1;
             this.mode = 'extending';
             soundEffects.play('launch');
         }
-    }
-
-    /** Return true only when a stick should be spent. Works during the final haul. */
-    activateOverdrive(): boolean {
-        if (!this.isHauling || this.overdriveActive) return false;
-        this.overdriveActive = true;
-        return true;
     }
 
     throwDynamite(): boolean {
@@ -110,7 +100,6 @@ export class Claw {
         // Release caught treasure after the area blast so the new loot survives it.
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
-        this.overdriveActive = false;
         this.perfectHaul = false;
         this.perfectBonus = 0;
         if (this.blastRadius > TNT_BLAST_RADIUS) return;
@@ -159,7 +148,7 @@ export class Claw {
                 (hitLength - 30) / Math.max(1, baselineReturnDistance));
             if (first) {
                 this.length = hitLength;
-                if (first.isExplosive) {
+                if (first.isExplosive && !this.safetyGrip) {
                     this.mode = 'retracting';
                     detonateBarrel(first, objects, (x, y) => showBarrelExplosion(this.scene, x, y, this.blastRadius),
                         deposit => releaseGemDeposit(this.scene, deposit, objects), this.blastRadius);
@@ -173,6 +162,14 @@ export class Claw {
                     return;
                 }
                 first.prepareCatch();
+                if (first.isExplosive) {
+                    const label = this.scene.add.text(first.x, first.y - first.radius - 25, 'DISARMED • +1 DYNAMITE ON DELIVERY', {
+                        fontFamily: 'Arial', fontSize: 15, fontStyle: 'bold', color: '#bcf58b',
+                        backgroundColor: '#253d29', padding: { x: 8, y: 4 }
+                    }).setOrigin(0.5).setDepth(17);
+                    this.scene.tweens.add({ targets: label, alpha: 0, y: label.y - 20, delay: 650,
+                        duration: 350, onComplete: () => label.destroy() });
+                }
                 // Snapshot both boosts before spending a charge, so the final charged haul stays boosted.
                 this.haulingStrength = this.strengthBoost();
                 const across = Math.abs((first.x - this.origin.x) * Math.cos(this.angle)
@@ -215,7 +212,6 @@ export class Claw {
                     this.onCollect(this.caughtValue, this.caught, this.perfectBonus);
                     this.caught.destroy();
                     this.caught = null;
-                    this.overdriveActive = false;
                     this.perfectHaul = false;
                 }
                 this.mode = 'idle';
@@ -268,6 +264,16 @@ export class Claw {
             this.graphic.lineStyle(4, 0xbac9cd);
             this.graphic.beginPath().moveTo(x, y).lineTo(a.x, a.y).lineTo(b.x, b.y).lineTo(c.x, c.y).strokePath();
             this.graphic.fillStyle(0x6b7e87).fillCircle(a.x, a.y, 3);
+        }
+        if (this.safetyGrip || this.caught?.isExplosive) {
+            // A shield beside the claw shows safe collection (and an already disarmed haul).
+            const sx = x + 24;
+            const sy = y - 20;
+            this.graphic.fillStyle(0x547f3b).lineStyle(2, 0xbcf58b).beginPath()
+                .moveTo(sx - 9, sy - 8).lineTo(sx + 9, sy - 8).lineTo(sx + 8, sy + 3)
+                .lineTo(sx, sy + 10).lineTo(sx - 8, sy + 3).closePath().fillPath().strokePath();
+            this.graphic.lineStyle(2, 0xfff3cc).lineBetween(sx - 4, sy, sx - 1, sy + 3)
+                .lineBetween(sx - 1, sy + 3, sx + 5, sy - 4);
         }
         this.graphic.fillStyle(0x3d494f).fillCircle(x, y, 8);
         this.graphic.fillStyle(0x94a8b0).fillCircle(x, y, 5);

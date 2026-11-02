@@ -20,7 +20,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 | Down Arrow or click the playfield | Launch the claw |
 | Up Arrow | Throw dynamite at a caught object |
 | Left Arrow or click Blast Powder | Toggle Blast Powder ON/OFF when owned |
-| Right Arrow | Spend one dynamite to activate winch overdrive: immediately double retrieval speed for the current catch |
+| Right Arrow or click Safety Grip | Toggle safe TNT collection ON/OFF when unlocked |
 | P or Esc | Pause or resume |
 | Finish Level | End the level immediately |
 | Auto Finish Level | Toggle automatic finishing when the gold target is reached (starts OFF) |
@@ -73,6 +73,7 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
 | Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
 | Gold polish | +15% gold nugget value per tier; stacks with Gold Rush | $1,250 / $2,500 / $3,750 |
+| Safety Grip | Unlock safe TNT barrel/rat collection for +1 dynamite per delivery; starts OFF each round, lasts for the run | $1,500 |
 | Blast Powder | Tier 1 unlocks size-based dynamite blasts and +50% TNT radius; tiers 2/3 add +20%/+40% radius over tier 1; lasts for the run | $1,500 / $3,000 / $4,500 |
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
@@ -86,13 +87,13 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Streak vial | Multiplies streak bonuses by 1.5 for the full next level; mine vials boost to x2 for 15 seconds | $1,000 |
 | Life vial | Immediately restores one life, up to five | $3,000 |
 
-Winch, Gem Polish, Gold Polish, Blast Powder, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, Momentum, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch, Gem Polish, Gold Polish, Blast Powder, and Vial Belt upgrades last for the run, with three tiers each. Safety Grip also lasts for the run, with a single unlock. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, Momentum, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
 
-### Dynamite Overdrive
+### Safety Grip
 
-Dynamite Overdrive is available from the start without a shop unlock. Press **Right Arrow** at any point while hauling a caught item to spend one dynamite and immediately double retrieval speed for the rest of that haul. It stacks with Strength, winch upgrades, perfect-catch speed and distance compensation. The caught item survives and retains its value, perfect bonus and streak payout. The miner tosses a stick into an engine beside the winch. The engine bangs, shakes and puffs smoke, its gears spark, and the winch spins faster. A “DYNAMITE OVERDRIVE! x2” popup confirms activation; the caught object has no exhaust trail.
+Safety Grip is a **$1,500 permanent unlock for the current run**, with one tier. Press **Right Arrow** or click its shield in the dynamite HUD to toggle it. It starts **OFF** each round and retry. When ON, claw contact safely disarms TNT barrels and TNT rats instead of detonating them. Each safely delivered barrel or rat awards **one dynamite stick**, no money, and neither advances nor breaks the catch streak. The final haul still pays its reward after the timer reaches zero.
 
-Only one boost is allowed per catch; repeated presses cost nothing. Aiming, extending, empty returns, and a destructive dynamite throw already in flight cannot be boosted. It also works during the final haul at zero seconds. Pressing Up Arrow afterward can still destroy the boosted catch at the cost of another stick, subject to the normal destructive-throw timer rules. Boosts reset after delivery or destruction and never affect later catches. Blast Powder affects destructive explosions only, not overdrive strength.
+A shield on the claw and a disarm message confirm safe collection. Switching OFF after catching TNT does not re-arm the held object. Free TNT still detonates in nearby explosions. Safety Grip and Blast Powder work independently: with both ON, safely catch TNT and either deliver it for a stick or sacrifice it using Up Arrow for a Blast Powder explosion. Destroying a held TNT object awards no dynamite. Toggling Safety Grip costs no sticks; the unlock survives failed attempts and resets for a new run. Safety Grip replaces Dynamite Overdrive; Right Arrow no longer boosts hauling speed.
 
 ### Blast Powder and Gold Polish
 
@@ -207,7 +208,7 @@ Each game mode now has 30 levels. Levels 1–20 retain their existing configurat
 | 25 | $6,150 | $8,550 | $10,000 |
 | 30 | $7,200 | $10,100 | $11,700 |
 
-Ordinary rats have a 25% chance to carry a visible red TNT bundle, capped at two TNT rats per level in every mode. They move like other rats and detonate on claw contact or in a nearby TNT blast, using the same blast radius and chain reactions as barrels. They award no money; gem-carrying rats are unchanged.
+Ordinary rats have a 25% chance to carry a visible red TNT bundle, capped at two TNT rats per level in every mode. They move like other rats and detonate on claw contact (unless Safety Grip is ON) or in a nearby TNT blast, using the same blast radius and chain reactions as barrels. They award no money; gem-carrying rats are unchanged.
 
 Strength, Gold Rush, time and Streak vials qualify for perfect catches using the same precise-hit threshold as treasure. A perfect vial catch reels in 35% faster for the full haul and shows the perfect-catch feedback; vials award no perfect-catch cash bonus.
 

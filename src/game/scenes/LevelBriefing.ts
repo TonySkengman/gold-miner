@@ -46,13 +46,14 @@ export class LevelBriefing extends Scene {
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
         text(428, `${roundDuration(data.mine, bonuses.extraTime)} SECONDS`, 25, '#bcf58b');
-        text(454, '→ during a haul: spend 1 dynamite to power winch overdrive x2.', 16, '#bcf58b');
+        text(454, 'Safety Grip: → / click toggles safe TNT collection for +1 dynamite.', 16, '#bcf58b');
         text(492, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
         ];
         if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ON\n← / click: toggle` });
+        if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: 'Starts OFF\n→ / click: toggle' });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Cash bags +$200 each' });
         if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+2s per perfect\nUp to +10s' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: '+15 seconds' });

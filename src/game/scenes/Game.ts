@@ -90,6 +90,11 @@ export class Game extends Scene {
             this.round.score += streakBonus + perfectBonus;
             const showValue = (amount: number, label = `+$${amount}`) => this.showCollectionValue(amount,
                 `${label}${perfectBonus > 0 ? `\nPERFECT +$${perfectBonus}` : ''}${streakBonus > 0 ? `\nSTREAK ${this.round.catchStreak}  +$${streakBonus}` : ''}`);
+            if (object.isExplosive) {
+                this.round.dynamite++;
+                showValue(0, '+1 DYNAMITE');
+                return;
+            }
             if (object.kind === 'treasureChest' && object.treasureReward) {
                 showValue(0, this.round.applyTreasureReward(object.treasureReward));
                 this.miner.reactTo(object.kind);
@@ -163,18 +168,18 @@ export class Game extends Scene {
         lifeBar.setData('responsiveRedraw', () => lifeBar.setX(this.statusX));
         this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
         const leftHudStart = this.children.length;
-        this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 124);
+        this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 146);
         let blastEnabled = this.round.upgrades.blastPowder > 0;
         this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
         this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 * this.claw.powderRadiusScale : 1);
-        const blastPanel = this.add.rectangle(32, 158, 300, 66, 0xffedbb).setOrigin(0)
+        const blastPanel = this.add.rectangle(32, 158, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
         this.add.rectangle(42, 158, 280, 1, 0xc29659).setOrigin(0);
-        drawShopProduct(this, 59, 191, 'blastPowder', 0.5);
-        this.add.text(86, 168, 'BLAST POWDER:', {
+        drawShopProduct(this, 59, 180, 'blastPowder', 0.43);
+        this.add.text(86, 160, 'BLAST POWDER  [←]', {
             fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#483126'
         });
-        const blastToggle = this.add.text(86, 192, '', {
+        const blastToggle = this.add.text(86, 179, '', {
             fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#ffffff',
             padding: { x: 8, y: 3 }
         });
@@ -193,6 +198,31 @@ export class Game extends Scene {
         blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
             event.stopPropagation();
             toggleBlastPowder();
+        });
+        this.claw.safetyGrip = false;
+        const safetyPanel = this.add.rectangle(32, 202, 300, 44, 0xffedbb).setOrigin(0)
+            .setInteractive({ useHandCursor: true });
+        this.add.rectangle(42, 202, 280, 1, 0xc29659).setOrigin(0);
+        drawShopProduct(this, 59, 224, 'safetyGrip', 0.4);
+        this.add.text(86, 204, 'SAFETY GRIP  [→]', {
+            fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#483126'
+        });
+        const safetyText = this.add.text(86, 223, '', {
+            fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#ffffff', padding: { x: 8, y: 3 }
+        });
+        const refreshSafetyGrip = () => safetyText
+            .setText(this.round.upgrades.safetyGrip > 0
+                ? `${this.claw.safetyGrip ? 'ON' : 'OFF'} — click / [→]` : 'NOT OWNED — buy in shop')
+            .setBackgroundColor(this.claw.safetyGrip ? '#547f3b' : '#70452a');
+        const toggleSafetyGrip = () => {
+            if (this.ended || this.round.finished || this.round.upgrades.safetyGrip <= 0) return;
+            this.claw.safetyGrip = !this.claw.safetyGrip;
+            refreshSafetyGrip();
+        };
+        refreshSafetyGrip();
+        safetyPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            event.stopPropagation();
+            toggleSafetyGrip();
         });
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
@@ -230,22 +260,7 @@ export class Game extends Scene {
         if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
         buffKinds.push('streakVial');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
-        addSoundButton(this, 32, 232);
-        const pause = () => {
-            if (this.ended || this.pausing || this.scene.isPaused()) return;
-            this.pausing = true;
-            this.scene.launch('PauseMenu');
-            this.scene.pause();
-        };
-        const pauseButton = this.add.text(172, 232, 'Pause [P]', {
-            fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
-            padding: { x: 12, y: 8 }
-        }).setInteractive({ useHandCursor: true });
-        pauseButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
-            event.stopPropagation();
-            pause();
-        });
-        // Keep controls and buffs together to the left of the clock, including on resize.
+        // Keep equipment and buffs together to the left of the clock, including on resize.
         const leftHudItems = this.children.list.slice(leftHudStart) as (GameObjects.GameObject & GameObjects.Components.Transform)[];
         for (const item of leftHudItems) {
             item.x -= 32;
@@ -254,10 +269,25 @@ export class Game extends Scene {
         const leftHud = this.add.container(32, 100, leftHudItems);
         const layoutLeftHud = () => {
             const clockX = Math.max(372, WORLD.centerX - 210);
-            leftHud.setScale(Math.min(1, (clockX - 70 - 32) / 650));
+            leftHud.setScale(Math.min(1, (clockX - 70 - 32) / 650, (WORLD.groundY - 100) / 146));
         };
         leftHud.setData('responsiveRedraw', layoutLeftHud);
         layoutLeftHud();
+        addSoundButton(this, WORLD.width - 284, 24).setData('responsiveAnchor', 'right');
+        const pause = () => {
+            if (this.ended || this.pausing || this.scene.isPaused()) return;
+            this.pausing = true;
+            this.scene.launch('PauseMenu');
+            this.scene.pause();
+        };
+        const pauseButton = this.add.text(WORLD.width - 32, 24, 'Pause [P]', {
+            fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
+            padding: { x: 12, y: 8 }
+        }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setDepth(20).setInteractive({ useHandCursor: true });
+        pauseButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            event.stopPropagation();
+            pause();
+        });
         const finishButtonsX = levelPanel.x - levelPanel.width - 18;
         const finishButton = this.add.text(finishButtonsX, 112, 'Finish Level', {
             fontFamily: 'Arial', fontSize: 22, fontStyle: 'bold', color: '#ffffff',
@@ -288,7 +318,7 @@ export class Game extends Scene {
             updateAutoFinishButton();
         });
         this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
-        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: Launch claw   •   ↑: Dynamite   •   ←: Blast Powder   •   →: Overdrive (1 stick)', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: Launch claw   •   ↑: Dynamite   •   ←: Blast Powder   •   →: Safety Grip', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
         const launch = () => { soundEffects.unlock(); if (!this.ended && !this.round.finished) this.claw.launch(); };
         const keyboard = this.input.keyboard;
         const onKey = (event: KeyboardEvent) => { if (!event.repeat) launch(); };
@@ -300,20 +330,12 @@ export class Game extends Scene {
                 this.updateHud();
             }
         };
-        const onOverdrive = (event: KeyboardEvent) => {
-            soundEffects.unlock();
-            if (event.repeat || this.ended || this.round.dynamite <= 0) return;
-            if (this.claw.activateOverdrive()) {
-                this.round.dynamite--;
-                this.miner.activateOverdrive();
-                this.updateHud();
-            }
-        };
+        const onSafetyGrip = (event: KeyboardEvent) => { if (!event.repeat) toggleSafetyGrip(); };
         const onPauseKey = (event: KeyboardEvent) => { if (!event.repeat) pause(); };
         const onBlastPowder = (event: KeyboardEvent) => { if (!event.repeat) toggleBlastPowder(); };
         keyboard?.addCapture(['DOWN', 'UP', 'LEFT', 'RIGHT', 'P', 'ESC']);
         keyboard?.on('keydown-LEFT', onBlastPowder);
-        keyboard?.on('keydown-RIGHT', onOverdrive);
+        keyboard?.on('keydown-RIGHT', onSafetyGrip);
         keyboard?.on('keydown-P', onPauseKey);
         keyboard?.on('keydown-ESC', onPauseKey);
         this.game.events.on('blur', pause);
@@ -326,7 +348,7 @@ export class Game extends Scene {
             keyboard?.off('keydown-DOWN', onKey);
             keyboard?.off('keydown-UP', onDynamite);
             keyboard?.off('keydown-LEFT', onBlastPowder);
-            keyboard?.off('keydown-RIGHT', onOverdrive);
+            keyboard?.off('keydown-RIGHT', onSafetyGrip);
             keyboard?.off('keydown-P', onPauseKey);
             keyboard?.off('keydown-ESC', onPauseKey);
             keyboard?.removeCapture(['DOWN', 'UP', 'LEFT', 'RIGHT', 'P', 'ESC']);
@@ -362,7 +384,7 @@ export class Game extends Scene {
                 this.round.remaining > 0 ? this.round.remaining : Infinity);
             for (const object of this.objects) object.update(step, this.objects);
             this.claw.update(step, this.objects);
-            this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight, this.claw.isOverdriving);
+            this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight);
             this.round.update(step);
             pending -= step;
             if (this.autoFinishLevel && this.round.won) break;
