@@ -167,6 +167,10 @@ export class Game extends Scene {
         const lifeBar = this.add.rectangle(this.statusX, 131, 190, 40, 0xffedbb).setData('responsiveAnchor', 'center');
         lifeBar.setData('responsiveRedraw', () => lifeBar.setX(this.statusX));
         this.livesIcons = drawLives(this, this.statusX, 131, this.round.lives).setData('responsiveIgnore', true);
+        const blastIndicator = drawShopProduct(this, WORLD.centerX - 82, 155, 'blastPowder', 0.45)
+            .setData('responsiveAnchor', 'center').setDepth(8).setVisible(false);
+        const safetyIndicator = drawShopProduct(this, WORLD.centerX + 82, 155, 'safetyGrip', 0.45)
+            .setData('responsiveAnchor', 'center').setDepth(8).setVisible(false);
         const leftHudStart = this.children.length;
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 146);
         let blastEnabled = this.round.upgrades.blastPowder > 0;
@@ -183,10 +187,13 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#ffffff',
             padding: { x: 8, y: 3 }
         });
-        const refreshBlastToggle = () => blastToggle
+        const refreshBlastToggle = () => {
+            blastIndicator.setVisible(blastEnabled);
+            blastToggle
             .setText(this.round.upgrades.blastPowder > 0
                 ? `T${this.round.upgrades.blastPowder} ${blastEnabled ? 'ON' : 'OFF'} — click / [←]` : 'NOT OWNED — buy in shop')
             .setBackgroundColor(blastEnabled ? '#547f3b' : '#70452a');
+        };
         refreshBlastToggle();
         const toggleBlastPowder = () => {
             if (this.ended || this.round.finished || this.round.upgrades.blastPowder <= 0) return;
@@ -210,10 +217,13 @@ export class Game extends Scene {
         const safetyText = this.add.text(86, 223, '', {
             fontFamily: 'Arial', fontSize: 14, fontStyle: 'bold', color: '#ffffff', padding: { x: 8, y: 3 }
         });
-        const refreshSafetyGrip = () => safetyText
+        const refreshSafetyGrip = () => {
+            safetyIndicator.setVisible(this.claw.safetyGrip);
+            safetyText
             .setText(this.round.upgrades.safetyGrip > 0
                 ? `${this.claw.safetyGrip ? 'ON' : 'OFF'} — click / [→]` : 'NOT OWNED — buy in shop')
             .setBackgroundColor(this.claw.safetyGrip ? '#547f3b' : '#70452a');
+        };
         const toggleSafetyGrip = () => {
             if (this.ended || this.round.finished || this.round.upgrades.safetyGrip <= 0) return;
             this.claw.safetyGrip = !this.claw.safetyGrip;

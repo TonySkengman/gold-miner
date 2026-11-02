@@ -265,16 +265,6 @@ export class Claw {
             this.graphic.beginPath().moveTo(x, y).lineTo(a.x, a.y).lineTo(b.x, b.y).lineTo(c.x, c.y).strokePath();
             this.graphic.fillStyle(0x6b7e87).fillCircle(a.x, a.y, 3);
         }
-        if (this.safetyGrip || this.caught?.isExplosive) {
-            // A shield beside the claw shows safe collection (and an already disarmed haul).
-            const sx = x + 24;
-            const sy = y - 20;
-            this.graphic.fillStyle(0x547f3b).lineStyle(2, 0xbcf58b).beginPath()
-                .moveTo(sx - 9, sy - 8).lineTo(sx + 9, sy - 8).lineTo(sx + 8, sy + 3)
-                .lineTo(sx, sy + 10).lineTo(sx - 8, sy + 3).closePath().fillPath().strokePath();
-            this.graphic.lineStyle(2, 0xfff3cc).lineBetween(sx - 4, sy, sx - 1, sy + 3)
-                .lineBetween(sx - 1, sy + 3, sx + 5, sy - 4);
-        }
         this.graphic.fillStyle(0x3d494f).fillCircle(x, y, 8);
         this.graphic.fillStyle(0x94a8b0).fillCircle(x, y, 5);
         this.graphic.fillStyle(0xe2e9e7).fillCircle(x - 1, y - 1, 2);

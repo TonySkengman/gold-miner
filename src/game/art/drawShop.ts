@@ -122,15 +122,16 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
     } else if (kind === 'luck' || kind === 'momentum') {
         drawMineVial(g, kind, 2.4);
     } else if (kind === 'safetyGrip') {
-        g.fillStyle(0x547f3b).lineStyle(4, 0x304d2c).beginPath()
+        g.fillStyle(0x547f3b).lineStyle(5, 0xe0f5b8).beginPath()
             .moveTo(-32, -36).lineTo(32, -36).lineTo(28, 7).lineTo(0, 37)
             .lineTo(-28, 7).closePath().fillPath().strokePath();
         g.lineStyle(7, 0xd4efb8).lineBetween(-17, -3, -4, 11).lineBetween(-4, 11, 20, -17);
     } else if (kind === 'blastPowder') {
         // A sealed powder tin with an expanding blast emblem.
-        g.fillStyle(0x754936).lineStyle(3, 0x39291f)
+        g.fillStyle(0x754936).lineStyle(5, 0xffe6a6)
             .fillRoundedRect(-30, -30, 60, 66, 7).strokeRoundedRect(-30, -30, 60, 66, 7);
-        g.fillStyle(0xbba176).fillRoundedRect(-34, -38, 68, 13, 3);
+        g.fillStyle(0xbba176).fillRoundedRect(-34, -38, 68, 13, 3)
+            .strokeRoundedRect(-34, -38, 68, 13, 3);
         g.fillStyle(0xffd36a).fillCircle(0, 3, 21);
         g.lineStyle(3, 0xa84626).strokeCircle(0, 3, 15);
         for (let i = 0; i < 8; i++) {

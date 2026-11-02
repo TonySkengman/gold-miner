@@ -178,7 +178,7 @@ export class UpgradeShop extends Scene {
             refreshers.push(() => {
                 const maxed = itemSoldOut(kind, upgrades, lives);
                 const price = upgradePrice(kind, upgrades);
-                tier.setText(isPermanentUpgrade(kind) ? kind === 'safetyGrip' ? (upgrades.safetyGrip > 0 ? 'UNLOCKED' : 'LOCKED') : `TIER ${upgrades[kind]} / ${upgradeLimit(kind)}`
+                tier.setText(isPermanentUpgrade(kind) ? kind === 'safetyGrip' ? (upgrades.safetyGrip > 0 ? 'OWNED' : 'NOT OWNED') : `TIER ${upgrades[kind]} / ${upgradeLimit(kind)}`
                     : kind === 'lifeVial' ? `LIVES: ${lives} / 5` : kind === 'dynamite' ? `OWNED: ${dynamite}` : `ROUNDS: ${bonuses[kind]}`);
                 tier.setScale(Math.min(1, (cardWidth - 12) / tier.width));
                 priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'FULL') : `BUY $${price}`);
