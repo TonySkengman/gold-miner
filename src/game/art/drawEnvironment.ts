@@ -108,16 +108,26 @@ export function drawEnvironment(scene: Scene, layout?: LayoutKind, mine: MineKin
         g.lineStyle(2, 0x262c30).lineBetween(x - 8, 170, x + 8, 170);
     }
     g.restore();
-    // Rough ledges leave the centre open for the descending rope.
-    g.fillStyle(0x302e2b).fillRect(0, 235, WORLD.centerX - 48, 20).fillRect(WORLD.centerX + 48, 235, WORLD.centerX - 48, 20);
-    g.lineStyle(3, 0x8f7960).lineBetween(0, 236, WORLD.centerX - 49, 236).lineBetween(WORLD.centerX + 49, 236, WORLD.width, 236);
+    // Keep the opening clear at the bottom of the ledge, even at the widest shot.
+    // Extra clearance leaves room for the claw fingers as well as the rope.
+    const ledgeTop = 235;
+    const ledgeBottom = 255;
+    const openingHalfWidth = (ledgeBottom - WORLD.pivotY) * Math.tan(WORLD.maxAngle) + 28;
+    const openingLeft = WORLD.centerX - openingHalfWidth;
+    const openingRight = WORLD.centerX + openingHalfWidth;
+    g.fillStyle(0x302e2b).fillRect(0, ledgeTop, openingLeft, ledgeBottom - ledgeTop)
+        .fillRect(openingRight, ledgeTop, WORLD.width - openingRight, ledgeBottom - ledgeTop);
+    g.lineStyle(3, 0x8f7960).lineBetween(0, ledgeTop + 1, openingLeft, ledgeTop + 1)
+        .lineBetween(openingRight, ledgeTop + 1, WORLD.width, ledgeTop + 1);
 
     g.save().translateCanvas(WORLD.centerX - 512, 0);
-    // Timber platform and braces frame the centered rope pivot.
-    g.lineStyle(9, 0x543824).lineBetween(464, 236, 494, 209).lineBetween(560, 236, 530, 209);
+    // Splayed braces meet the ledges outside the full rope swing.
+    g.lineStyle(9, 0x543824).lineBetween(512 - openingHalfWidth - 8, 236, 452, 203)
+        .lineBetween(512 + openingHalfWidth + 8, 236, 572, 203);
     g.fillStyle(0x70472e).fillRoundedRect(458, 204, 108, 14, 3);
     g.fillStyle(0xbb8750).fillRect(460, 204, 104, 4);
-    g.fillStyle(0x593c2b).fillRect(468, 218, 10, 20).fillRect(546, 218, 10, 20);
+    g.fillStyle(0x593c2b).fillRect(512 - openingHalfWidth - 13, 218, 10, 20)
+        .fillRect(512 + openingHalfWidth + 3, 218, 10, 20);
     g.restore();
 
     };
