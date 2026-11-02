@@ -59,7 +59,7 @@ Active effects appear beside the clock. Temporary timers stop while paused. Shop
     ['Safety Grip & Blast Powder', `Safety Grip • $1,500, one unlock for the run
 Starts ON and remembers your choice between levels and retries. Choose before launching: it cannot toggle until the claw returns to idle.
 
-Catching a TNT barrel or TNT rat holds the claw still for 5 seconds while disarming. A countdown shows progress; the level timer keeps running. Afterward, haul it to the surface for +1 dynamite, no money. TNT remains neutral to streaks. You can sacrifice the held TNT with dynamite instead, but receive no recovered stick. Free TNT can still explode in nearby blasts.
+Catching a TNT barrel or TNT rat holds the claw still for 3.5 seconds while disarming. A countdown shows progress; the level timer keeps running. Afterward, haul it to the surface for +1 dynamite, no money. TNT remains neutral to streaks. You can sacrifice the held TNT with dynamite instead, but receive no recovered stick. Free TNT can still explode in nearby blasts.
 
 Blast Powder • three tiers
 Starts ON when purchased and remembers your choice. It affects thrown dynamite, with the setting and tier locked in at throw time. Tier 1 creates a blast 2.5 times the held object's radius; caught TNT gets a 187.5-pixel blast. Tiers 2 and 3 increase these radii by 20% and 40% over tier 1. Contact TNT and chain reactions retain their normal 125-pixel radius.
