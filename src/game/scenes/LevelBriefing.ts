@@ -83,7 +83,6 @@ export class LevelBriefing extends Scene {
                 fontFamily: 'Arial', fontSize: wrapped ? 12 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
-        if ((data.upgrades?.blastPowder ?? 0) > 0) text(wrapped ? 765 : 729, 'Blast Powder: bigger caught items = bigger blasts. ← / click to toggle.', 16, '#bcf58b');
         text(wrapped ? 790 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
         text(wrapped ? 816 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
