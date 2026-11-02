@@ -18,8 +18,8 @@ export class MainMenu extends Scene {
         this.add.text(WORLD.centerX, 385, `${LEVELS.length} caves. One fortune to make.`, { fontFamily: 'Arial', fontSize: 25, color: '#fff3cc' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 450, 'HOW TO PLAY', { fontFamily: 'Arial', fontSize: 25, fontStyle: 'bold', color: '#ffda69' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 605,
-            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\nP / ESC    Pause or resume\n\nReach the level target before time runs out.\nFinish Level ends the round early. Below target means a loss.\nBlast gem-studded rocks to scatter treasure you can catch.\nYou have 3 lives per run. Each failed level costs one.',
-            { fontFamily: 'Arial', fontSize: 21, color: '#fff3cc', align: 'center', lineSpacing: 10 }
+            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\n←    Toggle Blast Powder (when owned)\nP / ESC    Pause or resume\n\nReach the level target before time runs out.\nFinish Level ends the round early. Below target means a loss.\nBlast gem-studded rocks to scatter treasure you can catch.\nBlast Powder: bigger caught items make bigger dynamite blasts.\nYou have 3 lives per run. Each failed level costs one.',
+            { fontFamily: 'Arial', fontSize: 20, color: '#fff3cc', align: 'center', lineSpacing: 7 }
         ).setOrigin(0.5);
         let starting = false;
         menuButton(this, WORLD.centerX, 817, 'START NEW GAME', () => {

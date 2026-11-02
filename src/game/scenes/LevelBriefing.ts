@@ -32,7 +32,7 @@ export class LevelBriefing extends Scene {
         const layout = LAYOUTS[config.layout];
         const bonuses = { ...emptyBonuses(), ...data.bonuses };
         drawEnvironment(this, config.layout, data.mine);
-        this.add.rectangle(WORLD.centerX, 480, 840, 820, 0x211f1d, 0.97).setStrokeStyle(4, 0xc29659);
+        const briefingPanel = this.add.rectangle(WORLD.centerX, 480, 840, 820, 0x211f1d, 0.97).setStrokeStyle(4, 0xc29659);
         const text = (y: number, label: string, size = 22, color = '#fff3cc') =>
             this.add.text(WORLD.centerX, y, label, {
                 fontFamily: 'Arial', fontSize: size, color, align: 'center',
@@ -51,7 +51,7 @@ export class LevelBriefing extends Scene {
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
         ];
-        if (bonuses.blastPowder > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: 'Dynamite area blast\nTNT radius +50%' });
+        if (bonuses.blastPowder > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: 'Area blast ON\n← / click: toggle' });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Cash bags +$200 each' });
         if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+2s per perfect\nUp to +10s' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: '+15 seconds' });
@@ -61,24 +61,31 @@ export class LevelBriefing extends Scene {
         if (bonuses.goldRush > 0) prepared.push({ kind: 'goldRush', name: 'Gold Rush vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} gold catches +50%` });
         text(533, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
         const cardTop = 564;
-        const cardHeight = 136;
-        const spacing = Math.min(190, 760 / prepared.length);
+        const wrapped = prepared.length > 5;
+        const columns = Math.min(5, prepared.length);
+        const cardHeight = wrapped ? 112 : 136;
+        const spacing = Math.min(190, 760 / columns);
+        if (wrapped) briefingPanel.setSize(840, 900);
         prepared.forEach((item, index) => {
-            const x = WORLD.centerX + (index - (prepared.length - 1) / 2) * spacing;
-            this.add.rectangle(x, cardTop + cardHeight / 2, spacing - 14, cardHeight, 0x3c3329).setStrokeStyle(1, 0x8e603c);
-            this.add.text(x, cardTop + 18, item.name, {
-                fontFamily: 'Arial', fontSize: prepared.length > 5 ? 14 : 18, fontStyle: 'bold', color: '#ffda69', align: 'center', wordWrap: { width: spacing - 20 }
-            }).setOrigin(0.5);
-            drawShopProduct(this, x, cardTop + 59, item.kind, 0.4);
-            this.add.text(x, cardTop + 106, item.detail, {
-                fontFamily: 'Arial', fontSize: prepared.length > 5 ? 13 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
-            }).setOrigin(0.5);
+            const row = Math.floor(index / columns);
+            const rowCount = Math.min(columns, prepared.length - row * columns);
+            const x = WORLD.centerX + (index % columns - (rowCount - 1) / 2) * spacing;
+            const top = cardTop + row * (cardHeight + 8);
+            this.add.rectangle(x, top + cardHeight / 2, spacing - 14, cardHeight, 0x3c3329).setStrokeStyle(1, 0x8e603c);
+            this.add.text(x, top + (wrapped ? 6 : 18), item.name, {
+                fontFamily: 'Arial', fontSize: wrapped ? 14 : 18, fontStyle: 'bold', color: '#ffda69', align: 'center', wordWrap: { width: spacing - 20 }
+            }).setOrigin(0.5, wrapped ? 0 : 0.5);
+            drawShopProduct(this, x, top + (wrapped ? 49 : 59), item.kind, wrapped ? 0.3 : 0.4);
+            this.add.text(x, top + (wrapped ? 77 : 106), item.detail, {
+                fontFamily: 'Arial', fontSize: wrapped ? 12 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
+            }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
-        text(cardTop + cardHeight + 34, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
-        text(775, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
+        if (bonuses.blastPowder > 0) text(wrapped ? 805 : 729, 'Blast Powder: bigger caught items = bigger blasts. Starts ON; ← / click to toggle.', 16, '#bcf58b');
+        text(wrapped ? 835 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
+        text(wrapped ? 866 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
         let starting = false;
-        menuButton(this, WORLD.centerX, 840, 'START MINING', () => {
+        menuButton(this, WORLD.centerX, wrapped ? 908 : 850, 'START MINING', () => {
             if (starting) return;
             starting = true;
             soundEffects.unlock();

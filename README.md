@@ -19,6 +19,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 | --- | --- |
 | Down Arrow or click the playfield | Launch the claw |
 | Up Arrow | Throw dynamite at a caught object |
+| Left Arrow or click Blast Powder | Toggle Blast Powder ON/OFF when owned |
 | P or Esc | Pause or resume |
 | Finish Level | End the level immediately |
 | Auto Finish Level | Toggle automatic finishing when the gold target is reached (starts OFF) |
@@ -28,9 +29,9 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 
 Reach each level’s earnings target within 60 seconds, or 90 seconds in Gold Basin. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $7,200 on level 30 in Treasure Hollow (other modes apply their own target scaling). Start with three lives; failing a level costs one life, and losing all lives ends the run unless you buy a life vial in the post-level shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
 
-**Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Every completed attempt takes you to the shop, whether you pass or fail. Passing advances to the next level; failing costs a life and lets you restock before retrying the same layout with your restored starting money and supplies. At zero lives, buy a life vial to retry or end the run. Clearing the final level also opens the shop before the final results.
+**Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Every completed attempt takes you to the shop, whether you pass or fail. Passing advances to the next level; failing costs a life and lets you restock before retrying the same layout with your starting balance plus 50% of the failed level’s earnings and restored starting supplies. At zero lives, buy a life vial to retry or end the run. Clearing the final level also opens the shop before the final results.
 
-Money and unused dynamite carry over between levels, but each level requires fresh earnings toward its target. Start with three dynamite sticks; buy replacements in the shop. Retrying a failed level restores its original layout, object values, rat starting positions and movement settings, as well as the money, dynamite, and purchased bonuses you had at its start. Mystery bag rewards also stay the same on retries. New games generate fresh layouts.
+Money and unused dynamite carry over between levels, but each level requires fresh earnings toward its target. Start with three dynamite sticks; buy replacements in the shop. Retrying a failed level restores its original layout, object values, rat starting positions and movement settings, as well as the dynamite and purchased bonuses you had at its start. You keep your starting balance plus 50% of the failed level’s new earnings, including bonus cash. Mystery bag rewards also stay the same on retries. New games generate fresh layouts.
 
 ## Bonus milestones
 
@@ -70,6 +71,8 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | --- | --- | --- |
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
 | Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
+| Gold polish | +15% gold nugget value per tier; stacks with Gold Rush | $1,250 / $2,500 / $3,750 |
+| Blast Powder | One-round size-based dynamite area blasts and +50% TNT radius; toggle with Left Arrow or click | $1,500 |
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
 | Dynamite | One additional stick | $750 |
@@ -78,11 +81,19 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Time vial | Adds 15 seconds to the next level | $1,000 |
 | Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
 | Prospector’s Lens | Reveals cash-bag values, mystery-bag contents, and treasure-chest rewards for one round | $1,500 |
-| Vial Belt | +1 Strength/Gold Rush catch and +5 seconds to caught Streak vials per tier; lasts for the run | $1,000 / $2,000 / $3,000 |
+| Vial Belt | +1 Strength/Gold Rush catch and +5 seconds to caught Streak vials per tier; lasts for the run | $2,000 / $3,500 / $5,000 |
 | Streak vial | Multiplies streak bonuses by 1.5 for the full next level; mine vials boost to x2 for 15 seconds | $1,000 |
 | Life vial | Immediately restores one life, up to five | $3,000 |
 
-Winch, gem-polish, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch, Gem Polish, Gold Polish, and Vial Belt upgrades last for the run, with three tiers each. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, Momentum, Blast Powder, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+
+### Blast Powder and Gold Polish
+
+Blast Powder starts ON when a stocked charge is active. Press **Left Arrow** or click its toggle in the combined dynamite/Blast Powder HUD to switch it ON or OFF. Active buffs occupy a separate column beside this panel. Switching OFF does not save the round’s charge; failed attempts restore starting supplies like other round consumables.
+
+With Blast Powder ON, thrown dynamite destroys the caught item and blasts nearby free objects. The blast radius is **2.5 times the caught item’s radius**: small gold produces a 37.5-pixel blast, medium gold 80 pixels, large gold 120 pixels, and giant gold 180 pixels. Nearby TNT barrels and TNT rats trigger chain reactions with a boosted radius of 187.5 pixels (normally 125). Explosion visuals match their damage radius. Destroyed objects award no money; blasted gem deposits release their remaining treasure after the explosions so the released loot survives. With Blast Powder OFF or unowned, thrown dynamite destroys only the caught item, and TNT uses its normal radius.
+
+Gold Polish lasts for the run and adds 15% gold nugget value per tier, up to 45%. It applies to all four nugget sizes, including nuggets released from deposits, and multiplies with Gold Rush. At tier 3, a $200 large nugget pays $290 normally or $435 with Gold Rush, before perfect-catch and streak bonuses. Perfect-catch cash bonuses use the boosted nugget value; Gold Polish does not increase gems, bags, chests, or streak bonuses.
 
 ## Development
 
@@ -147,7 +158,7 @@ Treasure Hollow adds one ordinary rock and one rat at each of levels 7, 16 and 2
 
 Special rocks have their own visible gems in addition to the loose gem pool. Gem-studded rocks contain hidden deposits; combined rocks also have a catchable visible gem. Gem-carrying rats and rewards inside deposits keep their separate rules. Targets and other modes are unchanged.
 
-The selected mode persists through the shop, every cleared level and every retry. Failed attempts restore starting money and supplies and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
+The selected mode persists through the shop, every cleared level and every retry. Failed attempts retain the starting balance plus 50% of new earnings, restore starting supplies, and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
 
 Mine routes also have distinct scenery: Treasure Hollow uses earthy stone, Gold Basin has amber strata, gold seams and timber supports, and Gem Hollow has blue-violet stone, cool lanterns and wall crystals. Gold Basin retains its extra heavy gold, while Gem Hollow replaces extra-density large and giant gold with diamonds and rubies; entrance previews match each environment.
 

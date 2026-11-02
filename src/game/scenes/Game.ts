@@ -179,15 +179,18 @@ export class Game extends Scene {
         });
         const refreshBlastToggle = () => blastToggle
             .setText(this.round.bonuses.blastPowder > 0
-                ? `${blastEnabled ? 'ON' : 'OFF'} — click to toggle` : 'NOT OWNED — buy in shop')
+                ? `${blastEnabled ? 'ON' : 'OFF'} — click / [←]` : 'NOT OWNED — buy in shop')
             .setBackgroundColor(blastEnabled ? '#547f3b' : '#70452a');
         refreshBlastToggle();
-        blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
-            event.stopPropagation();
+        const toggleBlastPowder = () => {
             if (this.ended || this.round.finished || this.round.bonuses.blastPowder <= 0) return;
             blastEnabled = !blastEnabled;
             this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 : 1);
             refreshBlastToggle();
+        };
+        blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            event.stopPropagation();
+            toggleBlastPowder();
         });
         this.strengthText = this.add.text(32, 213, '', {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#bcf58b',
@@ -283,7 +286,7 @@ export class Game extends Scene {
             updateAutoFinishButton();
         });
         this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
-        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: drop claw   •   ↑: dynamite (gem-studded rocks release treasure)', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: drop claw   •   ↑: dynamite   •   ←: toggle Blast Powder', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
         const launch = () => { soundEffects.unlock(); if (!this.ended && !this.round.finished) this.claw.launch(); };
         const keyboard = this.input.keyboard;
         const onKey = (event: KeyboardEvent) => { if (!event.repeat) launch(); };
@@ -296,7 +299,9 @@ export class Game extends Scene {
             }
         };
         const onPauseKey = (event: KeyboardEvent) => { if (!event.repeat) pause(); };
-        keyboard?.addCapture(['DOWN', 'UP', 'P', 'ESC']);
+        const onBlastPowder = (event: KeyboardEvent) => { if (!event.repeat) toggleBlastPowder(); };
+        keyboard?.addCapture(['DOWN', 'UP', 'LEFT', 'P', 'ESC']);
+        keyboard?.on('keydown-LEFT', onBlastPowder);
         keyboard?.on('keydown-P', onPauseKey);
         keyboard?.on('keydown-ESC', onPauseKey);
         this.game.events.on('blur', pause);
@@ -308,9 +313,10 @@ export class Game extends Scene {
         this.events.once('shutdown', () => {
             keyboard?.off('keydown-DOWN', onKey);
             keyboard?.off('keydown-UP', onDynamite);
+            keyboard?.off('keydown-LEFT', onBlastPowder);
             keyboard?.off('keydown-P', onPauseKey);
             keyboard?.off('keydown-ESC', onPauseKey);
-            keyboard?.removeCapture(['DOWN', 'UP', 'P', 'ESC']);
+            keyboard?.removeCapture(['DOWN', 'UP', 'LEFT', 'P', 'ESC']);
             this.game.events.off('blur', pause);
             this.events.off('resume', onResume);
             this.input.off('pointerdown', launch);

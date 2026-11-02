@@ -11,7 +11,7 @@ export class PauseMenu extends Scene {
         this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.78).setData('responsiveFullWidth', true).setInteractive();
         this.add.rectangle(WORLD.centerX, 480, 720, 480, 0xffedbb).setStrokeStyle(4, 0xc29659);
         this.add.text(WORLD.centerX, 310, 'PAUSED', { fontFamily: 'Arial', fontSize: 46, fontStyle: 'bold', color: '#70452a' }).setOrigin(0.5);
-        this.add.text(WORLD.centerX, 395, '↓ / CLICK: launch    •    ↑: dynamite\nP / ESC: resume\nThe timer and all movement are stopped.', { fontFamily: 'Arial', fontSize: 22, color: '#483126', align: 'center', lineSpacing: 12 }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, 395, '↓ / CLICK: launch    •    ↑: dynamite\n←: toggle Blast Powder (when owned)\nP / ESC: resume\nThe timer and all movement are stopped.', { fontFamily: 'Arial', fontSize: 22, color: '#483126', align: 'center', lineSpacing: 12 }).setOrigin(0.5);
         let leaving = false;
         const resume = () => {
             if (leaving) return;
