@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:8080](http://localhost:8080), or the address shown in your terminal, and click **Start New Game**. Start New Game, Treasure Hollow’s Start Run, and the briefing’s Start Mining share the same screen position, so you can click through the standard-mode setup without moving the cursor.
+Open [http://localhost:8080](http://localhost:8080), or the address shown in your terminal, and click **Start New Game**.
 
 ## Controls
 
@@ -28,13 +28,13 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 
 ## How to play
 
-Open **Game Guide** from the main menu, the level HUD or the pause menu for a scrollable in-game guide to controls, modes, treasure, special rocks, perfect catches, streaks, vials, tools, retries, milestones and every shop item. Shop descriptions and prices come directly from the game’s item definitions. Opening the guide from the level HUD pauses gameplay without opening the pause menu; closing it resumes the level. Opening it from the pause menu keeps the game paused when you close it.
-
 Reach each level’s earnings target within 60 seconds, or 90 seconds in Gold Basin. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $7,200 on level 30 in Treasure Hollow (other modes apply their own target scaling). Start with three lives; failing a level costs one life, and losing your last life ends the run immediately without visiting the shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
 
 **Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Completed attempts take you to the shop unless you fail on your last life. Passing advances to the next level; failing costs a life and lets you restock before retrying the same layout with your starting balance plus 50% of the failed level’s earnings and restored starting supplies. At zero lives, the run ends immediately; buy life vials before you lose your last life. Clearing the final level also opens the shop before the final results.
 
 Money and unused dynamite carry over between levels, but each level requires fresh earnings toward its target. Start with three dynamite sticks; buy replacements in the shop. Retrying a failed level restores its original layout, object values, rat starting positions and movement settings, as well as the dynamite and purchased bonuses you had at its start. You keep your starting balance plus 50% of the failed level’s new earnings, including bonus cash. Mystery bag rewards also stay the same on retries. New games generate fresh layouts.
+
+Open **Game Guide** from the main menu, the level HUD or the pause menu for a scrollable in-game guide to controls, modes, treasure, special rocks, perfect catches, streaks, vials, tools, retries, milestones and every shop item. Shop descriptions and prices come directly from the game’s item definitions. Opening the guide from the level HUD pauses gameplay without opening the pause menu; closing it resumes the level. Opening it from the pause menu keeps the game paused when you close it.
 
 ## Bonus milestones
 
@@ -151,7 +151,7 @@ Before starting a run, choose a game mode. It stays fixed for every level and re
 | Gold Basin | Free | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, then reduced 10%; rounded to $50 |
 | Gem Hollow | Free | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
 
-All three mines are free to enter, including with zero money. Choose between mixed treasure, heavy gold and precision gems. Treasure Hollow valuables use one progression pool, replacing generic base, width and density spawns. Gold nugget counts and values keep their existing rules. Treasure Hollow bonus chances now grow by **two percentage points per level**, capped at 85%; through level 30 they remain below that cap. Starting at 20%, 15% and 10%, they finish at **78%, 73% and 68%**. Triggered bonuses give **+1 at 60%, +2 at 30%, +3 at 10%**. These amount weights stay fixed throughout the run. Rolls happen once before placement retries; retrying a level preserves its seeded rolls.
+All three mines are free to enter. Choose between mixed treasure, heavy gold and precision gems. Treasure Hollow valuables use one progression pool, replacing generic base, width and density spawns. Gold nugget counts and values keep their existing rules. Treasure Hollow bonus chances now grow by **two percentage points per level**, capped at 85%; through level 30 they remain below that cap. Starting at 20%, 15% and 10%, they finish at **78%, 73% and 68%**. Triggered bonuses give **+1 at 60%, +2 at 30%, +3 at 10%**. These amount weights stay fixed throughout the run. Rolls happen once before placement retries; retrying a level preserves its seeded rolls.
 
 | Special item | Starting minimum | Add one guaranteed at levels | Starting bonus rating |
 | --- | --- | --- | --- |
