@@ -142,7 +142,7 @@ export class UpgradeShop extends Scene {
         const refreshers: (() => void)[] = [];
         const refresh = () => {
             const roundStock = Object.values(bonuses).reduce((total, count) => total + count, 0);
-            stock.setText(`LIVES  ${lives} / 5     •     DYNAMITE  ${dynamite}     •     ROUND ITEMS  ${roundStock}     •     UPGRADE TIERS  ${upgrades.strength + upgrades.gold + upgrades.diamonds + upgrades.vialBelt + upgrades.blastPowder + upgrades.safetyGrip} / 16`);
+            stock.setText(`LIVES  ${lives} / 5     •     DYNAMITE  ${dynamite}     •     ROUND ITEMS  ${roundStock}     •     UPGRADE TIERS  ${upgrades.strength + upgrades.gold + upgrades.diamonds + upgrades.vialBelt + upgrades.blastPowder + upgrades.safetyGrip} / 18`);
             balance.setText(`$${money.toLocaleString('en-US')}`);
             next.setText(data.result?.won && data.result.finalLevel ? 'VIEW RESULTS'
                 : lives === 0 ? 'END RUN' : `${data.failed ? 'RETRY' : 'START'} LEVEL ${data.level}`);
@@ -191,7 +191,7 @@ export class UpgradeShop extends Scene {
             refreshers.push(() => {
                 const maxed = itemSoldOut(kind, upgrades, lives);
                 const price = upgradePrice(kind, upgrades);
-                tier.setText(isPermanentUpgrade(kind) ? kind === 'safetyGrip' ? (upgrades.safetyGrip > 0 ? 'OWNED' : 'NOT OWNED') : `TIER ${upgrades[kind]} / ${upgradeLimit(kind)}`
+                tier.setText(isPermanentUpgrade(kind) ? `TIER ${upgrades[kind]} / ${upgradeLimit(kind)}`
                     : kind === 'lifeVial' ? `LIVES: ${lives} / 5` : kind === 'dynamite' ? `OWNED: ${dynamite}` : `ROUNDS: ${bonuses[kind]}`);
                 tier.setScale(Math.min(1, (cardWidth - 12) / tier.width));
                 priceTag.setText(maxed ? (isPermanentUpgrade(kind) ? 'MAXED' : 'FULL') : `BUY $${price}`);

@@ -17,9 +17,10 @@ export const remainingBonuses = (bonuses: LevelBonuses): LevelBonuses => ({
 });
 export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => kind === 'safetyGrip' || kind === 'blastPowder' || kind === 'strength' || kind === 'gold' || kind === 'diamonds' || kind === 'vialBelt';
 export const UPGRADE_LIMIT = 3;
-export const upgradeLimit = (kind: UpgradeKind): number => kind === 'safetyGrip' ? 1 : UPGRADE_LIMIT;
+export const upgradeLimit = (_kind: UpgradeKind): number => UPGRADE_LIMIT;
+export const safetyGripDisarmSeconds = (tier: number): number => 3.5 - Math.max(0, Math.min(3, tier) - 1) * 0.5;
 export const UPGRADE_INFO = {
-    safetyGrip: { name: 'Safety Grip', description: 'Toggle with → or click to catch TNT barrels and TNT rats safely. Disarming takes 3.5 seconds before hauling. Deliver for +1 dynamite, no money. Nearby explosions still detonate free TNT. Starts ON; remembers your choice between levels and retries. Toggle only while the claw is idle. Lasts for this run', basePrice: 1500 },
+    safetyGrip: { name: 'Safety Grip', description: 'Toggle with → or click to catch TNT barrels and TNT rats safely. Disarming takes 3.5 / 3 / 2.5 seconds at tiers 1 / 2 / 3 before hauling. Deliver for +1 dynamite, no money. Nearby explosions still detonate free TNT. Starts ON; remembers your choice between levels and retries. Toggle only while the claw is idle. Lasts for this run', basePrice: 1500 },
     blastPowder: { name: 'Blast Powder', description: 'Thrown dynamite creates size-based blasts; dynamiting caught TNT gives +50% radius. Contact and chain TNT blasts stay normal. Tiers 2/3 add +20%/+40% radius over tier 1. Toggle with ← or click, including during launch and hauling. Thrown dynamite keeps its effect from throw time. Remembers your toggle between levels and retries. Lasts for this run', basePrice: 1500 },
     momentum: { name: 'Momentum vial', description: 'Perfect catches instantly add 2 seconds, up to 10 seconds per round. Each purchase covers one round', basePrice: 1250 },
     strengthPotion: { name: 'Strength vial', description: 'Double reel speed for 2 catches, plus Vial Belt. Mine vials add catches. Each purchase covers one round', basePrice: 1000 },

@@ -5,7 +5,7 @@ import type { ShopItemKind } from '../state/Upgrades';
 const sections = [
     ['Getting started', `Aim the swinging claw and collect enough treasure to reach the level target before time runs out. Each mode has 30 levels. Start a run with 3 lives and 3 dynamite sticks; lives can increase to 5. Progress lasts for this run only.
 
-Treasure Hollow and Gem Hollow start with 60 seconds. Gold Basin starts with 90 seconds. Every level needs fresh earnings: money saved from earlier levels does not count toward its target.
+All mines start with 60 seconds. Every level needs fresh earnings: money saved from earlier levels does not count toward its target.
 
 Heavy objects reel in more slowly. Perfect catches and Strength speed up hauling. Long corner shots receive return-speed compensation beyond a full straight-down return, making distant treasure worth considering.`],
     ['Controls', `↓ or click the mine — launch the claw while it is idle.
@@ -20,7 +20,7 @@ Finish Level ends the attempt immediately. Below the target, this costs a life. 
 A varied mix of gold, gems, bags, chests and special rocks. Build streaks across different treasures. Special treasure becomes more common as you progress.
 
 Gold Basin • Heavy gold
-More large and giant nuggets, fewer ordinary rocks, a 90-second timer, and plentiful Strength, Gold Rush and time vials. Plan long hauls and collect extra time. Mystery bags, chests and loose rubies do not appear.
+More large and giant nuggets, fewer ordinary rocks, a 60-second timer, and Strength, Gold Rush and time vials. Plan long hauls and collect extra time. Mystery bags, chests and loose rubies do not appear.
 
 Gem Hollow • Precision gems
 No gold nuggets or mine Gold Rush vials. Diamonds and rubies are scattered among more rock obstacles; deposits release gems. Use aiming gaps, perfect catches and Gem Polish. TNT is capped at three barrels.
@@ -45,7 +45,7 @@ Free TNT and chain reactions always use their normal blast radius. Place explosi
 Aim through an object's centre for 35% faster reeling throughout the haul. Cash treasure also earns a 35% perfect bonus, rounded up to the next $10, on delivery. Vials and non-cash rewards receive the reel boost without a perfect cash bonus. Rocks, empty rats, TNT and chest-opening hits do not qualify. Dynamiting the catch forfeits the delivery bonus.
 
 Catch streaks
-Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step uses the selected mine's earnings target: 0.75% in Gold Basin, 1.5% in Treasure Hollow, or 3% in Gem Hollow, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
+Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step uses the selected mine's earnings target: 0.5% in Gold Basin, 1.5% in Treasure Hollow, or 3% in Gem Hollow, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
 
 Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an embedded gem advance it; gem-studded deposits without a visible gem are neutral. Once you extract a visible gem, its ordinary host rock breaks the streak. Vials, opening chests and TNT are neutral. Dynamiting a qualifying catch preserves its streak progress but loses its payout. Each level and retry starts at zero.`],
     ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching Strength, Gold Rush, time or Streak vials does not consume a Strength charge.
@@ -56,10 +56,10 @@ Momentum — shop-only. Perfect catches immediately add 2 seconds, up to 10 seco
 Luck — shop-only. Cash bags pay an extra $200 each for one round.
 
 Active effects appear beside the clock. Temporary timers stop while paused. Shop supplies use one stocked charge per round; extra purchases cover future rounds rather than stacking that round's multiplier.`],
-    ['Safety Grip & Blast Powder', `Safety Grip • $1,500, one unlock for the run
+    ['Safety Grip & Blast Powder', `Safety Grip • Three tiers: $1,500 / $3,000 / $4,500, lasting for the run
 Starts ON and remembers your choice between levels and retries. Choose before launching: it cannot toggle until the claw returns to idle.
 
-Catching a TNT barrel or TNT rat holds the claw still for 3.5 seconds while disarming. A countdown shows progress; the level timer keeps running. Afterward, haul it to the surface for +1 dynamite, no money. TNT remains neutral to streaks. You can sacrifice the held TNT with dynamite instead, but receive no recovered stick. Free TNT can still explode in nearby blasts.
+Catching a TNT barrel or TNT rat holds the claw still while disarming: 3.5 seconds at tier 1, 3 seconds at tier 2, or 2.5 seconds at tier 3. A countdown shows progress; the level timer keeps running. Afterward, haul it to the surface for +1 dynamite, no money. TNT remains neutral to streaks. You can sacrifice the held TNT with dynamite instead, but receive no recovered stick. Free TNT can still explode in nearby blasts.
 
 Blast Powder • three tiers
 Starts ON when purchased and remembers your choice. It affects thrown dynamite, with the setting and tier locked in at throw time. Tier 1 creates a blast 2.5 times the held object's radius; caught TNT gets a 187.5-pixel blast. Tiers 2 and 3 increase these radii by 20% and 40% over tier 1. Contact TNT and chain reactions retain their normal 125-pixel radius.

@@ -44,7 +44,7 @@ export class RoundState {
     missShot(): void { this.catchStreak = 0; }
 
     /** Round the target-based step once so every catch adds the same amount. */
-    get streakBonusStep(): number { return Math.round(this.target * (this.mine === 'goldBasin' ? 0.0075 : this.mine === 'gemHollow' ? 0.03 : 0.015) / 5) * 5; }
+    get streakBonusStep(): number { return Math.round(this.target * (this.mine === 'goldBasin' ? 0.005 : this.mine === 'gemHollow' ? 0.03 : 0.015) / 5) * 5; }
 
     get currentStreakBonus(): number { return Math.max(0, this.catchStreak - 2) * this.streakBonusStep * this.streakMultiplier; }
 

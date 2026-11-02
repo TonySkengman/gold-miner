@@ -1,3 +1,4 @@
+import { safetyGripDisarmSeconds } from '../state/Upgrades';
 import { releaseGemDeposit } from './GemDeposits';
 import { catchFeedbackY, clawCollisionRadius } from './Aiming';
 import { soundEffects } from '../audio/SoundEffects';
@@ -12,6 +13,7 @@ type ClawMode = 'idle' | 'extending' | 'retracting';
 export class Claw {
     powderRadiusScale = 0;
     safetyGrip = false;
+    safetyGripTier = 0;
     private mode: ClawMode = 'idle';
     private angle = -0.8;
     private swingDirection = 1;
@@ -175,8 +177,8 @@ export class Claw {
                 }
                 first.prepareCatch();
                 if (first.isExplosive) {
-                    this.disarmRemaining = 3.5;
-                    this.disarmLabel = this.scene.add.text(first.x, first.y - first.radius - 25, 'DISARMING… 3.5s', {
+                    this.disarmRemaining = safetyGripDisarmSeconds(this.safetyGripTier);
+                    this.disarmLabel = this.scene.add.text(first.x, first.y - first.radius - 25, `DISARMING… ${this.disarmRemaining.toFixed(1)}s`, {
                         fontFamily: 'Arial', fontSize: 15, fontStyle: 'bold', color: '#bcf58b',
                         backgroundColor: '#253d29', padding: { x: 8, y: 4 }
                     }).setOrigin(0.5).setDepth(17);

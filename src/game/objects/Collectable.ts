@@ -686,9 +686,9 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         });
         // Minimum supplies plus independent bonus rolls, fixed for this seeded layout.
         const extraTnt = random() < 0.4 ? 1 : 0;
-        const timeVials = (level.timeVials ?? 2) + (random() < 0.5 ? 1 : 0) + (random() < 0.2 ? 1 : 0);
-        const strengthVials = (level.strengthVials ?? 2) + (random() < 0.4 ? 1 : 0);
-        const goldRushVials = (level.goldRushVials ?? 2) + (random() < 0.4 ? 1 : 0);
+        const timeVials = Math.max(0, (level.timeVials ?? 2) - 1) + (random() < 0.5 ? 1 : 0) + (random() < 0.2 ? 1 : 0);
+        const strengthVials = Math.max(0, (level.strengthVials ?? 2) - 1) + (random() < 0.4 ? 1 : 0);
+        const goldRushVials = Math.max(0, (level.goldRushVials ?? 2) - 1) + (random() < 0.4 ? 1 : 0);
         kinds.splice(0, kinds.length, ...focused, ...Array<OreKind>(extraTnt).fill('tnt'),
             ...Array<OreKind>(timeVials).fill('timeVial'),
             ...Array<OreKind>(strengthVials).fill('strengthPotion'),
