@@ -1,3 +1,4 @@
+import { showGameGuide } from '../ui/GameGuide';
 import type { ToolToggles } from '../state/Upgrades';
 import { drawShopProduct } from '../art/drawShop';
 import { MineClock } from '../ui/MineClock';
@@ -346,7 +347,21 @@ export class Game extends Scene {
         menuButton.setX(WORLD.width - 32);
         soundButton.setX(menuButton.x - menuButton.width - controlGap - soundButton.width);
         pauseButton.setX(soundButton.x - controlGap);
-        for (const button of [pauseButton, soundButton, menuButton]) {
+        const guideButton = this.add.text(pauseButton.x - pauseButton.width - controlGap, 24, 'Game Guide', {
+            fontFamily: 'Arial', fontSize: 18, color: '#fff3cc', backgroundColor: '#70452a',
+            padding: { x: 12, y: 8 }
+        }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setDepth(20).setInteractive({ useHandCursor: true });
+        guideButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            event.stopPropagation();
+            if (this.ended || this.pausing || this.scene.isPaused()) return;
+            this.pausing = true;
+            this.scene.pause();
+            showGameGuide(this, () => this.scene.resume());
+        });
+        guideButton.setX(menuButton.x - menuButton.width - controlGap);
+        pauseButton.setX(guideButton.x - guideButton.width - controlGap);
+        soundButton.setX(pauseButton.x - pauseButton.width - controlGap - soundButton.width);
+        for (const button of [pauseButton, soundButton, menuButton, guideButton]) {
             button.setY(44 - button.height / 2);
         }
         const finishButtonsX = levelPanel.x - levelPanel.width - 18;

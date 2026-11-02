@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:8080](http://localhost:8080), or the address shown in your terminal, and click **Start New Game**.
+Open [http://localhost:8080](http://localhost:8080), or the address shown in your terminal, and click **Start New Game**. Start New Game, Treasure Hollow’s Start Run, and the briefing’s Start Mining share the same screen position, so you can click through the standard-mode setup without moving the cursor.
 
 ## Controls
 
@@ -27,6 +27,8 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 | Sound ON/OFF | Toggle sound effects |
 
 ## How to play
+
+Open **Game Guide** from the main menu, the level HUD or the pause menu for a scrollable in-game guide to controls, modes, treasure, special rocks, perfect catches, streaks, vials, tools, retries, milestones and every shop item. Shop descriptions and prices come directly from the game’s item definitions. Opening the guide from the level HUD pauses gameplay without opening the pause menu; closing it resumes the level. Opening it from the pause menu keeps the game paused when you close it.
 
 Reach each level’s earnings target within 60 seconds, or 90 seconds in Gold Basin. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $7,200 on level 30 in Treasure Hollow (other modes apply their own target scaling). Start with three lives; failing a level costs one life, and losing all lives ends the run unless you buy a life vial in the post-level shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
 
@@ -73,7 +75,7 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
 | Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
 | Gold polish | +15% gold nugget value per tier; stacks with Gold Rush | $1,250 / $2,500 / $3,750 |
-| Safety Grip | Unlock safe TNT barrel/rat collection for +1 dynamite per delivery; starts OFF each round, lasts for the run | $1,500 |
+| Safety Grip | Unlock safe TNT barrel/rat collection with a 5-second disarming delay before hauling; +1 dynamite per delivery; starts ON and remembers your choice, lasts for the run | $1,500 |
 | Blast Powder | Tier 1 unlocks size-based thrown-dynamite blasts and +50% radius when dynamiting caught TNT; tiers 2/3 add +20%/+40% radius over tier 1; lasts for the run | $1,500 / $3,000 / $4,500 |
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
@@ -91,9 +93,9 @@ Winch, Gem Polish, Gold Polish, Blast Powder, and Vial Belt upgrades last for th
 
 ### Safety Grip
 
-Safety Grip is a **$1,500 permanent unlock for the current run**, with one tier. Press **Right Arrow** or click its shield in the dynamite HUD to toggle it. It starts **OFF** each round and retry. Choose before launching: the toggle is available only while the claw is idle, for both Right Arrow and clicks. It stays fixed during launch, hauling, empty returns and dynamite throws. Each blocked press or click shows a floating message asking you to wait for the claw to return. When ON, claw contact safely disarms TNT barrels and TNT rats instead of detonating them. Each safely delivered barrel or rat awards **one dynamite stick**, no money, and neither advances nor breaks the catch streak. The final haul still pays its reward after the timer reaches zero.
+Safety Grip is a **$1,500 permanent unlock for the current run**, with one tier. Press **Right Arrow** or click its shield in the dynamite HUD to toggle it. It starts **ON** when purchased and remembers your choice between levels and retries. Choose before launching: the toggle is available only while the claw is idle, for both Right Arrow and clicks. It stays fixed during launch, hauling, empty returns and dynamite throws. Each blocked press or click shows a floating message asking you to wait for the claw to return. When ON, claw contact starts a **5-second disarming countdown** for TNT barrels and TNT rats instead of detonating them. The claw stays still during disarming, while the level timer continues to run, then starts hauling. Each safely delivered barrel or rat awards **one dynamite stick**, no money, and neither advances nor breaks the catch streak. The final haul still pays its reward after the timer reaches zero.
 
-A shield to the right of the miner indicates Safety Grip is ON; a disarm message confirms safe collection. Switching OFF after catching TNT does not re-arm the held object. Free TNT still detonates in nearby explosions. Safety Grip and Blast Powder work independently: with both ON, safely catch TNT and either deliver it for a stick or sacrifice it using Up Arrow for a Blast Powder explosion. Destroying a held TNT object awards no dynamite. Toggling Safety Grip costs no sticks; the unlock survives failed attempts and resets for a new run. Safety Grip replaces Dynamite Overdrive; Right Arrow no longer boosts hauling speed.
+A shield to the right of the miner indicates Safety Grip is ON; a visible countdown shows disarming progress, followed by a confirmation message. Free TNT still detonates in nearby explosions. Safety Grip and Blast Powder work independently: with both ON, safely catch TNT and either deliver it for a stick or sacrifice it using Up Arrow for a Blast Powder explosion. Destroying a held TNT object awards no dynamite. Toggling Safety Grip costs no sticks; the unlock survives failed attempts and resets for a new run. Safety Grip replaces Dynamite Overdrive; Right Arrow no longer boosts hauling speed.
 
 ### Blast Powder and Gold Polish
 

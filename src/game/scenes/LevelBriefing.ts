@@ -11,7 +11,7 @@ import { MINES, mineConfig, roundDuration, type MineKind } from '../state/Mines'
 import { LAYOUTS } from '../state/Layouts';
 import { MILESTONES } from '../state/Milestones';
 import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses } from '../state/Upgrades';
-import { menuButton } from '../ui/menuButton';
+import { menuButton, RUN_START_Y } from '../ui/menuButton';
 
 interface BriefingData {
     toolToggles?: ToolToggles;
@@ -34,7 +34,7 @@ export class LevelBriefing extends Scene {
         const layout = LAYOUTS[config.layout];
         const bonuses = { ...emptyBonuses(), ...data.bonuses };
         drawEnvironment(this, config.layout, data.mine);
-        const briefingPanel = this.add.rectangle(WORLD.centerX, 480, 840, 820, 0x211f1d, 0.97).setStrokeStyle(4, 0xc29659);
+        this.add.rectangle(WORLD.centerX, 495, 840, 860, 0x211f1d, 0.97).setStrokeStyle(4, 0xc29659);
         const text = (y: number, label: string, size = 22, color = '#fff3cc') =>
             this.add.text(WORLD.centerX, y, label, {
                 fontFamily: 'Arial', fontSize: size, color, align: 'center',
@@ -48,7 +48,7 @@ export class LevelBriefing extends Scene {
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
         text(428, `${roundDuration(data.mine, bonuses.extraTime)} SECONDS`, 25, '#bcf58b');
-        text(480, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
+        text(460, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
@@ -62,13 +62,13 @@ export class LevelBriefing extends Scene {
         if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x1.5' });
         if (bonuses.strengthPotion > 0) prepared.push({ kind: 'strengthPotion', name: 'Strength vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} catches at x2` });
         if (bonuses.goldRush > 0) prepared.push({ kind: 'goldRush', name: 'Gold Rush vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} gold catches +50%` });
-        text(539, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
-        const cardTop = 564;
+        text(519, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
+        const cardTop = 544;
         const wrapped = prepared.length > 5;
         const columns = Math.min(5, prepared.length);
-        const cardHeight = wrapped ? 112 : 136;
+        const cardHeight = wrapped ? 96 : 136;
         const spacing = Math.min(190, 760 / columns);
-        if (wrapped) briefingPanel.setSize(840, 900);
+        
         prepared.forEach((item, index) => {
             const row = Math.floor(index / columns);
             const rowCount = Math.min(columns, prepared.length - row * columns);
@@ -78,17 +78,17 @@ export class LevelBriefing extends Scene {
             this.add.text(x, top + (wrapped ? 6 : 18), item.name, {
                 fontFamily: 'Arial', fontSize: wrapped ? 14 : 18, fontStyle: 'bold', color: '#ffda69', align: 'center', wordWrap: { width: spacing - 20 }
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
-            drawShopProduct(this, x, top + (wrapped ? 49 : 59), item.kind, wrapped ? 0.3 : 0.4);
-            this.add.text(x, top + (wrapped ? 77 : 106), item.detail, {
+            drawShopProduct(this, x, top + (wrapped ? 40 : 59), item.kind, wrapped ? 0.3 : 0.4);
+            this.add.text(x, top + (wrapped ? 64 : 106), item.detail, {
                 fontFamily: 'Arial', fontSize: wrapped ? 12 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
-        if ((data.upgrades?.blastPowder ?? 0) > 0) text(wrapped ? 805 : 729, 'Blast Powder: bigger caught items = bigger blasts. ← / click to toggle.', 16, '#bcf58b');
-        text(wrapped ? 835 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
-        text(wrapped ? 866 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
+        if ((data.upgrades?.blastPowder ?? 0) > 0) text(wrapped ? 765 : 729, 'Blast Powder: bigger caught items = bigger blasts. ← / click to toggle.', 16, '#bcf58b');
+        text(wrapped ? 790 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
+        text(wrapped ? 816 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
         let starting = false;
-        menuButton(this, WORLD.centerX, wrapped ? 908 : 850, 'START MINING', () => {
+        menuButton(this, WORLD.centerX, RUN_START_Y, 'START MINING', () => {
             if (starting) return;
             starting = true;
             soundEffects.unlock();

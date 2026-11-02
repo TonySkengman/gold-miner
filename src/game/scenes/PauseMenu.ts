@@ -1,3 +1,4 @@
+import { showGameGuide } from '../ui/GameGuide';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { WORLD } from '../state/World';
 import { Scene, GameObjects } from 'phaser';
@@ -9,7 +10,7 @@ export class PauseMenu extends Scene {
 
     create(data: { confirmExit?: boolean } = {}): void {
         this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.78).setData('responsiveFullWidth', true).setInteractive();
-        this.add.rectangle(WORLD.centerX, 480, 720, 560, 0xffedbb).setStrokeStyle(4, 0xc29659);
+        this.add.rectangle(WORLD.centerX, 480, 720, 700, 0xffedbb).setStrokeStyle(4, 0xc29659);
         this.add.text(WORLD.centerX, 280, 'PAUSED', { fontFamily: 'Arial', fontSize: 46, fontStyle: 'bold', color: '#70452a' }).setOrigin(0.5);
         const instructions = this.add.text(WORLD.centerX, 345, '↓ / CLICK: launch    •    ↑: dynamite\n←: toggle Blast Powder (when owned)\n→: toggle Safety Grip (when owned)\nP / ESC: resume\nSafety Grip toggles only while the claw is idle.\nThe timer and all movement are stopped.', { fontFamily: 'Arial', fontSize: 22, color: '#483126', align: 'center', lineSpacing: 8 }).setOrigin(0.5, 0);
         const resumeY = instructions.y + instructions.height + 62;
@@ -20,9 +21,16 @@ export class PauseMenu extends Scene {
             this.scene.resume('Game');
             this.scene.stop();
         };
-        menuButton(this, WORLD.centerX, resumeY, 'RESUME', resume);
+        const guideButton = menuButton(this, WORLD.centerX, resumeY, 'GAME GUIDE', () => showGameGuide(this));
+        guideButton.setBackgroundColor('#70452a');
+        guideButton.on('pointerover', () => guideButton.setBackgroundColor('#8a5937'));
+        guideButton.on('pointerout', () => guideButton.setBackgroundColor('#70452a'));
+        menuButton(this, WORLD.centerX, resumeY + 85, 'RESUME', resume);
         let confirming = false;
-        menuButton(this, WORLD.centerX, resumeY + 90, 'END RUN & MAIN MENU', () => showConfirmation(true));
+        const endRunButton = menuButton(this, WORLD.centerX, resumeY + 170, 'END RUN', () => showConfirmation(true));
+        endRunButton.setBackgroundColor('#8e493c');
+        endRunButton.on('pointerover', () => endRunButton.setBackgroundColor('#a85848'));
+        endRunButton.on('pointerout', () => endRunButton.setBackgroundColor('#8e493c'));
         const pauseHud = [...this.children.list];
         const shade = this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.9)
             .setData('responsiveFullWidth', true).setInteractive().setDepth(30);

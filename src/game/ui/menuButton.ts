@@ -1,5 +1,8 @@
 import type { Scene } from 'phaser';
 
+/** Shared vertical position for the new-run flow, in logical world coordinates. */
+export const RUN_START_Y = 870;
+
 export function menuButton(scene: Scene, x: number, y: number, label: string, action: () => void) {
     const button = scene.add.text(x, y, label, {
         fontFamily: 'Arial', fontSize: 25, fontStyle: 'bold', color: '#fff3cc',

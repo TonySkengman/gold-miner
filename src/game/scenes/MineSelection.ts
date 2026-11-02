@@ -1,3 +1,4 @@
+import { RUN_START_Y } from '../ui/menuButton';
 import { Scene } from 'phaser';
 import { LEVELS } from '../state/Levels';
 import { newLevelSeed } from '../state/Random';
@@ -123,14 +124,15 @@ export class MineSelection extends Scene {
             this.add.text(x, y, value, { fontFamily: 'Arial', fontSize: size, color, align: 'center', wordWrap: { width }, lineSpacing: 8 })
                 .setOrigin(0.5).setData('responsiveAnchor', 'center');
         label(WORLD.centerX, 105, 'CHOOSE YOUR GAME MODE', 32, '#ffda69', 900).setFontStyle('bold');
-        label(WORLD.centerX, 169, 'Choose once for this run.', 20, '#e5c58f', 900);
+        label(WORLD.centerX, 141, 'Choose once for this run.', 20, '#e5c58f', 900);
+        label(WORLD.centerX, 172, `Your mode lasts for the full ${LEVELS.length}-level run, including retries.`, 18, '#e5c58f', 900);
         let entering = false;
         const modeOrder: MineKind[] = ['goldBasin', 'quarry', 'gemHollow'];
         modeOrder.forEach((kind, index) => {
             const mine = MINES[kind];
             const standard = kind === 'quarry';
             const x = WORLD.centerX + (index - 1) * 338;
-            this.add.rectangle(x, 516, standard ? 350 : 278, standard ? 636 : 576,
+            this.add.rectangle(x, 560, standard ? 350 : 278, standard ? 724 : 664,
                 kind === 'gemHollow' ? 0x2a2b45 : kind === 'goldBasin' ? 0x493821 : 0x493d2d)
                 .setStrokeStyle(standard ? 4 : 2, standard ? 0xffda69 : mine.color)
                 .setData('responsiveAnchor', 'center');
@@ -263,9 +265,9 @@ export class MineSelection extends Scene {
                     }
                 }
             }
-            label(x, standard ? 573 : 549, mine.description, standard ? 20 : 18, '#fff3cc', standard ? 294 : 250);
-            label(x, 674, mine.subtext, standard ? 16 : 15, '#e5c58f', standard ? 286 : 238);
-            const button = this.add.text(x, 765, 'START RUN', {
+            label(x, standard ? 603 : 579, mine.description, standard ? 20 : 18, '#fff3cc', standard ? 294 : 250);
+            label(x, 744, mine.subtext, standard ? 16 : 15, '#e5c58f', standard ? 286 : 238);
+            const button = this.add.text(x, RUN_START_Y, 'START RUN', {
                 fontFamily: 'Arial', fontSize: standard ? 25 : 22, fontStyle: 'bold', color: standard ? '#302719' : '#ffffff',
                 backgroundColor: standard ? '#ffda69' : '#547f3b', padding: { x: standard ? 30 : 18, y: 15 }
             }).setOrigin(0.5).setData('responsiveAnchor', 'center');
@@ -276,7 +278,6 @@ export class MineSelection extends Scene {
                 this.scene.start('LevelBriefing', { ...prepared, mine: kind });
             });
         });
-        label(WORLD.centerX, 870, `Your mode lasts for the full ${LEVELS.length}-level run, including retries.`, 20, '#e5c58f', 900);
         responsiveLayout(this);
     }
 }

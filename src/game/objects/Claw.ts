@@ -172,8 +172,8 @@ export class Claw {
                 }
                 first.prepareCatch();
                 if (first.isExplosive) {
-                    this.disarmRemaining = 2.5;
-                    this.disarmLabel = this.scene.add.text(first.x, first.y - first.radius - 25, 'DISARMING… 2.5s', {
+                    this.disarmRemaining = 5;
+                    this.disarmLabel = this.scene.add.text(first.x, first.y - first.radius - 25, 'DISARMING… 5.0s', {
                         fontFamily: 'Arial', fontSize: 15, fontStyle: 'bold', color: '#bcf58b',
                         backgroundColor: '#253d29', padding: { x: 8, y: 4 }
                     }).setOrigin(0.5).setDepth(17);
