@@ -46,8 +46,7 @@ export class LevelBriefing extends Scene {
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
         text(428, `${roundDuration(data.mine, bonuses.extraTime)} SECONDS`, 25, '#bcf58b');
-        text(454, 'Safety Grip: → / click toggles safe TNT collection for +1 dynamite.', 16, '#bcf58b');
-        text(492, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
+        text(480, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
@@ -61,7 +60,7 @@ export class LevelBriefing extends Scene {
         if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x1.5' });
         if (bonuses.strengthPotion > 0) prepared.push({ kind: 'strengthPotion', name: 'Strength vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} catches at x2` });
         if (bonuses.goldRush > 0) prepared.push({ kind: 'goldRush', name: 'Gold Rush vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} gold catches +50%` });
-        text(533, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
+        text(539, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
         const cardTop = 564;
         const wrapped = prepared.length > 5;
         const columns = Math.min(5, prepared.length);
