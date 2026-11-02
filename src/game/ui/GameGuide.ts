@@ -17,7 +17,7 @@ Sound ON/OFF — toggle sound effects.
 
 Finish Level ends the attempt immediately. Below the target, this costs a life. Auto Finish Level starts OFF; enabling it ends the level once the target is reached. Leave it OFF to keep mining for money and milestone rewards.`],
     ['Modes & levels', `Treasure Hollow • Standard mode
-A varied mix of gold, gems, bags, chests and special rocks. Build streaks across different treasures. Special treasure becomes more common as you progress.
+A varied mix of gold, gems, bags, chests and special rocks. Build streaks across different treasures. Special treasure becomes more common as you progress. Guaranteed loose diamonds: 2 on levels 1–12, 3 on 13–24, 4 on 25–30. Guaranteed loose rubies: 1 on levels 1–9, 2 on 10–21, 3 on 22–30. Bonus rolls can add more; rock gems and gem rats are separate.
 
 Gold Basin • Heavy gold
 More large and giant nuggets, fewer ordinary rocks, a 60-second timer, and Strength, Gold Rush and time vials. Plan long hauls and collect extra time. Mystery bags, chests and loose rubies do not appear.
@@ -29,9 +29,9 @@ Your mode stays fixed for the run. Gold Pocket, Rat Tunnels, Explosive Cavern an
     ['Treasure & obstacles', `Gold nuggets — small $50, medium $100, large $200, giant $350 before bonuses. Larger nuggets are heavier.
 Diamonds — $450. Rubies — $650. Both have the same light hauling weight. Gem Polish increases their value.
 Ordinary rocks — $12 / $16 / $18 / $20 by size. Low value, heavy, and break streaks.
-Cash bags — $150–$400; Luck adds $200 to each.
-Mystery bags — heavy purple bags containing $10–$640, one dynamite stick, or Strength for two catches (plus Vial Belt). Their seeded rewards stay the same on retries.
-Treasure chests — the first hit opens the chest; a second catch collects its revealed reward. Contents include $320–$720, dynamite, Luck, Lightweight Grip or a life vial. They haul like mystery bags.
+Cash bags — $150–$400; Luck narrows the range to $300–$400.
+Mystery bags — purple bags as light as medium gold, with a 50% chance of $250–$650 cash and a 50% chance of a random shop vial, equally split among Strength, Gold Rush, Streak, Time, Life, Luck and Momentum. Luck and Momentum are stored for the next round; other vials apply immediately. Luck narrows cash rewards to $500–$650. Their seeded rolls stay the same on retries.
+Treasure chests — the first hit opens the chest; a second catch collects its revealed reward. Without Luck, equal chances of $600–$1,200 in $50 steps, 2–3 dynamite or one permanent upgrade tier for the next round (including retries). Maxed upgrades cannot drop; if all are maxed, cash and dynamite each have a 50% chance. Upgrade tiers are reserved across chests so they cannot exceed the cap. Luck changes the odds to 50% permanent upgrade, 25% cash and 25% dynamite while upgrade tiers remain. They haul like giant gold.
 Rats — moving targets worth $1. Gem-carrying rats pay the gem value plus $1. Empty rats break streaks.
 TNT barrels and TNT rats — explode on contact unless Safety Grip is ON. Blasts destroy nearby objects and can chain into other TNT; destroyed treasure pays nothing.`],
     ['Special rocks & explosions', `Gem-studded rocks contain hidden treasure. Hauling can crumble away their contents, and delivering the rock gives little money. Catch and dynamite them to scatter the remaining valuables into the mine, then catch those valuables separately.
@@ -50,10 +50,10 @@ Gold, gems, gem rats, bags and collectible chests advance the streak immediately
 Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an embedded gem advance it; gem-studded deposits without a visible gem are neutral. Once you extract a visible gem, its ordinary host rock breaks the streak. Vials, opening chests and TNT are neutral. Dynamiting a qualifying catch preserves its streak progress but loses its payout. Each level and retry starts at zero.`],
     ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching Strength, Gold Rush, time or Streak vials does not consume a Strength charge.
 Gold Rush — +50% gold nugget value for two gold catches, plus Vial Belt. Mine vials add catches. Stacks with Gold Polish.
-Time — adds 15 seconds when delivered. The shop version adds 15 seconds at the start of the round.
-Streak — mine vials give x1.5 streak bonuses for 30 seconds. A shop vial gives x1.5 for the whole round; a mine vial then boosts it to x2 for 15 seconds. Vial Belt adds 5 seconds per tier to mine effects. The bonus locks in on latch.
-Momentum — shop-only. Perfect catches immediately add 2 seconds, up to 10 seconds per round, even if you dynamite the catch afterward.
-Luck — shop-only. Cash bags pay an extra $200 each for one round.
+Time — adds 10 seconds without Vial Belt or at tier 1, 15 seconds at tier 2, or 20 seconds at tier 3. Caught vials (including mystery rewards) apply on delivery; shop vials apply at round start.
+Streak — shop and caught vials give x1.5 streak bonuses for 15 seconds (also at Vial Belt tier 1), 20 seconds at tier 2, or 25 seconds at tier 3. Shop vials activate at round start. Catch another while active to add 5 seconds and increase the multiplier by +0.25x, up to x2; after expiry the multiplier returns to normal. The bonus locks in on latch.
+Momentum — available from the shop or stored from mystery bags. Five charges per round; each perfect catch instantly adds 5 seconds and uses one charge, even if you dynamite the catch afterward.
+Luck — available from the shop or stored from mystery bags. For one round, cash bags roll $300–$400 and mystery-bag cash rolls $500–$650. Chest odds become 50% permanent upgrade, 25% cash and 25% dynamite; if no upgrade tiers remain, cash and dynamite each have a 50% chance.
 
 Active effects appear beside the clock. Temporary timers stop while paused. Shop supplies use one stocked charge per round; extra purchases cover future rounds rather than stacking that round's multiplier.`],
     ['Safety Grip & Blast Powder', `Safety Grip • Three tiers: $1,500 / $3,000 / $4,500, lasting for the run
@@ -66,15 +66,15 @@ Starts ON when purchased and remembers your choice. It affects thrown dynamite, 
 
 Both tools can be ON together. Safety Grip lets you catch TNT; then choose between delivering it for a stick and spending dynamite to create a larger Blast Powder explosion.`],
     ['Results, retries & rewards', `The final haul counts
-If time runs out while an object is hooked, its haul and rewards finish before the result is decided, including TNT disarming. You cannot launch a new shot at zero time. A delivered time vial adds 15 seconds and resumes play.
+If time runs out while an object is hooked, its haul and rewards finish before the result is decided, including TNT disarming. You cannot launch a new shot at zero time. A delivered Time vial adds 10/15/20 seconds based on Vial Belt and resumes play.
 
 Milestones
 150% of target: bonus cash equal to 10% of the target. 175%: bonus cash equal to 20% of the target. Cash rewards round to the nearest $5. 200%: +1 dynamite on levels 1–15, +2 on levels 16–30, or +3 whenever the target is at least $7,000. Each reward is available once per level. Bonus cash is spendable but does not count toward the target or trigger more milestones.
 
 Passing and failing
-Every attempt opens the shop unless you fail on your last life. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rewards, rat movement settings and starting supplies. Shop purchases can help with the retry.
+Every attempt opens the shop unless you fail on your last life. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rat movement settings and starting supplies. Mystery rewards keep their seeded rolls. Chest upgrades are rolled against your current tiers, so newly maxed upgrades cannot drop. Collected permanent tiers carry into retries. Shop purchases can help with the retry.
 
-Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials restore one life, up to five. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu asks for confirmation before ending your run.`]
+Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials cost $5,000 in the shop and restore one life, up to five; they can also appear in mystery bags. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu asks for confirmation before ending your run.`]
 ];
 
 /** Native modal keeps long instructions scrollable and keyboard accessible at any viewport size. */

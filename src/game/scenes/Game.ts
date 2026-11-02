@@ -1,3 +1,4 @@
+import { rollTreasureReward } from '../state/TreasureRewards';
 import { showGameGuide } from '../ui/GameGuide';
 import type { ToolToggles } from '../state/Upgrades';
 import { drawShopProduct } from '../art/drawShop';
@@ -74,18 +75,28 @@ export class Game extends Scene {
         this.miner = new MinerAnimator(this);
         this.mineClock = new MineClock(this, this.round.remaining);
         this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
+        const chestRandom = seededRandom(this.levelSeed ^ 0x27d4eb2d);
+        const reservedUpgrades = { ...this.round.upgrades };
+        const cashRandom = seededRandom(this.levelSeed ^ 0x165667b1);
+        const cashRewards = new Map<Collectable, number>();
         for (const object of this.objects) {
+            if (object.kind === 'treasureChest') {
+                object.treasureReward = rollTreasureReward(chestRandom, reservedUpgrades, this.round.bonuses.luck);
+                const reward = object.treasureReward;
+                if (reward.kind !== 'money' && reward.kind !== 'dynamite') reservedUpgrades[reward.kind]++;
+            }
             if (this.round.bonuses.prospectorsLens && object.kind === 'treasureChest') {
                 object.revealTreasureReward(this);
             }
-            if (this.round.bonuses.prospectorsLens && object.kind === 'moneyBag') {
-                const amount = cashBagValue(object.value, this.round.bonuses.luck);
-                object.revealMysteryReward(this, { kind: 'money', amount });
+            if (object.kind === 'moneyBag') {
+                const amount = cashBagValue(object.value, this.round.bonuses.luck, cashRandom);
+                cashRewards.set(object, amount);
+                if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, { kind: 'money', amount });
             }
             if (object.kind !== 'mysteryBag') continue;
-            const reward = rollMysteryReward(rewardRandom);
+            const reward = rollMysteryReward(rewardRandom, this.round.bonuses.luck);
             this.mysteryRewards.set(object, reward);
-            if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, reward);
+            if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, reward, this.round.upgrades.vialBelt);
         }
         const streakBonuses = new WeakMap<Collectable, number>();
         this.claw = new Claw(this, (value, object, perfectBonus) => {
@@ -115,8 +126,7 @@ export class Game extends Scene {
                 return;
             }
             if (object.kind === 'timeVial') {
-                this.round.addTime();
-                showValue(0, '+15 SECONDS!');
+                showValue(0, `+${this.round.addTime()} SECONDS!`);
                 return;
             }
             if (object.kind === 'mysteryBag') {
@@ -128,7 +138,7 @@ export class Game extends Scene {
                 showValue(0, `STRENGTH x2 • ${this.round.strengthCatches} CATCHES!`);
                 return;
             }
-            const earned = object.kind === 'moneyBag' ? cashBagValue(value, this.round.bonuses.luck) : value;
+            const earned = object.kind === 'moneyBag' ? cashRewards.get(object)! : value;
             this.round.score += earned;
             this.miner.reactTo(object.kind);
             showValue(earned);
@@ -280,12 +290,12 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe06a',
             backgroundColor: '#483126', padding: { x: 10, y: 6 }
         }).setVisible(false);
-        if (this.round.bonuses.luck) this.passiveBuffTexts.push(this.add.text(32, 251, 'LUCK: cash bags +$200', {
+        if (this.round.bonuses.luck) this.passiveBuffTexts.push(this.add.text(32, 251, 'LUCK: richer bags • better chests', {
             fontFamily: 'Arial', fontSize: 17, color: '#ecc4ff', backgroundColor: '#42304b',
             padding: { x: 8, y: 5 }
         }));
         if (this.round.bonuses.momentum > 0) {
-            this.momentumText = this.add.text(32, 251, 'MOMENTUM: 10s left', {
+            this.momentumText = this.add.text(32, 251, 'MOMENTUM: 5 charges', {
                 fontFamily: 'Arial', fontSize: 17, color: '#9cf2e7', backgroundColor: '#253e42', padding: { x: 8, y: 5 }
             });
             this.passiveBuffTexts.push(this.momentumText);
@@ -522,7 +532,7 @@ export class Game extends Scene {
             toolToggles: { ...this.toolToggles },
             lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
             dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
-            upgrades: this.round.upgrades,
+            upgrades: this.round.nextUpgrades,
             money: this.round.retainedMoney, startingMoney: this.round.startingMoney,
             score: this.round.score, target: this.round.target, won: this.round.won,
             level: this.round.level, finalLevel: this.round.finalLevel
@@ -541,7 +551,7 @@ export class Game extends Scene {
             dynamite: this.round.won ? this.round.dynamite : this.round.startingDynamite,
             level: this.round.won && !this.round.finalLevel ? this.round.level + 1 : this.round.level,
             money: this.round.retainedMoney,
-            upgrades: this.round.upgrades,
+            upgrades: this.round.nextUpgrades,
             result
         });
     }
@@ -585,9 +595,8 @@ export class Game extends Scene {
         this.goldRushText.setVisible(this.round.goldRushCatches > 0);
         this.goldRushText.setText(`GOLD RUSH +50%  ${this.round.goldRushCatches} gold nuggets`);
         this.streakVialText.setVisible(this.round.streakVialActive);
-        this.streakVialText.setText(`STREAK BONUSES x${this.round.streakMultiplier}  ${this.round.streakVialSeconds > 0
-            ? `${Math.ceil(this.round.streakVialSeconds)}s` : 'FULL LEVEL'}`);
-        this.momentumText?.setText(`MOMENTUM: ${10 - this.round.momentumSecondsEarned}s left`);
+        this.streakVialText.setText(`STREAK BONUSES x${this.round.streakMultiplier}  ${Math.ceil(this.round.streakVialSeconds)}s`);
+        this.momentumText?.setText(`MOMENTUM: ${this.round.momentumChargesRemaining} charges`);
         let buffY = 0;
         const buffTexts = [this.strengthText, this.goldRushText, ...this.passiveBuffTexts];
         for (const [index, text] of buffTexts.entries()) {

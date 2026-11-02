@@ -10,7 +10,7 @@ import { LEVELS } from '../state/Levels';
 import { MINES, mineConfig, roundDuration, type MineKind } from '../state/Mines';
 import { LAYOUTS } from '../state/Layouts';
 import { milestonesFor } from '../state/Milestones';
-import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses } from '../state/Upgrades';
+import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses, timeVialSeconds } from '../state/Upgrades';
 import { menuButton, RUN_START_Y } from '../ui/menuButton';
 
 interface BriefingData {
@@ -47,7 +47,7 @@ export class LevelBriefing extends Scene {
         text(257, 'GOLD TARGET', 21, '#e5c58f');
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
-        text(428, `${roundDuration(data.mine, bonuses.extraTime)} SECONDS`, 25, '#bcf58b');
+        text(428, `${roundDuration(data.mine, bonuses.extraTime, data.upgrades?.vialBelt ?? 0)} SECONDS`, 25, '#bcf58b');
         text(460, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
 
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
@@ -55,9 +55,9 @@ export class LevelBriefing extends Scene {
         ];
         if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ${data.toolToggles?.blastPowder === false ? 'OFF' : 'ON'}\n← / click: toggle` });
         if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: `${data.toolToggles?.safetyGrip === false ? 'OFF' : 'ON'}\n→ before launch` });
-        if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Cash bags +$200 each' });
-        if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+2s per perfect\nUp to +10s' });
-        if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: '+15 seconds' });
+        if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Higher bag payouts\n50% chest upgrades' });
+        if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+5s per perfect\n5 charges' });
+        if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: `+${timeVialSeconds(data.upgrades?.vialBelt ?? 0)} seconds` });
         if (bonuses.lightweightGrip > 0) prepared.push({ kind: 'lightweightGrip', name: 'Lightweight Grip', detail: 'Rock weight\n-40%' });
         if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x1.5' });
         if (bonuses.strengthPotion > 0) prepared.push({ kind: 'strengthPotion', name: 'Strength vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} catches at x2` });

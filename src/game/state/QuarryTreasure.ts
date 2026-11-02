@@ -18,8 +18,8 @@ export function rollQuarryBonus(chance: number, random: () => number): number {
 export function quarryTreasureRules(level: number): TreasureSpawnRule[] {
     return [
         { kind: 'moneyBag', minimum: minimumAt(level, 1, [10, 22]), bonusChance: chanceAt(level, 20) },
-        { kind: 'diamond', minimum: minimumAt(level, 1, [13, 25]), bonusChance: chanceAt(level, 15) },
-        { kind: 'ruby', minimum: minimumAt(level, 0, [10, 22]), bonusChance: chanceAt(level, 10) },
+        { kind: 'diamond', minimum: minimumAt(level, 2, [13, 25]), bonusChance: chanceAt(level, 15) },
+        { kind: 'ruby', minimum: minimumAt(level, 1, [10, 22]), bonusChance: chanceAt(level, 10) },
         { kind: 'mysteryBag', minimum: minimumAt(level, 1, [16]), bonusChance: chanceAt(level, 15) },
         { kind: 'treasureChest', minimum: minimumAt(level, 0, [13]), bonusChance: chanceAt(level, 10) }
     ];

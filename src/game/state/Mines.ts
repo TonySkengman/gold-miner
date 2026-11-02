@@ -1,3 +1,4 @@
+import { timeVialSeconds } from './Upgrades';
 import { LEVELS, type LevelConfig } from './Levels';
 
 export type MineKind = 'quarry' | 'goldBasin' | 'gemHollow';
@@ -7,8 +8,8 @@ export const MINES = {
     gemHollow: { baseSeconds: 60, name: 'Gem Hollow', fee: 0, targetMultiplier: 1.2, playstyle: 'PRECISION & PERFECT CATCHES', description: 'Scattered diamonds and rubies, no gold. Aim through rock gaps for perfect catches; Gem Polish rewards precision.', subtext: 'Small targets and higher stakes. Misses cost time; careful aim avoids heavy rock hauls.', color: 0x78dfeb }
 } as const;
 
-export const roundDuration = (mine: MineKind = 'quarry', extraTime = 0): number =>
-    MINES[mine].baseSeconds + (extraTime > 0 ? 15 : 0);
+export const roundDuration = (mine: MineKind = 'quarry', extraTime = 0, vialBelt = 0): number =>
+    MINES[mine].baseSeconds + (extraTime > 0 ? timeVialSeconds(vialBelt) : 0);
 
 export function mineConfig(level: number, mine: MineKind = 'quarry'): LevelConfig {
     const base = LEVELS[level - 1];

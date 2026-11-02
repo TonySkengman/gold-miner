@@ -1,6 +1,6 @@
 import { milestonesFor, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
-import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses } from './Upgrades';
+import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses, streakVialDuration, timeVialSeconds } from './Upgrades';
 import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
 import { mineConfig, roundDuration, type MineKind } from './Mines';
 import { LEVELS, LevelConfig } from './Levels';
@@ -12,26 +12,34 @@ export class RoundState {
     score = 0;
     catchStreak = 0;
     streakVialSeconds = 0;
-    momentumSecondsEarned = 0;
+    private momentumChargesUsed = 0;
+
+    get momentumChargesRemaining(): number {
+        return this.bonuses.momentum > 0 ? Math.max(0, 5 - this.momentumChargesUsed) : 0;
+    }
 
     /** Award immediately on a perfect latch; later dynamite does not undo it. */
     catchMomentum(perfect: boolean): number {
-        if (!perfect || this.bonuses.momentum <= 0) return 0;
-        const seconds = Math.min(2, 10 - this.momentumSecondsEarned);
-        this.momentumSecondsEarned += seconds;
-        this.remaining += seconds;
-        return seconds;
+        if (!perfect || this.momentumChargesRemaining === 0) return 0;
+        this.momentumChargesUsed++;
+        this.remaining += 5;
+        return 5;
     }
 
 
     get streakVialActive(): boolean { return this.streakMultiplier > 1; }
 
+    private streakVialMultiplier = 1.5;
+
     get streakMultiplier(): number {
-        if (this.bonuses.streakVial > 0) return this.streakVialSeconds > 0 ? 2 : 1.5;
-        return this.streakVialSeconds > 0 ? 1.5 : 1;
+        return this.streakVialSeconds > 0 ? this.streakVialMultiplier : 1;
     }
 
-    activateStreakVial(): void { this.streakVialSeconds = (this.bonuses.streakVial > 0 ? 15 : 30) + this.upgrades.vialBelt * 5; }
+    activateStreakVial(): void {
+        const active = this.streakVialActive;
+        this.streakVialMultiplier = active ? Math.min(2, this.streakVialMultiplier + 0.25) : 1.5;
+        this.streakVialSeconds = active ? this.streakVialSeconds + 5 : streakVialDuration(this.upgrades.vialBelt);
+    }
 
     /** Register a latch immediately; the returned bonus is paid only on delivery. */
     latchStreak(kind: OreKind): number {
@@ -65,13 +73,14 @@ export class RoundState {
         this.lives = this.startingLives = Math.max(1, Math.min(5, Math.floor(lives)));
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
         this.bonuses = { ...emptyBonuses(), ...bonuses };
-        this.remaining = roundDuration(mine, this.bonuses.extraTime);
+        this.remaining = roundDuration(mine, this.bonuses.extraTime, upgrades.vialBelt);
         this.upgrades = { ...emptyUpgrades(), ...upgrades };
         this.dynamite = startingDynamite;
         this.config = mineConfig(this.level, mine);
         this.milestones = milestonesFor(this.target, this.level);
         if (this.bonuses.strengthPotion > 0) this.activateStrength();
         if (this.bonuses.goldRush > 0) this.activateGoldRush();
+        if (this.bonuses.streakVial > 0) this.activateStreakVial();
     }
 
     applyMysteryReward(reward: MysteryReward): string {
@@ -79,9 +88,25 @@ export class RoundState {
             this.score += reward.amount;
             return `MYSTERY: +$${reward.amount}`;
         }
-        if (reward.kind === 'dynamite') {
-            this.dynamite++;
-            return '+1 DYNAMITE!';
+        if (reward.kind === 'life') {
+            if (this.lives >= 5) return 'LIVES FULL (5 / 5)!';
+            this.lives++;
+            return '+1 LIFE!';
+        }
+        if (reward.kind === 'luck' || reward.kind === 'momentum') {
+            this.collectedBonuses[reward.kind]++;
+            return `${reward.kind.toUpperCase()} VIAL (STORED)!`;
+        }
+        if (reward.kind === 'extraTime') {
+            return `+${this.addTime()} SECONDS!`;
+        }
+        if (reward.kind === 'streakVial') {
+            this.activateStreakVial();
+            return `STREAK BONUSES x${this.streakMultiplier} • ${this.streakVialSeconds} SECONDS!`;
+        }
+        if (reward.kind === 'goldRush') {
+            this.activateGoldRush();
+            return `GOLD RUSH! ${this.goldRushCatches} GOLD NUGGETS`;
         }
         this.activateStrength();
         return `STRENGTH x2 • ${this.strengthCatches} CATCHES!`;
@@ -89,21 +114,26 @@ export class RoundState {
 
     activateStrength(): void { this.strengthCatches += 2 + this.upgrades.vialBelt; }
 
-    applyTreasureReward(reward: TreasureReward): string {
-        if (reward.kind === 'life') {
-            if (this.lives >= 5) return 'LIVES FULL (5 / 5)!';
-            this.lives++;
-            return '+1 LIFE!';
+    private readonly collectedUpgrades = emptyUpgrades();
+
+    get nextUpgrades(): Upgrades {
+        const upgrades = { ...this.upgrades };
+        for (const kind of Object.keys(upgrades) as (keyof Upgrades)[]) {
+            upgrades[kind] = Math.min(3, upgrades[kind] + this.collectedUpgrades[kind]);
         }
+        return upgrades;
+    }
+
+    applyTreasureReward(reward: TreasureReward): string {
         if (reward.kind === 'money') this.score += reward.amount;
         else if (reward.kind === 'dynamite') this.dynamite += reward.amount;
-        else this.collectedBonuses[reward.kind] += reward.amount;
-        return `${treasureRewardLabel(reward)}${reward.kind === 'luck' || reward.kind === 'lightweightGrip' ? ' (STORED)' : '!'}`;
+        else this.collectedUpgrades[reward.kind] += reward.amount;
+        return `${treasureRewardLabel(reward)}${reward.kind === 'money' || reward.kind === 'dynamite' ? '!' : ' (NEXT ROUND)!'}`;
     }
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
-        return { momentum: stock.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+        return { momentum: stock.momentum + this.collectedBonuses.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
             prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 
@@ -120,7 +150,11 @@ export class RoundState {
         return goldMultiplier * (gold ? 1 + this.upgrades.gold * 0.15 : 1);
     }
 
-    addTime(): void { this.remaining += 15; }
+    addTime(): number {
+        const seconds = timeVialSeconds(this.upgrades.vialBelt);
+        this.remaining += seconds;
+        return seconds;
+    }
 
     goldRushValue(value: number, kind: OreKind): number {
         const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';

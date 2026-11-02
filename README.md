@@ -28,7 +28,7 @@ Open [http://localhost:8080](http://localhost:8080), or the address shown in you
 
 ## How to play
 
-Reach each level’s earnings target within 60 seconds in every mine. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 15 seconds and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $7,200 on level 30 in Treasure Hollow (other modes apply their own target scaling). Start with three lives; failing a level costs one life, and losing your last life ends the run immediately without visiting the shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
+Reach each level’s earnings target within 60 seconds in every mine. If an object is already hooked when time runs out, you can finish reeling it in; its value, streak bonus, and rewards count before the level result is decided. No new shots can be launched at zero time. A time vial delivered on the final haul adds 10/15/20 seconds based on Vial Belt and lets play resume. Targets are rounded to the nearest $50, ranging from $800 on level 1 to $7,200 on level 30 in Treasure Hollow (other modes apply their own target scaling). Start with three lives; failing a level costs one life, and losing your last life ends the run immediately without visiting the shop. Life vials restore one life, up to a maximum of five. Heavier objects take longer to retrieve, and the most valuable treasure is deeper underground. Rocks leave aiming gaps, so careful shots can reach treasure without clearing every obstacle.
 
 **Finish Level** lets you leave early once you reach the target. Finishing below the target counts as a loss. Completed attempts take you to the shop unless you fail on your last life. Passing advances to the next level; failing costs a life and lets you restock before retrying the same layout with your starting balance plus 50% of the failed level’s earnings and restored starting supplies. At zero lives, the run ends immediately; buy life vials before you lose your last life. Clearing the final level also opens the shop before the final results.
 
@@ -53,15 +53,15 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 - 30 levels per mode with increasing targets and four cave layouts: Gold Pocket, Rat Tunnels, Explosive Cavern, and Deep Mine.
 - Four gold-nugget sizes worth $50, $100, $200, and $350; diamonds worth $450 and rubies worth $650 before upgrades.
 - Four rock sizes worth $12, $16, $18, and $20.
-- Cash bags worth $150–$400, with a flat +$200 when Luck is active ($350–$600 total).
-- Heavy purple mystery bags marked **?** containing $10–$640, one dynamite stick, or a strength boost for two catches. Cash rewards favor the higher end.
+- Cash bags worth $150–$400, rolling $300–$400 when Luck is active.
+- Purple mystery bags marked **?** weigh 1.5 (the same as medium gold). Rewards are 50% cash ($250–$650) and 50% a random vial, split equally between Strength, Gold Rush, Streak, Time, Life, Luck and Momentum. Luck and Momentum are stored for the next round; other vials apply immediately. Cash rolls uniformly in $10 steps; active Luck narrows the cash range to $500–$650.
 - Moving rats worth $1, including rats carrying diamonds or rubies worth the gem’s value plus $1.
-- Treasure chests reel in at the same speed as mystery bags (weight 3). The first hit opens the chest and reveals its reward; catch it again to collect. Rewards include $320–$720, dynamite, Luck vials, Lightweight Grip, or a life vial.
+- Treasure chests have weight 4.8, the same as giant gold. The first hit opens the chest and reveals its reward; catch it again to collect. Without Luck, rewards are equally likely to be $600–$1,200 in $50 steps, 2–3 dynamite (equally likely), or one tier of an eligible permanent upgrade. Upgrade tiers apply next round, including retries, and last for the run. Maxed upgrades are excluded, with tiers reserved across all chests to prevent exceeding the cap. Luck changes chest odds to 50% permanent upgrade, 25% cash and 25% dynamite while upgrade tiers remain. When all upgrades are maxed or reserved, cash and dynamite each have a 50% chance.
 - Gem-studded rocks contain hidden treasure that can crumble away during hauling. Blast them to release the remaining contents.
 - Rocks with an embedded diamond or ruby reward precision: catch just the gem or haul the heavy rock with it. These appear on medium or larger rocks deep underground.
-- A separate rare combined type has both crystal studs and an embedded gem, with a 50% chance per level to attempt one. Blasting guarantees the visible gem plus remaining hidden gold; extracting the gem first prevents it from dropping twice.
+- A combined rock has both crystal studs and an embedded gem; Treasure Hollow uses the progression table below for its minimum and bonus spawns. Blasting guarantees the visible gem plus remaining hidden gold; extracting the gem first prevents it from dropping twice.
 - TNT barrels that destroy nearby objects and trigger chain reactions without awarding money.
-- Catchable strength vials that double retrieval speed for two catches and stack with winch upgrades; Gold Rush boosts the next two gold catches by 50%, and time vials add 15 seconds.
+- Catchable strength vials that double retrieval speed for two catches and stack with winch upgrades; Gold Rush boosts the next two gold catches by 50%, and time vials add 10/15/20 seconds based on Vial Belt.
 - A shopkeeper and illustrated products with descriptions shown on hover.
 - Denser collectible mix adds large and giant gold, diamonds, rubies, bags, and rocks alongside smaller catches; additions scale with screen width.
 - Window-filling mine with responsive width, extended claw reach, and collectible counts that scale with the available space. Resizing preserves the current round and shop purchases.
@@ -80,16 +80,16 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
 | Dynamite | One additional stick | $750 |
-| Momentum vial | Perfect catches instantly add 2 seconds, capped at 10 seconds per level | $1,250 |
-| Luck vial | Cash bags pay an extra $200 each in the next level | $1,000 |
-| Time vial | Adds 15 seconds to the next level | $1,000 |
+| Momentum vial | Five charges per round; each perfect catch instantly adds 5 seconds | $1,250 |
+| Luck vial | Cash bags roll $300–$400 and mystery cash rolls $500–$650; chest odds: 50% upgrade / 25% cash / 25% dynamite | $1,000 |
+| Time vial | Adds 10/15/20 seconds at Vial Belt tiers 1/2/3 (10 without the belt) at round start | $1,000 |
 | Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
 | Prospector’s Lens | Reveals cash-bag values, mystery-bag contents, and treasure-chest rewards for one round | $1,500 |
-| Vial Belt | +1 Strength/Gold Rush catch and +5 seconds to caught Streak vials per tier; lasts for the run | $2,000 / $3,500 / $5,000 |
-| Streak vial | Multiplies streak bonuses by 1.5 for the full next level; mine vials boost to x2 for 15 seconds | $1,000 |
-| Life vial | Immediately restores one life, up to five | $3,000 |
+| Vial Belt | +1 Strength/Gold Rush catch per tier; initial Streak effects last 15/20/25 seconds and Time vials add 10/15/20 seconds at belt tiers 1/2/3; lasts for the run | $2,000 / $3,500 / $5,000 |
+| Streak vial | Starts the round at x1.5 for 15 seconds (20/25 at belt tiers 2/3); catching another while active adds 5 seconds and increases the multiplier by +0.25x, up to x2 | $1,000 |
+| Life vial | Immediately restores one life, up to five | $5,000 |
 
-Winch, Gem Polish, Gold Polish, Blast Powder, and Vial Belt upgrades last for the run, with three tiers each. Safety Grip also lasts for the run, with three tiers. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Caught Streak vials last 35/40/45 seconds, or 20/25/30 seconds for the x2 boost when the shop Streak vial is active. Time vials still add 15 seconds. Luck, extra time, Lightweight Grip, Streak vial, Momentum, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
+Winch, Gem Polish, Gold Polish, Blast Powder, and Vial Belt upgrades last for the run, with three tiers each. Safety Grip also lasts for the run, with three tiers. Vial Belt increases Strength and Gold Rush from 2 catches to 3/4/5, including Strength from mystery bags. Initial shop and caught Streak effects last 15 seconds without Vial Belt or at tier 1, 20 seconds at tier 2, and 25 seconds at tier 3. Additional Streak vials caught while active add only 5 seconds, regardless of Vial Belt, and increase the multiplier by +0.25x up to x2. Shop and caught Time vials, including mystery rewards, add 10 seconds without Vial Belt or at tier 1, 15 at tier 2, and 20 at tier 3. Luck, extra time, Lightweight Grip, Streak vial, Momentum, and Prospector’s Lens use one charge per round. Lightweight Grip affects all four rock sizes, including gem-bearing rocks; attached gems retain their normal weight. It does not increase rock values or stack within a round. Buy multiple charges to cover future rounds; extra time does not stack within a single round. Lens labels appear just below each object and show cash-bag values including any active Luck bonus. Life vials cannot be purchased at full lives. Buying is optional.
 
 ### Safety Grip
 
@@ -127,7 +127,7 @@ Progress lasts for the current run only. There is no backend or persistent save 
 
 ### Perfect catches
 
-Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the entire haul. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 35% of the object's boosted cash value, rounded up to the nearest $10, on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats, utility vials, and opening a chest do not qualify. Dynamiting the object forfeits its perfect bonus.
+Aim through the centre of valuable objects for a **Perfect catch**: a gold flash, crisp chime, and 35% faster reeling for the entire haul. The centre window is 30% of the object's radius, capped at 10 pixels. Perfect catches pay an extra 35% of the object's boosted cash value, rounded up to the nearest $10, on delivery, separately from streak bonuses. Mystery bags and non-cash chest rewards receive the reel boost only. Rocks, empty rats and opening a chest do not qualify. Utility vials qualify for faster perfect hauling without a cash bonus. Dynamiting the object forfeits its perfect bonus.
 
 ### Catch streaks
 
@@ -135,9 +135,9 @@ All gold nuggets (including small and medium), diamonds, rubies, diamond- and ru
 
 Catching an empty rat or an ordinary stone without a gem immediately breaks the streak, even if you dynamite it afterward. Catching a whole rock containing an embedded diamond or ruby advances the streak and earns the normal streak bonus, including combined gem-studded rocks. Gem-studded deposits without an embedded gem stay neutral: they preserve the streak without advancing it. Once an embedded gem is caught separately, its ordinary host rock breaks the streak if caught. An empty shot also resets it. Catching a gem separately from its rock advances the streak normally. Utility items stay neutral: they neither advance nor break the streak. Opening a chest and hitting TNT also preserve it. Every level and retry starts at zero.
 
-A catchable purple Streak vial appears in each mine. Collecting it multiplies the target-scaled streak bonuses by 1.5 for 30 seconds. For a $2,000 target in Treasure Hollow, catches 3, 4 and 5 pay $45, $90 and $135 respectively. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
+A catchable purple Streak vial appears in each mine. Collecting it multiplies the target-scaled streak bonuses by 1.5 for 15 seconds (20/25 at Vial Belt tiers 2/3). For a $2,000 target in Treasure Hollow, catches 3, 4 and 5 pay $45, $90 and $135 respectively. It does not multiply object values or change streak rules. It is neutral to the streak. Its countdown pauses with the game and resets on the next level or retry. The bonus is locked in when the claw latches, even if the effect expires before delivery.
 
-The shop Streak vial grants x1.5 streak bonuses for the entire next level. With that shop buff active, collecting a mine Streak vial grants x2 for 15 seconds before returning to x1.5. Without the shop buff, the mine vial still grants x1.5 for 30 seconds. Extra shop charges cover future levels; they do not stack multipliers.
+The shop Streak vial activates the same timed x1.5 effect at round start. Catching another Streak vial while active adds 5 seconds to the remaining time and increases the multiplier by +0.25x (x1.5 → x1.75 → x2 maximum). Once the timer expires, streak bonuses return to normal. Extra shop charges cover future levels; they do not stack multipliers.
 
 ### Starting vials and run modes
 
@@ -147,7 +147,7 @@ Before starting a run, choose a game mode. It stays fixed for every level and re
 
 | Mode | Entry fee | Treasure added | Target |
 |---|---:|---|---|
-| Treasure Hollow | Free | Mixed treasure; 1–2 chests, 2–4 mystery bags and 2 extra cash bags | Standard |
+| Treasure Hollow | Free | Mixed treasure; guaranteed minimums and bonus rolls follow the progression table below | Standard |
 | Gold Basin | Free | 7 giant and 2 large gold; fewer rocks and medium nuggets | Previous route target +35%, then reduced 10%; rounded to $50 |
 | Gem Hollow | Free | 4 diamonds and 3 rubies | Previous route target +35%, rounded to $50 |
 
@@ -156,8 +156,8 @@ All three mines are free to enter. Choose between mixed treasure, heavy gold and
 | Special item | Starting minimum | Add one guaranteed at levels | Starting bonus rating |
 | --- | --- | --- | --- |
 | Money bags | 1 | 10, 22 | 20% |
-| Diamonds | 1 | 13, 25 | 15% |
-| Rubies | 0 | 10, 22 | 10% |
+| Diamonds | 2 | 13, 25 | 15% |
+| Rubies | 1 | 10, 22 | 10% |
 | Mystery bags | 1 | 16 | 15% |
 | Treasure chests | 0 | 13 | 10% |
 | Gem-studded rocks | 0 | 7 | 20% |
@@ -168,13 +168,13 @@ Treasure Hollow adds one ordinary rock and one rat at each of levels 7, 16 and 2
 
 Special rocks have their own visible gems in addition to the loose gem pool. Gem-studded rocks contain hidden deposits; combined rocks also have a catchable visible gem. Gem-carrying rats and rewards inside deposits keep their separate rules. Targets and other modes are unchanged.
 
-The selected mode persists through the shop, every cleared level and every retry. Failed attempts retain the starting balance plus 50% of new earnings, restore starting supplies, and keep the same seeded layout and rewards. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
+The selected mode persists through the shop, every cleared level and every retry. Failed attempts retain the starting balance plus 50% of new earnings, restore starting supplies, and keep the same seeded layout and mystery rewards. Collected permanent chest upgrades carry into retries; chest upgrade rolls exclude currently maxed upgrades. Clearing a level generates a fresh layout in the same mode for the next level. New runs open game-mode selection before level 1, including after losing or completing a run.
 
 Mine routes also have distinct scenery: Treasure Hollow uses earthy stone, Gold Basin has amber strata, gold seams and timber supports, and Gem Hollow has blue-violet stone, cool lanterns and wall crystals. Gold Basin retains its extra heavy gold, while Gem Hollow replaces extra-density large and giant gold with diamonds and rubies; entrance previews match each environment.
 
 Gold Basin keeps only a medium rock and a small rock, removes ordinary large/heavy rocks (apart from the rare large gem host), scales TNT and time vials with progression, and uses a dedicated density pool favoring giant/large gold and supplies, with no extra medium nuggets or rocks. Only two base medium nuggets remain. Its giant nuggets spread across the middle and bottom to keep crowded layouts playable.
 
-Gold Basin specializes in gold: at most one loose diamond and one cash bag, no loose rubies, gem-carrying rats, mystery bags or treasure chests, and one Streak vial. Strength and Gold Rush vials each have minimums of 1 on levels 1–6, 2 on levels 7–12 and 3 on levels 13–30, plus an independent 40% chance of one extra. Minimum supplies per round: levels 1–6 have 1 time vial and 3 TNT barrels, levels 7–12 have 2 time vials and 4 TNT barrels, and levels 13–30 have 3 time vials and 5 TNT barrels. Gold Basin also rolls a 40% chance of one extra TNT barrel, plus independent 50% and 20% chances of one extra time vial each. Bonus rolls are fixed per seeded layout and retries keep the same supplies. Each time vial adds 15 seconds when collected; extra time must be earned by catching the vials. Its density pool adds gold rather than gems and bags. Treasure Hollow retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
+Gold Basin specializes in gold: at most one loose diamond and one cash bag, no loose rubies, gem-carrying rats, mystery bags or treasure chests, and one Streak vial. Strength and Gold Rush vials each have minimums of 1 on levels 1–6, 2 on levels 7–12 and 3 on levels 13–30, plus an independent 40% chance of one extra. Minimum supplies per round: levels 1–6 have 1 time vial and 3 TNT barrels, levels 7–12 have 2 time vials and 4 TNT barrels, and levels 13–30 have 3 time vials and 5 TNT barrels. Gold Basin also rolls a 40% chance of one extra TNT barrel, plus independent 50% and 20% chances of one extra time vial each. Bonus rolls are fixed per seeded layout and retries keep the same supplies. Each time vial adds 10/15/20 seconds based on Vial Belt when collected; extra time must be earned by catching the vials. Its density pool adds gold rather than gems and bags. Treasure Hollow retains its mixed treasure. Gem Hollow spreads gems from the middle to the bottom, with at least 130 pixels between gem centres and distinct aiming angles; gems no longer cluster around TNT. Mounted gems respect the same spacing.
 
 Gold Basin and Gem Hollow retain their increased targets: their previous rounded targets are raised by 35%, rounded again to the nearest $50. Treasure Hollow targets stay unchanged. Gem Hollow contains no gold nuggets of any size and no catchable Gold Rush vials, including in crowded-layout fallbacks. Its rock deposits also contain gems rather than gold; its existing scattered gem population remains the focus. Catchable Strength vials are available to help haul rocks and chests.
 
@@ -192,11 +192,11 @@ Crowded Gold Basin layouts may drop up to four small and two medium gold nuggets
 
 Game-mode cards focus on the illustrated entrance, playstyle, a short description of what makes each mode different, and quieter subtext explaining its rewards and tradeoffs. Exact spawn counts are omitted from these cards; level targets remain on the level briefing.
 
-Strength charges are not consumed by catching Strength, Gold Rush, time or Streak vials. Other catches still use a charge. Gold Basin starts with 60 seconds (75 with the shop Time vial) and its previous targets are reduced by 10%, rounded to the nearest $50. Catchable time vials still add 15 seconds each. Treasure Hollow and Gem Hollow retain their current targets and 60-second base timer. The level briefing and gameplay use the same mode duration.
+Strength charges are not consumed by catching Strength, Gold Rush, time or Streak vials. Other catches still use a charge. Gold Basin starts with 60 seconds (70/75/80 with the shop Time vial, based on Vial Belt) and its previous targets are reduced by 10%, rounded to the nearest $50. Catchable Time vials add 10/15/20 seconds each, based on Vial Belt. Treasure Hollow and Gem Hollow retain their current targets and 60-second base timer. The level briefing and gameplay use the same mode duration.
 
 The shop includes a Forfeit Run button after any attempt. Confirming ends the run and returns to the main menu; Keep Playing or Escape closes the confirmation without changing purchases, money or supplies. Shop purchases and level progression are blocked while the confirmation is open.
 
-Treasure Hollow trades two small and two medium nuggets for two giant nuggets, one large nugget and one diamond. Its density allowance is raised by 8 percentage points (with at least six density additions), and wider windows favor large gold, cash bags and gems over small/medium filler. Giant nuggets can occupy the deeper middle as well as the bottom. Chest and mystery-bag chances, treasure spacing, targets and timers are unchanged.
+Treasure Hollow trades two small and two medium nuggets for two giant nuggets, and one large nugget; loose gems follow the progression table above. Its density allowance is raised by 8 percentage points (with at least six density additions), and wider windows favor large gold, cash bags and gems over small/medium filler. Giant nuggets can occupy the deeper middle as well as the bottom. Chest and mystery-bag chances, treasure spacing, targets and timers are unchanged.
 
 Treasure Hollow rolls each special rock type from its level progression table. Placement reserves deep hosts and exposed gem positions before filling the remaining space, keeping their aiming paths open. Crowded-layout fallbacks preserve rolled special rocks and treasure; gold nugget counts and values retain their original rules, with wider placement depth ranges available when the usual bands are crowded.
 
@@ -218,8 +218,8 @@ Strength, Gold Rush, time and Streak vials qualify for perfect catches using the
 
 Loose rubies and diamonds share weight 0.4 and reel in at the same speed with equivalent boosts.
 
-The shop Time vial uses the same blue vial artwork as mine Time vials and adds the same 15 seconds, applied at the start of the next round. Luck adds $200 per cash bag; its flat bonus and the Prospector’s Lens cash-bag preview use the same calculation.
+The shop Time vial uses the same blue vial artwork as mine Time vials and adds the same 10/15/20 seconds based on Vial Belt, applied at the start of the next round (10 seconds without the belt or at tier 1, 15 at tier 2, 20 at tier 3). Luck narrows cash-bag payouts to $300–$400 and mystery-bag cash payouts to $500–$650; Prospector’s Lens previews show these actual payouts. Luck also raises eligible chest upgrade odds to 50%, with 25% each for cash and dynamite. If no upgrade tiers remain, cash and dynamite each have a 50% chance.
 
-Shop Strength, Gold Rush and Streak vials use the same artwork as their mine counterparts. Strength and Gold Rush retain their shared catch-based effects; the shop Streak vial still lasts the full next round, while caught Streak vials retain their timed effects.
+Shop Strength, Gold Rush and Streak vials use the same artwork as their mine counterparts. Strength and Gold Rush retain their shared catch-based effects; shop and caught Streak vials share the same timed effect.
 
-Momentum is a shop-only vial immediately to the right of Luck. One stocked charge activates for the next round; extra purchases cover future rounds. Latching a perfect catch, including a vial or a non-cash chest, immediately earns two seconds, up to ten total. Dynamiting the catch afterward keeps the earned time. Delivery awards no additional Momentum time. Ordinary catches, chest-opening shots and TNT detonations earn none. The earned-time cap resets each round or retry; remaining stock carries forward. The buff HUD shows the remaining earnable seconds.
+Momentum is available in the shop immediately to the right of Luck, and from mystery bags as a stored charge for the next round. One stocked charge activates for the next round; extra purchases cover future rounds. Latching a perfect catch, including a vial or a non-cash chest, immediately earns five seconds and spends one of five charges (up to 25 seconds per round). Dynamiting the catch afterward keeps the earned time. Delivery awards no additional Momentum time. Ordinary catches, chest-opening shots and TNT detonations earn none. The five-charge allowance resets each round or retry; remaining stock carries forward. The buff HUD shows the remaining charges.

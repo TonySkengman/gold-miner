@@ -1,6 +1,6 @@
 import { quarryObstacleRules, quarryTreasureRules, rollQuarryRocks, rollQuarryTreasure } from '../state/QuarryTreasure';
 import { drawShopProduct, drawTimeVial, drawMineVial } from '../art/drawShop';
-import type { MysteryReward } from '../state/MysteryRewards';
+import { mysteryRewardLabel, type MysteryReward } from '../state/MysteryRewards';
 import { DepositIntegrity } from '../state/DepositIntegrity';
 import { DepositRewardKind, rollDepositRewards } from '../state/DepositRewards';
 import { TNT_BLAST_RADIUS } from './Explosions';
@@ -14,11 +14,11 @@ import { LEVELS, LevelConfig } from '../state/Levels';
 export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tntRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest';
 const TYPES = {
     ruby: { radius: 15, value: 650, weight: 0.4, color: 0xe83864 },
-    treasureChest: { radius: 36, value: 0, weight: 3, color: 0xb77736 },
+    treasureChest: { radius: 36, value: 0, weight: 4.8, color: 0xb77736 },
     goldRush: { radius: 30, value: 0, weight: 0.2, color: 0xffc52e },
     streakVial: { radius: 30, value: 0, weight: 0.2, color: 0xa75ae0 },
     timeVial: { radius: 30, value: 0, weight: 0.2, color: 0x66d9fa },
-    mysteryBag: { radius: 30, value: 0, weight: 3, color: 0x837097 },
+    mysteryBag: { radius: 30, value: 0, weight: 1.5, color: 0x837097 },
     strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
     tnt: { radius: 40, value: 0, weight: 1, color: 0xbb3c2d },
     tntRat: { radius: 24, value: 0, weight: 0.2, color: 0x88766a },
@@ -53,7 +53,7 @@ export class Collectable {
     readonly graphic: GameObjects.Graphics;
     available = true;
     private chestOpened = false;
-    readonly treasureReward?: TreasureReward;
+    treasureReward?: TreasureReward;
     depositIntegrity?: DepositIntegrity;
     private combinedGemRock = false;
     private blastedGem?: 'diamond' | 'ruby';
@@ -367,23 +367,12 @@ export class Collectable {
                     g.fillStyle(0xc43c2f).fillRoundedRect(x - 4, -22, 8, 22, 2);
                     g.lineStyle(1, 0xffe486).lineBetween(x, -22, x + 2, -26);
                 }
-            } else if (this.treasureReward?.kind === 'life') {
-                // A red vial with a heart identifies the extra-life reward.
-                g.fillStyle(0xf1c9cc).lineStyle(2, 0x793341);
-                g.fillRoundedRect(-11, -20, 22, 26, 7).strokeRoundedRect(-11, -20, 22, 26, 7);
-                g.fillStyle(0xd94b52).fillRoundedRect(-8, -11, 16, 14, 4);
-                g.fillStyle(0xb68b4e).fillRoundedRect(-6, -26, 12, 8, 2);
-                g.fillStyle(0xffe8e8).fillCircle(-3, -8, 4).fillCircle(3, -8, 4)
-                    .fillTriangle(-7, -7, 7, -7, 0, 1);
-            } else if (this.treasureReward?.kind === 'lightweightGrip') {
-                g.lineStyle(5, 0xc5e5ec).lineBetween(0, -25, 0, -12);
-                g.lineStyle(4, 0x7199a8).beginPath().moveTo(0, -12).lineTo(-12, -5)
-                    .lineTo(-8, 4).moveTo(0, -12).lineTo(12, -5).lineTo(8, 4).strokePath();
             } else {
-                g.fillStyle(this.treasureReward?.kind === 'luck' ? 0xb67ee0 : 0xdba34d)
-                    .fillRoundedRect(-10, -18, 20, 20, 4);
-                g.fillStyle(0xb68b4e).fillRect(-6, -24, 12, 7);
-                g.fillStyle(0xffedbb).fillCircle(0, -9, 4);
+                // A gold upgrade badge distinguishes permanent tiers from supplies.
+                g.fillStyle(0xdba34d).lineStyle(2, 0xffedbb)
+                    .fillRoundedRect(-13, -24, 26, 28, 5).strokeRoundedRect(-13, -24, 26, 28, 5);
+                g.lineStyle(4, 0xffedbb).lineBetween(-7, -9, 0, -16).lineBetween(0, -16, 7, -9)
+                    .lineBetween(0, -16, 0, -2);
             }
             g.lineStyle(2, 0xfff4c2).lineBetween(-9, -23, -1, -23).lineBetween(-5, -27, -5, -19);
         } else {
@@ -417,10 +406,8 @@ export class Collectable {
         this.showLensReveal(scene, treasureRewardLabel(this.treasureReward));
     }
 
-    revealMysteryReward(scene: Scene, reward: MysteryReward): void {
-        const text = reward.kind === 'money' ? `$${reward.amount}`
-            : reward.kind === 'dynamite' ? '+1 DYNAMITE' : 'STRENGTH x2';
-        this.showLensReveal(scene, text);
+    revealMysteryReward(scene: Scene, reward: MysteryReward, vialBelt = 0): void {
+        this.showLensReveal(scene, mysteryRewardLabel(reward, vialBelt));
     }
 
     private showLensReveal(scene: Scene, text: string): void {
