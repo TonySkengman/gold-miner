@@ -1,3 +1,4 @@
+import type { ToolToggles } from '../state/Upgrades';
 import { responsiveLayout } from '../ui/ResponsiveLayout';
 import { WORLD } from '../state/World';
 import { drawLives } from '../ui/LivesDisplay';
@@ -13,6 +14,7 @@ import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses } from '../state/Upg
 import { menuButton } from '../ui/menuButton';
 
 interface BriefingData {
+    toolToggles?: ToolToggles;
     mine?: MineKind;
     lives?: number;
     level?: number;

@@ -1,3 +1,4 @@
+import type { ToolToggles } from '../state/Upgrades';
 import { drawShopProduct } from '../art/drawShop';
 import { MineClock } from '../ui/MineClock';
 import { MINES, type MineKind } from '../state/Mines';
@@ -22,6 +23,7 @@ import { LEVELS } from '../state/Levels';
 import { drawEnvironment } from '../art/drawEnvironment';
 
 export class Game extends Scene {
+    private toolToggles: ToolToggles;
     private levelSeed: number;
     private mysteryRewards = new Map<Collectable, MysteryReward>();
     private ended = false;
@@ -54,7 +56,9 @@ export class Game extends Scene {
         return WORLD.centerX + Math.min(230, 150 + Math.max(0, (WORLD.width - 1024) / 2));
     }
 
-    create(data: { level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number; mine?: MineKind } = {}): void {
+    create(data: { toolToggles?: ToolToggles; level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number; mine?: MineKind } = {}): void {
+        this.toolToggles = { ...data.toolToggles };
+        this.autoFinishLevel = this.toolToggles.autoFinishLevel ?? false;
         this.levelSeed = data.levelSeed ?? newLevelSeed();
         const rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
         this.mysteryRewards = new Map();
@@ -172,7 +176,7 @@ export class Game extends Scene {
             .setData('responsiveAnchor', 'center').setDepth(8).setVisible(false);
         const leftHudStart = this.children.length;
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 146);
-        let blastEnabled = this.round.upgrades.blastPowder > 0;
+        let blastEnabled = this.round.upgrades.blastPowder > 0 && (this.toolToggles.blastPowder ?? true);
         this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
         const blastPanel = this.add.rectangle(32, 158, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
@@ -214,6 +218,7 @@ export class Game extends Scene {
         const toggleBlastPowder = () => {
             if (this.ended || this.round.upgrades.blastPowder <= 0) return;
             blastEnabled = !blastEnabled;
+            this.toolToggles.blastPowder = blastEnabled;
             this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
             refreshBlastToggle();
         };
@@ -221,7 +226,7 @@ export class Game extends Scene {
             event.stopPropagation();
             toggleBlastPowder();
         });
-        this.claw.safetyGrip = false;
+        this.claw.safetyGrip = this.round.upgrades.safetyGrip > 0 && (this.toolToggles.safetyGrip ?? false);
         const safetyPanel = this.add.rectangle(32, 202, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
         this.add.rectangle(42, 202, 280, 1, 0xc29659).setOrigin(0);
@@ -246,6 +251,7 @@ export class Game extends Scene {
                 return;
             }
             this.claw.safetyGrip = !this.claw.safetyGrip;
+            this.toolToggles.safetyGrip = this.claw.safetyGrip;
             refreshSafetyGrip();
         };
         refreshSafetyGrip();
@@ -344,6 +350,7 @@ export class Game extends Scene {
             event.stopPropagation();
             if (this.ended) return;
             this.autoFinishLevel = !this.autoFinishLevel;
+            this.toolToggles.autoFinishLevel = this.autoFinishLevel;
             updateAutoFinishButton();
         });
         this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
@@ -469,6 +476,7 @@ export class Game extends Scene {
         soundEffects.play(this.round.won ? 'win' : 'lose');
         const lives = this.round.won ? this.round.lives : Math.max(0, this.round.startingLives - 1);
         this.scene.start('UpgradeShop', {
+            toolToggles: { ...this.toolToggles },
             lives,
             failed: !this.round.won,
             mine: this.round.mine,
@@ -479,6 +487,7 @@ export class Game extends Scene {
             money: this.round.retainedMoney,
             upgrades: this.round.upgrades,
             result: {
+                toolToggles: { ...this.toolToggles },
                 lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
                 dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
                 upgrades: this.round.upgrades,
