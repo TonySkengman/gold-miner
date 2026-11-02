@@ -10,7 +10,7 @@ import { LEVELS } from '../state/Levels';
 import { MINES, mineConfig, roundDuration, type MineKind } from '../state/Mines';
 import { LAYOUTS } from '../state/Layouts';
 import { milestonesFor } from '../state/Milestones';
-import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses, timeVialSeconds } from '../state/Upgrades';
+import { LevelBonuses, ShopItemKind, Upgrades, emptyBonuses, timeVialSeconds, momentumSecondsPerCatch } from '../state/Upgrades';
 import { menuButton, RUN_START_Y } from '../ui/menuButton';
 
 interface BriefingData {
@@ -56,7 +56,7 @@ export class LevelBriefing extends Scene {
         if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ${data.toolToggles?.blastPowder === false ? 'OFF' : 'ON'}\n← / click: toggle` });
         if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: `${data.toolToggles?.safetyGrip === false ? 'OFF' : 'ON'}\n→ before launch` });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Higher bag payouts\n50% chest upgrades' });
-        if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+5s per perfect\n5 charges' });
+        if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: `+${momentumSecondsPerCatch(data.upgrades?.vialBelt ?? 0)}s per perfect\n5 charges` });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: `+${timeVialSeconds(data.upgrades?.vialBelt ?? 0)} seconds` });
         if (bonuses.lightweightGrip > 0) prepared.push({ kind: 'lightweightGrip', name: 'Lightweight Grip', detail: 'Rock weight\n-40%' });
         if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x1.5' });

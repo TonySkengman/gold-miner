@@ -1,6 +1,6 @@
 import { milestonesFor, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
-import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses, streakVialDuration, timeVialSeconds } from './Upgrades';
+import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses, streakVialDuration, timeVialSeconds, momentumSecondsPerCatch } from './Upgrades';
 import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
 import { mineConfig, roundDuration, type MineKind } from './Mines';
 import { LEVELS, LevelConfig } from './Levels';
@@ -22,8 +22,9 @@ export class RoundState {
     catchMomentum(perfect: boolean): number {
         if (!perfect || this.momentumChargesRemaining === 0) return 0;
         this.momentumChargesUsed++;
-        this.remaining += 5;
-        return 5;
+        const seconds = momentumSecondsPerCatch(this.upgrades.vialBelt);
+        this.remaining += seconds;
+        return seconds;
     }
 
 
@@ -102,7 +103,7 @@ export class RoundState {
         }
         if (reward.kind === 'streakVial') {
             this.activateStreakVial();
-            return `STREAK BONUSES x${this.streakMultiplier} • ${this.streakVialSeconds} SECONDS!`;
+            return `STREAK BONUSES x${this.streakMultiplier} • ${Number(this.streakVialSeconds.toFixed(2))} SECONDS!`;
         }
         if (reward.kind === 'goldRush') {
             this.activateGoldRush();

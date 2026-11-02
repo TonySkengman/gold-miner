@@ -80,12 +80,12 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
 | Dynamite | One additional stick | $750 |
-| Momentum vial | Five charges per round; each perfect catch instantly adds 5 seconds | $1,250 |
+| Momentum vial | Five charges per round; each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 without the belt) | $1,250 |
 | Luck vial | Cash bags roll $300–$400 and mystery cash rolls $500–$650; chest odds: 50% upgrade / 25% cash / 25% dynamite | $1,000 |
 | Time vial | Adds 10/15/20 seconds at Vial Belt tiers 1/2/3 (10 without the belt) at round start | $1,000 |
 | Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
 | Prospector’s Lens | Reveals cash-bag values, mystery-bag contents, and treasure-chest rewards for one round | $1,500 |
-| Vial Belt | +1 Strength/Gold Rush catch per tier; initial Streak effects last 15/20/25 seconds and Time vials add 10/15/20 seconds at belt tiers 1/2/3; lasts for the run | $2,000 / $3,500 / $5,000 |
+| Vial Belt | +1 Strength/Gold Rush catch per tier; initial Streak effects last 15/20/25 seconds and Time vials add 10/15/20 seconds at belt tiers 1/2/3; Momentum adds 3/4/5 seconds per perfect catch with five charges; lasts for the run | $2,000 / $3,500 / $5,000 |
 | Streak vial | Starts the round at x1.5 for 15 seconds (20/25 at belt tiers 2/3); catching another while active adds 5 seconds and increases the multiplier by +0.25x, up to x2 | $1,000 |
 | Life vial | Immediately restores one life, up to five | $5,000 |
 
@@ -222,4 +222,4 @@ The shop Time vial uses the same blue vial artwork as mine Time vials and adds t
 
 Shop Strength, Gold Rush and Streak vials use the same artwork as their mine counterparts. Strength and Gold Rush retain their shared catch-based effects; shop and caught Streak vials share the same timed effect.
 
-Momentum is available in the shop immediately to the right of Luck, and from mystery bags as a stored charge for the next round. One stocked charge activates for the next round; extra purchases cover future rounds. Latching a perfect catch, including a vial or a non-cash chest, immediately earns five seconds and spends one of five charges (up to 25 seconds per round). Dynamiting the catch afterward keeps the earned time. Delivery awards no additional Momentum time. Ordinary catches, chest-opening shots and TNT detonations earn none. The five-charge allowance resets each round or retry; remaining stock carries forward. The buff HUD shows the remaining charges.
+Momentum is available in the shop immediately to the right of Luck, and from mystery bags as a stored charge for the next round. One stocked charge activates for the next round; extra purchases cover future rounds. Latching a perfect catch, including a vial or a non-cash chest, immediately earns 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 without the belt) and spends one of five charges, for up to 15/20/25 seconds per round. Dynamiting the catch afterward keeps the earned time. Delivery awards no additional Momentum time. Ordinary catches, chest-opening shots and TNT detonations earn none. The five-charge allowance resets each round or retry; remaining stock carries forward. The buff HUD shows the remaining charges.

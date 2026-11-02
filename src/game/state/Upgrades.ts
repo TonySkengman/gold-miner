@@ -18,13 +18,14 @@ export const remainingBonuses = (bonuses: LevelBonuses): LevelBonuses => ({
 export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => kind === 'safetyGrip' || kind === 'blastPowder' || kind === 'strength' || kind === 'gold' || kind === 'diamonds' || kind === 'vialBelt';
 export const UPGRADE_LIMIT = 3;
 export const upgradeLimit = (_kind: UpgradeKind): number => UPGRADE_LIMIT;
+export const momentumSecondsPerCatch = (vialBelt: number): number => 3 + Math.max(0, Math.min(3, vialBelt) - 1);
 export const timeVialSeconds = (vialBelt: number): number => 10 + Math.max(0, Math.min(3, vialBelt) - 1) * 5;
 export const streakVialDuration = (vialBelt: number): number => 15 + Math.max(0, Math.min(3, vialBelt) - 1) * 5;
 export const safetyGripDisarmSeconds = (tier: number): number => 3.5 - Math.max(0, Math.min(3, tier) - 1) * 0.5;
 export const UPGRADE_INFO = {
     safetyGrip: { name: 'Safety Grip', description: 'Toggle with → or click to catch TNT barrels and TNT rats safely. Disarming takes 3.5 / 3 / 2.5 seconds at tiers 1 / 2 / 3 before hauling. Deliver for +1 dynamite, no money. Nearby explosions still detonate free TNT. Starts ON; remembers your choice between levels and retries. Toggle only while the claw is idle. Lasts for this run', basePrice: 1500 },
     blastPowder: { name: 'Blast Powder', description: 'Thrown dynamite creates size-based blasts; dynamiting caught TNT gives +50% radius. Contact and chain TNT blasts stay normal. Tiers 2/3 add +20%/+40% radius over tier 1. Toggle with ← or click, including during launch and hauling. Thrown dynamite keeps its effect from throw time. Remembers your toggle between levels and retries. Lasts for this run', basePrice: 1500 },
-    momentum: { name: 'Momentum vial', description: 'Five charges per round: each perfect catch instantly adds 5 seconds and uses one charge. Each purchase covers one round', basePrice: 1250 },
+    momentum: { name: 'Momentum vial', description: 'Five charges per round: each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 without the belt) and uses one charge. Each purchase covers one round', basePrice: 1250 },
     strengthPotion: { name: 'Strength vial', description: 'Double reel speed for 2 catches, plus Vial Belt. Mine vials add catches. Each purchase covers one round', basePrice: 1000 },
     goldRush: { name: 'Gold Rush vial', description: 'Gold nuggets pay +50% for 2 catches, plus Vial Belt. Mine vials add catches. Each purchase covers one round', basePrice: 1000 },
     streakVial: { name: 'Streak vial', description: 'Starts the round with x1.5 streak bonuses for 15 seconds (20/25 at Vial Belt tiers 2/3). Catch another while active to add 5 seconds and increase the multiplier by +0.25x, up to x2', basePrice: 1000 },
@@ -33,7 +34,7 @@ export const UPGRADE_INFO = {
     strength: { name: 'Stronger winch', description: '+10% retrieval speed per tier. Lasts for this run', basePrice: 1000 },
     gold: { name: 'Gold polish', description: '+15% gold nugget value per tier. Stacks with Gold Rush. Lasts for this run', basePrice: 1250 },
     diamonds: { name: 'Gem polish', description: '+15% diamond and ruby value per tier. Lasts for this run', basePrice: 1250 },
-    vialBelt: { name: 'Vial Belt', description: '+1 Strength and Gold Rush catch per tier. Initial Streak effects last 15/20/25 seconds and Time vials add 10/15/20 seconds at tiers 1/2/3. Lasts for this run', basePrice: 2000 },
+    vialBelt: { name: 'Vial Belt', description: '+1 Strength and Gold Rush catch per tier. Initial Streak effects last 15/20/25 seconds and Time vials add 10/15/20 seconds at tiers 1/2/3. Momentum adds 3/4/5 seconds per perfect catch; keeps five charges. Lasts for this run', basePrice: 2000 },
     dynamite: { name: 'Dynamite', description: 'One stick: ↑ destroys a caught item. Safety Grip recovers one stick per safely delivered TNT barrel or rat. Unused sticks carry over', basePrice: 750 },
     luck: { name: 'Luck vial', description: 'Cash bags roll $300–$400; mystery-bag cash rolls $500–$650. Chests have 50% upgrade, 25% cash and 25% dynamite odds (50/50 cash/dynamite when all upgrades are maxed). Each purchase covers one round', basePrice: 1000 },
     extraTime: { name: 'Time vial', description: 'Adds 10 seconds without Vial Belt or at tier 1, 15 at tier 2, 20 at tier 3. Shop vials apply at round start; caught vials apply on delivery', basePrice: 1000 },

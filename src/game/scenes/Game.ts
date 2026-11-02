@@ -117,7 +117,7 @@ export class Game extends Scene {
             }
             if (object.kind === 'streakVial') {
                 this.round.activateStreakVial();
-                showValue(0, `STREAK BONUSES x${this.round.streakMultiplier} — ${this.round.streakVialSeconds} SECONDS!`);
+                showValue(0, `STREAK BONUSES x${this.round.streakMultiplier} — ${Number(this.round.streakVialSeconds.toFixed(2))} SECONDS!`);
                 return;
             }
             if (object.kind === 'goldRush') {

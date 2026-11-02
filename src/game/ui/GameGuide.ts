@@ -52,7 +52,7 @@ Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an
 Gold Rush — +50% gold nugget value for two gold catches, plus Vial Belt. Mine vials add catches. Stacks with Gold Polish.
 Time — adds 10 seconds without Vial Belt or at tier 1, 15 seconds at tier 2, or 20 seconds at tier 3. Caught vials (including mystery rewards) apply on delivery; shop vials apply at round start.
 Streak — shop and caught vials give x1.5 streak bonuses for 15 seconds (also at Vial Belt tier 1), 20 seconds at tier 2, or 25 seconds at tier 3. Shop vials activate at round start. Catch another while active to add 5 seconds and increase the multiplier by +0.25x, up to x2; after expiry the multiplier returns to normal. The bonus locks in on latch.
-Momentum — available from the shop or stored from mystery bags. Five charges per round; each perfect catch instantly adds 5 seconds and uses one charge, even if you dynamite the catch afterward.
+Momentum — available from the shop or stored from mystery bags. Five charges per round; each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 seconds without the belt) and uses one charge, even if you dynamite the catch afterward.
 Luck — available from the shop or stored from mystery bags. For one round, cash bags roll $300–$400 and mystery-bag cash rolls $500–$650. Chest odds become 50% permanent upgrade, 25% cash and 25% dynamite; if no upgrade tiers remain, cash and dynamite each have a 50% chance.
 
 Active effects appear beside the clock. Temporary timers stop while paused. Shop supplies use one stocked charge per round; extra purchases cover future rounds rather than stacking that round's multiplier.`],
