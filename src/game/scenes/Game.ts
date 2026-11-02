@@ -237,7 +237,7 @@ export class Game extends Scene {
             event.stopPropagation();
             toggleBlastPowder();
         });
-        this.claw.safetyGrip = this.round.upgrades.safetyGrip > 0 && (this.toolToggles.safetyGrip ?? false);
+        this.claw.safetyGrip = this.round.upgrades.safetyGrip > 0 && (this.toolToggles.safetyGrip ?? true);
         const safetyPanel = this.add.rectangle(32, 202, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
         this.add.rectangle(42, 202, 280, 1, 0xc29659).setOrigin(0);

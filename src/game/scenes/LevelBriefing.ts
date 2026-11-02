@@ -53,8 +53,8 @@ export class LevelBriefing extends Scene {
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
             { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
         ];
-        if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ON\n← / click: toggle` });
-        if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: 'Starts OFF\n→ before launch' });
+        if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ${data.toolToggles?.blastPowder === false ? 'OFF' : 'ON'}\n← / click: toggle` });
+        if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: `${data.toolToggles?.safetyGrip === false ? 'OFF' : 'ON'}\n→ before launch` });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Cash bags +$200 each' });
         if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: '+2s per perfect\nUp to +10s' });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: '+15 seconds' });
@@ -83,7 +83,7 @@ export class LevelBriefing extends Scene {
                 fontFamily: 'Arial', fontSize: wrapped ? 12 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
-        if ((data.upgrades?.blastPowder ?? 0) > 0) text(wrapped ? 805 : 729, 'Blast Powder: bigger caught items = bigger blasts. Starts ON; ← / click to toggle.', 16, '#bcf58b');
+        if ((data.upgrades?.blastPowder ?? 0) > 0) text(wrapped ? 805 : 729, 'Blast Powder: bigger caught items = bigger blasts. ← / click to toggle.', 16, '#bcf58b');
         text(wrapped ? 835 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
         text(wrapped ? 866 : 786, MILESTONES.map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
