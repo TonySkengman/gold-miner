@@ -124,16 +124,20 @@ export class UpgradeShop extends Scene {
         this.add.rectangle(WORLD.centerX, 106, shopWidth, 46, 0x513b2a, 0.92)
             .setStrokeStyle(3, 0xc29659).setData('responsiveAnchor', 'center');
         const stock = this.add.text(WORLD.centerX, 106, '', { fontFamily: 'Arial', fontSize: 22, color: '#ffe5ac', align: 'center' }).setOrigin(0.5).setData('responsiveAnchor', 'center');
-        const category = (x: number, y: number, width: number, title: string, subtitle: string) => {
+        const category = (x: number, y: number, width: number, title: string, subtitle: string, core = false) => {
             this.add.rectangle(x + width / 2, y + 28, width, 62, 0x513b2a, 0.96)
-                .setStrokeStyle(3, 0xc29659).setData('responsiveAnchor', 'center');
+                .setStrokeStyle(3, core ? 0xffd45d : 0xc29659).setData('responsiveAnchor', 'center');
             this.add.text(x + 12, y + 1, title, { fontFamily: 'Arial', fontSize: 23, fontStyle: 'bold', color: '#ffe5ac' }).setData('responsiveAnchor', 'center');
-            this.add.text(x + 12, y + 29, subtitle, { fontFamily: 'Arial', fontSize: 17, color: '#d9bc8c' }).setData('responsiveAnchor', 'center');
+            this.add.text(x + 12, y + 29, subtitle, { fontFamily: 'Arial', fontSize: 17, color: '#d9bc8c', wordWrap: { width: width - 24 } }).setData('responsiveAnchor', 'center');
         };
-        category(productsLeft + 8, 139, productsWidth - 16, 'CONSUMABLES', 'One charge per round • Stock up for future levels');
-        const bottomStep = productsWidth / 8;
-        category(productsLeft + 8, 583, bottomStep * 6 - 16, 'PERMANENT UPGRADES', 'Keep every tier for the rest of this run');
-        category(productsLeft + bottomStep * 6 + 8, 583, bottomStep * 2 - 16, 'SUPPLIES', 'Lives • Dynamite stock');
+        const coreWidth = productsWidth * 0.28;
+        const consumablesLeft = productsLeft + coreWidth;
+        const consumablesWidth = productsWidth - coreWidth;
+        category(productsLeft + 8, 139, coreWidth - 16, 'CORE TOOLS', 'New tactics • Lasts all run', true);
+        category(consumablesLeft + 8, 139, consumablesWidth - 16, 'CONSUMABLES', 'One charge per round • Stock up for future levels');
+        const bottomStep = productsWidth / 6;
+        category(productsLeft + 8, 583, bottomStep * 4 - 16, 'PERMANENT UPGRADES', 'Keep every tier for the rest of this run');
+        category(productsLeft + bottomStep * 4 + 8, 583, bottomStep * 2 - 16, 'SUPPLIES', 'Lives • Dynamite stock');
         const refreshers: (() => void)[] = [];
         const refresh = () => {
             const roundStock = Object.values(bonuses).reduce((total, count) => total + count, 0);
@@ -149,26 +153,34 @@ export class UpgradeShop extends Scene {
             'strengthPotion', 'goldRush', 'streakVial', 'extraTime',
             'luck', 'momentum', 'lightweightGrip', 'prospectorsLens',
             // Upgrades that last for the run.
-            'strength', 'diamonds', 'gold', 'vialBelt', 'blastPowder', 'safetyGrip',
+            'safetyGrip', 'blastPowder',
+            'strength', 'diamonds', 'gold', 'vialBelt',
             // Immediate recovery and carried supplies.
             'lifeVial', 'dynamite'
         ];
         shopOrder.forEach((kind, index) => {
             const consumable = index < 8;
-            const columns = 4;
-            const step = productsWidth / (consumable ? columns : 8);
-            const x = productsLeft + step / 2 + (consumable ? index % 4 : index - 8) * step;
-            const y = consumable ? 290 + Math.floor(index / 4) * 185 : 733;
+            const core = kind === 'safetyGrip' || kind === 'blastPowder';
+            const step = consumable ? consumablesWidth / 4 : core ? coreWidth : bottomStep;
+            const x = consumable ? consumablesLeft + step / 2 + (index % 4) * step
+                : core ? productsLeft + coreWidth / 2 : productsLeft + step / 2 + (index - 10) * step;
+            const y = consumable ? 290 + Math.floor(index / 4) * 185 : core ? 290 + (index - 8) * 185 : 733;
             const cardWidth = step - 16;
-            const cardHeight = consumable ? 170 : 164;
+            const cardHeight = consumable || core ? 170 : 164;
             const permanent = isPermanentUpgrade(kind);
             this.add.rectangle(x + 3, y + 5, cardWidth, cardHeight, 0x302217, 0.35).setData('responsiveAnchor', 'center');
-            const card = this.add.rectangle(x, y, cardWidth, cardHeight, permanent ? 0xe5d8ae : 0xf4dcaa)
-                .setStrokeStyle(2, permanent ? 0x8c9a69 : 0xc29659).setData('responsiveAnchor', 'center').setInteractive({ useHandCursor: true });
-            this.add.rectangle(x, y - cardHeight / 2 + 4, cardWidth - 8, 3, permanent ? 0x758956 : 0xcc9854).setData('responsiveAnchor', 'center');
+            const card = this.add.rectangle(x, y, cardWidth, cardHeight, core ? 0xffe6a0 : permanent ? 0xe5d8ae : 0xf4dcaa)
+                .setStrokeStyle(core ? 3 : 2, core ? 0xe8b43e : permanent ? 0x8c9a69 : 0xc29659).setData('responsiveAnchor', 'center').setInteractive({ useHandCursor: true });
+            this.add.rectangle(x, y - cardHeight / 2 + 4, cardWidth - 8, 3, core ? 0xe8b43e : permanent ? 0x758956 : 0xcc9854).setData('responsiveAnchor', 'center');
             drawShopProduct(this, x, y - 9, kind, consumable ? 0.58 : 0.45).setData('responsiveAnchor', 'center');
+            if (core) {
+                this.add.text(x, y - 75, `CORE TOOL  [${kind === 'safetyGrip' ? '→' : '←'}]`, {
+                    fontFamily: 'Arial', fontSize: 13, fontStyle: 'bold', color: '#70452a'
+                }).setOrigin(0.5, 0).setData('responsiveAnchor', 'center');
+
+            }
             const titleSize = consumable ? 24 : 22;
-            const title = this.add.text(x, y - cardHeight / 2 + 12, UPGRADE_INFO[kind].name, {
+            const title = this.add.text(x, y - cardHeight / 2 + (core ? 30 : 12), UPGRADE_INFO[kind].name, {
                 fontFamily: 'Arial', fontSize: titleSize, fontStyle: 'bold', color: '#483126', align: 'center'
             }).setOrigin(0.5, 0).setData('responsiveAnchor', 'center');
             // Keep names above the artwork instead of wrapping into the icon space.
@@ -192,7 +204,7 @@ export class UpgradeShop extends Scene {
             });
             card.on('pointerout', () => {
                 hovered = null;
-                card.setStrokeStyle(2, permanent ? 0x8c9a69 : 0xc29659);
+                card.setStrokeStyle(core ? 3 : 2, core ? 0xe8b43e : permanent ? 0x8c9a69 : 0xc29659);
                 showDescription();
             });
             card.on('pointerdown', () => {

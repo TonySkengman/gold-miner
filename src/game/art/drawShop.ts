@@ -122,10 +122,22 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
     } else if (kind === 'luck' || kind === 'momentum') {
         drawMineVial(g, kind, 2.4);
     } else if (kind === 'safetyGrip') {
-        g.fillStyle(0x547f3b).lineStyle(5, 0xe0f5b8).beginPath()
-            .moveTo(-32, -36).lineTo(32, -36).lineTo(28, 7).lineTo(0, 37)
-            .lineTo(-28, 7).closePath().fillPath().strokePath();
-        g.lineStyle(7, 0xd4efb8).lineBetween(-17, -3, -4, 11).lineBetween(-4, 11, 20, -17);
+        // Reinforced gripping jaws with green rubber pads and a locking collar.
+        g.lineStyle(10, 0x35494b).lineBetween(0, -43, 0, -23);
+        g.lineStyle(4, 0xd2e3df).lineBetween(-2, -42, -2, -24);
+        for (const side of [-1, 1]) {
+            g.lineStyle(13, 0x35494b).beginPath().moveTo(side * 7, -21)
+                .lineTo(side * 30, -5).lineTo(side * 26, 22).lineTo(side * 10, 34).strokePath();
+            g.lineStyle(7, 0xb3c8c4).beginPath().moveTo(side * 7, -21)
+                .lineTo(side * 30, -5).lineTo(side * 26, 22).lineTo(side * 10, 34).strokePath();
+            g.lineStyle(10, 0x547f3b).lineBetween(side * 25, 17, side * 11, 29);
+            g.lineStyle(3, 0xc6eaa0).lineBetween(side * 23, 17, side * 10, 28);
+            g.fillStyle(0x35494b).fillCircle(side * 29, -4, 5);
+            g.fillStyle(0xe0e8ce).fillCircle(side * 29, -5, 2);
+        }
+        g.fillStyle(0x547f3b).lineStyle(3, 0x35494b)
+            .fillRoundedRect(-16, -29, 32, 17, 4).strokeRoundedRect(-16, -29, 32, 17, 4);
+        g.lineStyle(3, 0xc6eaa0).lineBetween(-9, -24, 9, -24);
     } else if (kind === 'blastPowder') {
         // A sealed powder tin with an expanding blast emblem.
         g.fillStyle(0x754936).lineStyle(5, 0xffe6a6)

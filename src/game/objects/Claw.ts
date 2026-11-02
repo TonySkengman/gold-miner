@@ -263,14 +263,19 @@ export class Claw {
             const a = this.caught ? point(gripSide + sign * radius * 0.85, gripDown - radius * 0.5) : point(sign * 12, 10);
             const b = this.caught ? point(gripSide + sign * radius, gripDown + radius * 0.2) : point(sign * 19, 22);
             const c = this.caught ? point(gripSide + sign * radius * 0.55, gripDown + radius * 0.8) : point(sign * 12, 27);
-            this.graphic.lineStyle(8, 0x3d494f);
+            this.graphic.lineStyle(this.safetyGrip ? 10 : 8, 0x3d494f);
             this.graphic.beginPath().moveTo(x, y).lineTo(a.x, a.y).lineTo(b.x, b.y).lineTo(c.x, c.y).strokePath();
             this.graphic.lineStyle(4, 0xbac9cd);
             this.graphic.beginPath().moveTo(x, y).lineTo(a.x, a.y).lineTo(b.x, b.y).lineTo(c.x, c.y).strokePath();
+            if (this.safetyGrip) {
+                // Reinforced green pads follow both empty and loaded jaw shapes.
+                this.graphic.lineStyle(9, 0x547f3b).lineBetween(b.x, b.y, c.x, c.y);
+                this.graphic.lineStyle(3, 0xc6eaa0).lineBetween(b.x, b.y, c.x, c.y);
+            }
             this.graphic.fillStyle(0x6b7e87).fillCircle(a.x, a.y, 3);
         }
         this.graphic.fillStyle(0x3d494f).fillCircle(x, y, 8);
-        this.graphic.fillStyle(0x94a8b0).fillCircle(x, y, 5);
+        this.graphic.fillStyle(this.safetyGrip ? 0x547f3b : 0x94a8b0).fillCircle(x, y, 5);
         this.graphic.fillStyle(0xe2e9e7).fillCircle(x - 1, y - 1, 2);
     }
 }
