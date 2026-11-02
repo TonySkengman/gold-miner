@@ -28,6 +28,8 @@ export class Claw {
     private readonly grabReach = 18;
     private dynamite: GameObjects.Graphics | null = null;
     private throwElapsed = 0;
+    private thrownBlastRadius = TNT_BLAST_RADIUS;
+    private thrownPowderScale = 0;
     private readonly graphic: GameObjects.Graphics;
     private get origin(): { x: number; y: number } { return { x: WORLD.centerX, y: WORLD.pivotY }; }
 
@@ -38,6 +40,8 @@ export class Claw {
 
     /** Includes a haul with dynamite already in flight. */
     get hasPendingCatch(): boolean { return this.caught !== null; }
+
+    get isIdle(): boolean { return this.mode === 'idle'; }
 
     get isHauling(): boolean { return this.mode === 'retracting' && this.caught !== null && !this.dynamite; }
 
@@ -72,6 +76,8 @@ export class Claw {
     throwDynamite(): boolean {
         if (this.mode !== 'retracting' || !this.caught || this.dynamite) return false;
         soundEffects.play('throw');
+        this.thrownBlastRadius = this.blastRadius;
+        this.thrownPowderScale = this.powderRadiusScale;
         this.throwElapsed = 0;
         this.dynamite = this.scene.add.graphics().setDepth(6);
         this.dynamite.fillStyle(0xc43c2f).fillRoundedRect(-5, -12, 10, 24, 2);
@@ -92,17 +98,17 @@ export class Claw {
         this.dynamite = null;
         const blasted = this.caught;
         blasted.destroy();
-        if (this.blastRadius > TNT_BLAST_RADIUS) {
-            detonateArea(blasted.x, blasted.y, dynamiteBlastRadius(blasted.radius) * this.powderRadiusScale, objects,
+        if (this.thrownBlastRadius > TNT_BLAST_RADIUS) {
+            detonateArea(blasted.x, blasted.y, dynamiteBlastRadius(blasted.radius) * this.thrownPowderScale, objects,
                 (blastX, blastY, radius) => showBarrelExplosion(this.scene, blastX, blastY, radius),
-                deposit => releaseGemDeposit(this.scene, deposit, objects), this.blastRadius);
+                deposit => releaseGemDeposit(this.scene, deposit, objects), this.thrownBlastRadius);
         }
         // Release caught treasure after the area blast so the new loot survives it.
         releaseGemDeposit(this.scene, blasted, objects);
         this.caught = null;
         this.perfectHaul = false;
         this.perfectBonus = 0;
-        if (this.blastRadius > TNT_BLAST_RADIUS) return;
+        if (this.thrownBlastRadius > TNT_BLAST_RADIUS) return;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);

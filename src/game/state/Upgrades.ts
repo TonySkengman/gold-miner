@@ -18,8 +18,8 @@ export const isPermanentUpgrade = (kind: ShopItemKind): kind is UpgradeKind => k
 export const UPGRADE_LIMIT = 3;
 export const upgradeLimit = (kind: UpgradeKind): number => kind === 'safetyGrip' ? 1 : UPGRADE_LIMIT;
 export const UPGRADE_INFO = {
-    safetyGrip: { name: 'Safety Grip', description: 'Toggle with → or click to catch TNT barrels and TNT rats safely. Deliver for +1 dynamite, no money. Nearby explosions still detonate free TNT. Starts OFF each round. Lasts for this run', basePrice: 1500 },
-    blastPowder: { name: 'Blast Powder', description: 'Unlock size-based dynamite blasts and +50% TNT radius. Tiers 2/3 add +20%/+40% radius over tier 1. Toggle with ← or click. Lasts for this run', basePrice: 1500 },
+    safetyGrip: { name: 'Safety Grip', description: 'Toggle with → or click to catch TNT barrels and TNT rats safely. Deliver for +1 dynamite, no money. Nearby explosions still detonate free TNT. Starts OFF each round. Toggle only while the claw is idle. Lasts for this run', basePrice: 1500 },
+    blastPowder: { name: 'Blast Powder', description: 'Unlock size-based dynamite blasts and +50% TNT radius. Tiers 2/3 add +20%/+40% radius over tier 1. Toggle with ← or click, including during launch and hauling. Thrown dynamite keeps its effect from throw time. Lasts for this run', basePrice: 1500 },
     momentum: { name: 'Momentum vial', description: 'Perfect catches instantly add 2 seconds, up to 10 seconds per round. Each purchase covers one round', basePrice: 1250 },
     strengthPotion: { name: 'Strength vial', description: 'Double reel speed for 2 catches, plus Vial Belt. Mine vials add catches. Each purchase covers one round', basePrice: 1000 },
     goldRush: { name: 'Gold Rush vial', description: 'Gold nuggets pay +50% for 2 catches, plus Vial Belt. Mine vials add catches. Each purchase covers one round', basePrice: 1000 },

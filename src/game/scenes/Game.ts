@@ -195,8 +195,26 @@ export class Game extends Scene {
             .setBackgroundColor(blastEnabled ? '#547f3b' : '#70452a');
         };
         refreshBlastToggle();
+        let toggleFeedback: GameObjects.Text | undefined;
+        const showToggleLock = (name: string) => {
+            if (toggleFeedback) {
+                this.tweens.killTweensOf(toggleFeedback);
+                toggleFeedback.destroy();
+            }
+            toggleFeedback = this.add.text(WORLD.centerX, 272,
+                `${name}: wait for the claw to return\nChoose before launching`, {
+                    fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe5ac',
+                    backgroundColor: '#70452a', padding: { x: 12, y: 8 }, align: 'center'
+                }).setOrigin(0.5).setDepth(30).setData('responsiveAnchor', 'center');
+            const message = toggleFeedback;
+            this.tweens.add({ targets: message, y: 250, alpha: 0, delay: 650, duration: 450,
+                onComplete: () => {
+                    message.destroy();
+                    if (toggleFeedback === message) toggleFeedback = undefined;
+                } });
+        };
         const toggleBlastPowder = () => {
-            if (this.ended || this.round.finished || this.round.upgrades.blastPowder <= 0) return;
+            if (this.ended || this.round.upgrades.blastPowder <= 0) return;
             blastEnabled = !blastEnabled;
             this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
             this.claw.blastRadius = TNT_BLAST_RADIUS * (blastEnabled ? 1.5 * this.claw.powderRadiusScale : 1);
@@ -226,6 +244,10 @@ export class Game extends Scene {
         };
         const toggleSafetyGrip = () => {
             if (this.ended || this.round.finished || this.round.upgrades.safetyGrip <= 0) return;
+            if (!this.claw.isIdle) {
+                showToggleLock('Safety Grip');
+                return;
+            }
             this.claw.safetyGrip = !this.claw.safetyGrip;
             refreshSafetyGrip();
         };
