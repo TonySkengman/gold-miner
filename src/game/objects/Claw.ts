@@ -9,6 +9,7 @@ import { Collectable, isMineVial } from './Collectable';
 import { treasureRewardValue } from '../state/TreasureRewards';
 
 type ClawMode = 'idle' | 'extending' | 'retracting';
+const RETURN_SWING_OFFSET = 25 * Math.PI / 180;
 
 export class Claw {
     aftershockCharges = 0;
@@ -19,6 +20,7 @@ export class Claw {
     safetyGripTier = 0;
     private mode: ClawMode = 'idle';
     private angle = -0.8;
+    private launchAngle = this.angle;
     private swingDirection = 1;
     private length = 30;
     private caught: Collectable | null = null;
@@ -72,6 +74,7 @@ export class Claw {
 
     launch(): void {
         if (this.mode === 'idle') {
+            this.launchAngle = this.angle;
             this.distanceReturnMultiplier = 1;
             this.aftershockShot = this.aftershockCharges > 0;
             if (this.aftershockShot) this.aftershockCharges--;
@@ -251,6 +254,9 @@ export class Claw {
                     this.perfectHaul = false;
                 }
                 this.aftershockShot = false;
+                const nextAngle = this.launchAngle + this.swingDirection * RETURN_SWING_OFFSET;
+                if (Math.abs(nextAngle) > WORLD.maxAngle) this.swingDirection *= -1;
+                this.angle = this.launchAngle + this.swingDirection * RETURN_SWING_OFFSET;
                 this.mode = 'idle';
             }
         }

@@ -7,6 +7,8 @@ const sections = [
 
 All mines start with 60 seconds. Every level needs fresh earnings: money saved from earlier levels does not count toward its target.
 
+After every completed return, the claw resumes swinging 25° from its launch angle. It keeps its swing direction if that step fits within the swing limits. Otherwise it shifts 25° the other way and reverses direction. You can launch again immediately.
+
 Heavy objects reel in more slowly. Perfect catches and Strength speed up hauling. Long corner shots receive return-speed compensation beyond a full straight-down return, making distant treasure worth considering.`],
     ['Controls', `↓ or click the mine — launch the claw while it is idle.
 ↑ — spend one dynamite stick to destroy the caught object.
