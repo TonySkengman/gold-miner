@@ -47,12 +47,12 @@ export class LevelBriefing extends Scene {
         text(257, 'GOLD TARGET', 21, '#e5c58f');
         text(312, `$${config.target}`, 64, '#ffda69').setFontStyle('bold');
         text(375, `Collect $${config.target} this round to pass. Starting money does not count.`, 20);
-        text(428, `${roundDuration(data.mine, bonuses.extraTime, data.upgrades?.vialBelt ?? 0)} SECONDS`, 25, '#bcf58b');
-        text(460, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19);
+        text(416, `${roundDuration(data.mine, bonuses.extraTime, data.upgrades?.vialBelt ?? 0)} SECONDS`, 25, '#bcf58b');
+        text(450, `${layout.hint}\nBlast gem-studded rocks early. Aim for exposed gems to leave their rocks behind.`, 19).setOrigin(0.5, 0);
 
-        const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [
-            { kind: 'dynamite', name: 'Dynamite', detail: `${data.dynamite ?? 3} sticks available` }
-        ];
+        const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [];
+        const dynamite = data.dynamite ?? 3;
+        if (dynamite > 0) prepared.push({ kind: 'dynamite', name: 'Dynamite', detail: `${dynamite} sticks available` });
         if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ${data.toolToggles?.blastPowder === false ? 'OFF' : 'ON'}\n← / click: toggle` });
         if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: `${data.toolToggles?.safetyGrip === false ? 'OFF' : 'ON'}\n→ before launch` });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: 'Higher bag payouts\n50% chest upgrades' });
@@ -62,10 +62,10 @@ export class LevelBriefing extends Scene {
         if (bonuses.streakVial > 0) prepared.push({ kind: 'streakVial', name: 'Streak vial', detail: 'Streak bonuses x1.5' });
         if (bonuses.strengthPotion > 0) prepared.push({ kind: 'strengthPotion', name: 'Strength vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} catches at x2` });
         if (bonuses.goldRush > 0) prepared.push({ kind: 'goldRush', name: 'Gold Rush vial', detail: `${2 + (data.upgrades?.vialBelt ?? 0)} gold catches +50%` });
-        text(519, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
-        const cardTop = 544;
+        text(533, 'PREPARED FOR THIS ROUND', 20, '#e5c58f');
+        const cardTop = 558;
         const wrapped = prepared.length > 5;
-        const columns = Math.min(5, prepared.length);
+        const columns = Math.max(1, Math.min(5, prepared.length));
         const cardHeight = wrapped ? 96 : 136;
         const spacing = Math.min(190, 760 / columns);
         
@@ -83,16 +83,70 @@ export class LevelBriefing extends Scene {
                 fontFamily: 'Arial', fontSize: wrapped ? 12 : 16, color: '#bcf58b', align: 'center', lineSpacing: 2, wordWrap: { width: spacing - 20 }
             }).setOrigin(0.5, wrapped ? 0 : 0.5);
         });
+        if (prepared.length === 0) text(626, 'Nothing prepared for this round.', 22, '#c7bba6');
         text(wrapped ? 790 : 754, 'KEEP MINING FOR BONUSES', 20, '#e5c58f');
         text(wrapped ? 816 : 786, milestonesFor(config.target, level).map(m => `$${Math.ceil(config.target * m.fraction)}: ${m.label}`).join('   •   '), 20, '#ffda69');
 
         let starting = false;
+        let confirmingEndRun = false;
         menuButton(this, WORLD.centerX, RUN_START_Y, 'START MINING', () => {
-            if (starting) return;
+            if (starting || confirmingEndRun) return;
             starting = true;
             soundEffects.unlock();
             this.scene.start('Game', { ...data, level });
         });
+        if (level > 1) {
+            const backToShop = menuButton(this, WORLD.centerX + 285, RUN_START_Y, 'BACK TO SHOP', () => {
+                if (starting || confirmingEndRun) return;
+                starting = true;
+                soundEffects.unlock();
+                this.scene.start('UpgradeShop', {
+                    ...data, level, lives: data.lives ?? 3, money: data.money ?? 0,
+                    dynamite: data.dynamite ?? 3, returningFromBriefing: true
+                });
+            });
+            backToShop.setFontSize(20).setPadding(20, 12).setBackgroundColor('#594534');
+            backToShop.removeAllListeners('pointerover');
+            backToShop.removeAllListeners('pointerout');
+            backToShop.on('pointerover', () => backToShop.setBackgroundColor('#705840'));
+            backToShop.on('pointerout', () => backToShop.setBackgroundColor('#594534'));
+        }
+        const endRun = menuButton(this, WORLD.centerX - 285, RUN_START_Y, 'END RUN', () => {
+            if (!starting) showEndConfirmation(true);
+        });
+        endRun.setFontSize(20).setPadding(20, 12).setBackgroundColor('#8e493c');
+        endRun.removeAllListeners('pointerover');
+        endRun.removeAllListeners('pointerout');
+        endRun.on('pointerover', () => endRun.setBackgroundColor('#a95a49'));
+        endRun.on('pointerout', () => endRun.setBackgroundColor('#8e493c'));
+
+        const shade = this.add.rectangle(WORLD.centerX, 480, WORLD.width, WORLD.height, 0x11151a, 0.82)
+            .setData('responsiveFullWidth', true).setInteractive();
+        const panel = this.add.rectangle(WORLD.centerX, 480, 680, 300, 0x211f1d)
+            .setStrokeStyle(4, 0xc29659);
+        const heading = text(393, 'END THIS RUN?', 32, '#ffda69');
+        const warning = text(468, 'Your progress in this run will be lost.\nReturn to the main menu?', 22);
+        const cancel = menuButton(this, WORLD.centerX - 150, 563, 'KEEP PLAYING', () => showEndConfirmation(false));
+        const confirm = menuButton(this, WORLD.centerX + 150, 563, 'END RUN', () => {
+            if (!confirmingEndRun || starting) return;
+            starting = true;
+            this.scene.start('MainMenu');
+        });
+        confirm.setBackgroundColor('#8e493c');
+        confirm.removeAllListeners('pointerover');
+        confirm.removeAllListeners('pointerout');
+        confirm.on('pointerover', () => confirm.setBackgroundColor('#a95a49'));
+        confirm.on('pointerout', () => confirm.setBackgroundColor('#8e493c'));
+        const confirmation = [shade, panel, heading, warning, cancel, confirm];
+        confirmation.forEach((item, index) => item.setDepth(100 + index).setVisible(false));
+        const showEndConfirmation = (visible: boolean) => {
+            if (starting) return;
+            confirmingEndRun = visible;
+            confirmation.forEach(item => item.setVisible(visible));
+        };
+        const closeConfirmation = () => showEndConfirmation(false);
+        this.input.keyboard?.on('keydown-ESC', closeConfirmation);
+        this.events.once('shutdown', () => this.input.keyboard?.off('keydown-ESC', closeConfirmation));
         addSoundButton(this, 32, 24);
         responsiveLayout(this);
     }

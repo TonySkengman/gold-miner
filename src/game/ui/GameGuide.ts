@@ -25,7 +25,7 @@ More large and giant nuggets, fewer ordinary rocks, a 60-second timer, and Stren
 Gem Hollow • Precision gems
 No gold nuggets or mine Gold Rush vials. Diamonds and rubies are scattered among more rock obstacles; deposits release gems. Use aiming gaps, perfect catches and Gem Polish. TNT is capped at three barrels.
 
-Your mode stays fixed for the run. Gold Pocket, Rat Tunnels, Explosive Cavern and Deep Mine provide different level layouts. Targets rise and rats get faster in later levels. The briefing shows your next target and prepared supplies.`],
+Your mode stays fixed for the run. Gold Pocket, Rat Tunnels, Explosive Cavern and Deep Mine provide different level layouts. Targets rise and rats get faster in later levels. The briefing shows your next target and prepared supplies. From level 2 onward, Back to Shop lets you restock before starting without losing your current preparation or retry layout.`],
     ['Treasure & obstacles', `Gold nuggets — small $50, medium $100, large $200, giant $350 before bonuses. Larger nuggets are heavier.
 Diamonds — $450. Rubies — $650. Both have the same light hauling weight. Gem Polish increases their value.
 Ordinary rocks — $12 / $16 / $18 / $20 by size. Low value, heavy, and break streaks.
@@ -74,7 +74,7 @@ Milestones
 Passing and failing
 Every attempt opens the shop unless you fail on your last life. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rat movement settings and starting supplies. Mystery rewards keep their seeded rolls. Chest upgrades are rolled against your current tiers, so newly maxed upgrades cannot drop. Collected permanent tiers carry into retries. Shop purchases can help with the retry.
 
-Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials cost $5,000 in the shop and restore one life, up to five; they can also appear in mystery bags. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu asks for confirmation before ending your run.`]
+Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials cost $5,000 in the shop and restore one life, up to five; they can also appear in mystery bags. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu or pre-level briefing asks for confirmation before ending your run.`]
 ];
 
 /** Native modal keeps long instructions scrollable and keyboard accessible at any viewport size. */
