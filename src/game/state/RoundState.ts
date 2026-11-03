@@ -1,10 +1,10 @@
 import { milestonesFor, Milestone } from './Milestones';
 import type { MysteryReward } from './MysteryRewards';
-import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses, streakVialDuration, timeVialSeconds, momentumSecondsPerCatch } from './Upgrades';
+import { emptyUpgrades, Upgrades, emptyBonuses, LevelBonuses, remainingBonuses, luckVialDuration, streakVialDuration, timeVialSeconds, momentumSecondsPerCatch } from './Upgrades';
 import { TreasureReward, treasureRewardLabel } from './TreasureRewards';
 import { mineConfig, roundDuration, type MineKind } from './Mines';
 import { LEVELS, LevelConfig } from './Levels';
-import type { OreKind } from '../objects/Collectable';
+import { isMineVial, type OreKind } from '../objects/Collectable';
 
 export class RoundState {
     lives: number;
@@ -12,16 +12,16 @@ export class RoundState {
     score = 0;
     catchStreak = 0;
     streakVialSeconds = 0;
-    private momentumChargesUsed = 0;
-
-    get momentumChargesRemaining(): number {
-        return this.bonuses.momentum > 0 ? Math.max(0, 5 - this.momentumChargesUsed) : 0;
-    }
+    momentumChargesRemaining = 0;
+    luckSeconds = 0;
+    get luckActive(): boolean { return this.luckSeconds > 0; }
+    activateLuck(): void { this.luckSeconds = luckVialDuration(this.upgrades.vialBelt); }
+    activateMomentum(): void { this.momentumChargesRemaining += 5; }
 
     /** Award immediately on a perfect latch; later dynamite does not undo it. */
     catchMomentum(perfect: boolean): number {
         if (!perfect || this.momentumChargesRemaining === 0) return 0;
-        this.momentumChargesUsed++;
+        this.momentumChargesRemaining--;
         const seconds = momentumSecondsPerCatch(this.upgrades.vialBelt);
         this.remaining += seconds;
         return seconds;
@@ -79,6 +79,8 @@ export class RoundState {
         this.dynamite = startingDynamite;
         this.config = mineConfig(this.level, mine);
         this.milestones = milestonesFor(this.target, this.level);
+        if (this.bonuses.luck > 0) this.activateLuck();
+        if (this.bonuses.momentum > 0) this.activateMomentum();
         if (this.bonuses.strengthPotion > 0) this.activateStrength();
         if (this.bonuses.goldRush > 0) this.activateGoldRush();
         if (this.bonuses.streakVial > 0) this.activateStreakVial();
@@ -94,9 +96,13 @@ export class RoundState {
             this.lives++;
             return '+1 LIFE!';
         }
-        if (reward.kind === 'luck' || reward.kind === 'momentum') {
-            this.collectedBonuses[reward.kind]++;
-            return `${reward.kind.toUpperCase()} VIAL (STORED)!`;
+        if (reward.kind === 'luck') {
+            this.activateLuck();
+            return `LUCK • ${this.luckSeconds} SECONDS!`;
+        }
+        if (reward.kind === 'momentum') {
+            this.activateMomentum();
+            return `MOMENTUM • ${this.momentumChargesRemaining} CHARGES!`;
         }
         if (reward.kind === 'extraTime') {
             return `+${this.addTime()} SECONDS!`;
@@ -134,7 +140,7 @@ export class RoundState {
 
     get nextBonuses(): LevelBonuses {
         const stock = remainingBonuses(this.bonuses);
-        return { momentum: stock.momentum + this.collectedBonuses.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck + this.collectedBonuses.luck, extraTime: stock.extraTime,
+        return { momentum: stock.momentum, strengthPotion: stock.strengthPotion, goldRush: stock.goldRush, streakVial: stock.streakVial, luck: stock.luck, extraTime: stock.extraTime,
             prospectorsLens: stock.prospectorsLens, lightweightGrip: stock.lightweightGrip + this.collectedBonuses.lightweightGrip };
     }
 
@@ -143,7 +149,7 @@ export class RoundState {
     /** Vials preserve Strength charges; Gold Rush uses only boosted gold nugget catches. */
     consumeCatch(kind: OreKind): number {
         const goldMultiplier = this.goldRushValue(100, kind) / 100;
-        if (!['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) {
+        if (!isMineVial(kind)) {
             this.strengthCatches = Math.max(0, this.strengthCatches - 1);
         }
         if (goldMultiplier > 1) this.goldRushCatches--;
@@ -201,6 +207,7 @@ export class RoundState {
     get won(): boolean { return this.score >= this.target; }
 
     update(seconds: number): void {
+        this.luckSeconds = Math.max(0, this.luckSeconds - seconds);
         this.remaining = Math.max(0, this.remaining - seconds);
         this.streakVialSeconds = Math.max(0, this.streakVialSeconds - seconds);
     }

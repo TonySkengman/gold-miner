@@ -20,7 +20,7 @@ Finish Level ends the attempt immediately. Below the target, this costs a life. 
 A varied mix of gold, gems, bags, chests and special rocks. Build streaks across different treasures. Special treasure becomes more common as you progress. Guaranteed loose diamonds: 2 on levels 1–12, 3 on 13–24, 4 on 25–30. Guaranteed loose rubies: 1 on levels 1–9, 2 on 10–21, 3 on 22–30. Bonus rolls can add more; rock gems and gem rats are separate.
 
 Gold Basin • Heavy gold
-More large and giant nuggets, fewer ordinary rocks, a 60-second timer, and Strength, Gold Rush and time vials. Plan long hauls and collect extra time. Mystery bags, chests and loose rubies do not appear.
+More large and giant nuggets, fewer ordinary rocks, a 60-second timer, and Strength, Gold Rush, Time, Streak and Momentum vials. Plan long hauls and collect extra time. Mystery bags, chests and loose rubies do not appear.
 
 Gem Hollow • Precision gems
 No gold nuggets or mine Gold Rush vials. Diamonds and rubies are scattered among more rock obstacles; deposits release gems. Use aiming gaps, perfect catches and Gem Polish. TNT is capped at three barrels.
@@ -30,7 +30,7 @@ Your mode stays fixed for the run. Gold Pocket, Rat Tunnels, Explosive Cavern an
 Diamonds — $450. Rubies — $650. Both have the same light hauling weight. Gem Polish increases their value.
 Ordinary rocks — $12 / $16 / $18 / $20 by size. Low value, heavy, and break streaks.
 Cash bags — $150–$400; Luck narrows the range to $300–$400.
-Mystery bags — purple bags as light as medium gold, with a 50% chance of $250–$650 cash and a 50% chance of a random shop vial, equally split among Strength, Gold Rush, Streak, Time, Life, Luck and Momentum. Luck and Momentum are stored for the next round; other vials apply immediately. Luck narrows cash rewards to $500–$650. Their seeded rolls stay the same on retries.
+Mystery bags — purple bags as light as medium gold, with a 50% chance of $250–$650 cash and a 50% chance of a random shop vial, equally split among Strength, Gold Rush, Streak, Time, Life, Luck and Momentum. All vial rewards apply immediately; Luck starts its timed effect and Momentum adds five charges. Luck narrows cash rewards to $500–$650. Their seeded rolls stay the same on retries.
 Treasure chests — the first hit opens the chest; a second catch collects its revealed reward. Without Luck, equal chances of $600–$1,200 in $50 steps, 2–3 dynamite or one permanent upgrade tier for the next round (including retries). Maxed upgrades cannot drop; if all are maxed, cash and dynamite each have a 50% chance. Upgrade tiers are reserved across chests so they cannot exceed the cap. Luck changes the odds to 50% permanent upgrade, 25% cash and 25% dynamite while upgrade tiers remain. They haul like giant gold.
 Rats — moving targets worth $1. Gem-carrying rats pay the gem value plus $1. Empty rats break streaks.
 TNT barrels and TNT rats — explode on contact unless Safety Grip is ON. Blasts destroy nearby objects and can chain into other TNT; destroyed treasure pays nothing.`],
@@ -38,7 +38,7 @@ TNT barrels and TNT rats — explode on contact unless Safety Grip is ON. Blasts
 
 Rocks with a visible diamond or ruby offer a precision shot: catch just the gem, or grab the heavy host rock with it. A combined rock has both crystal studs and a visible gem. Blasting it releases the remaining hidden treasure and guarantees its visible gem, unless you already extracted that gem.
 
-Up Arrow destroys your caught object and spends one dynamite stick. You lose that object's delivery payout and perfect/streak cash bonus. Without Blast Powder, only the held object is destroyed; caught TNT still explodes. Blasted deposits release loot after the explosion so their newly released treasure survives.
+Up Arrow destroys your caught object and spends one dynamite stick. You lose that object's delivery payout and perfect/streak cash bonus. Without Blast Powder, only the held object is destroyed; caught TNT still explodes. Caught vials instead trigger their special shatter effect, with no destructive powder blast. Blasted deposits release loot after the explosion so their newly released treasure survives.
 
 Free TNT and chain reactions always use their normal blast radius. Place explosions carefully: they can open a deposit but also destroy nearby valuables.`],
     ['Perfect catches & streaks', `Perfect catches
@@ -48,21 +48,32 @@ Catch streaks
 Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step uses the selected mine's earnings target: 0.5% in Gold Basin, 1.5% in Treasure Hollow, or 3% in Gem Hollow, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
 
 Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an embedded gem advance it; gem-studded deposits without a visible gem are neutral. Once you extract a visible gem, its ordinary host rock breaks the streak. Vials, opening chests and TNT are neutral. Dynamiting a qualifying catch preserves its streak progress but loses its payout. Each level and retry starts at zero.`],
-    ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching Strength, Gold Rush, time or Streak vials does not consume a Strength charge.
+    ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching any mine vial does not consume a Strength charge.
 Gold Rush — +50% gold nugget value for two gold catches, plus Vial Belt. Mine vials add catches. Stacks with Gold Polish.
 Time — adds 10 seconds without Vial Belt or at tier 1, 15 seconds at tier 2, or 20 seconds at tier 3. Caught vials (including mystery rewards) apply on delivery; shop vials apply at round start.
-Streak — shop and caught vials give x1.5 streak bonuses for 15 seconds (also at Vial Belt tier 1), 20 seconds at tier 2, or 25 seconds at tier 3. Shop vials activate at round start. Catch another while active to add 5 seconds and increase the multiplier by +0.25x, up to x2; after expiry the multiplier returns to normal. The bonus locks in on latch.
-Momentum — available from the shop or stored from mystery bags. Five charges per round; each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 seconds without the belt) and uses one charge, even if you dynamite the catch afterward.
-Luck — available from the shop or stored from mystery bags. For one round, cash bags roll $300–$400 and mystery-bag cash rolls $500–$650. Chest odds become 50% permanent upgrade, 25% cash and 25% dynamite; if no upgrade tiers remain, cash and dynamite each have a 50% chance.
+Streak — orange vial with three rising bars; Luck keeps its purple clover vial. Shop and caught vials give x1.5 streak bonuses for 15 seconds (also at Vial Belt tier 1), 20 seconds at tier 2, or 25 seconds at tier 3. Shop vials activate at round start. Catch another while active to add 5 seconds and increase the multiplier by +0.25x, up to x2; after expiry the multiplier returns to normal. The bonus locks in on latch.
+Momentum — shop stock starts the round with five charges; caught vials and mystery rewards immediately add five charges; each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 seconds without the belt) and uses one charge, even if you dynamite the catch afterward.
+Luck — shop stock activates at round start; caught vials and mystery rewards activate on delivery. Lasts 20/25/30 seconds at Vial Belt tiers 1/2/3 (20 without the belt); another vial refreshes the duration. While active, cash bags roll $300–$400 and mystery-bag cash rolls $500–$650. Chest odds become 50% permanent upgrade, 25% cash and 25% dynamite; if no upgrade tiers remain, cash and dynamite each have a 50% chance.
 
-Active effects appear beside the clock. Temporary timers stop while paused. Shop supplies use one stocked charge per round; extra purchases cover future rounds rather than stacking that round's multiplier.`],
+Luck updates uncollected bag payouts and unopened chest odds when it activates or expires. Bag rewards lock on latch; chest rewards lock when opened. Active effects appear beside the clock. Temporary timers stop while paused. Shop supplies use one stocked charge per round; extra purchases cover future rounds rather than stacking that round's multiplier.`],
+    ['Vial shattering & spawns', `Shattering caught vials
+Spend dynamite on a caught vial to replace its normal reward with a special effect. These effects do not scale with Vial Belt, do not award delivery or perfect-catch cash, and replace Blast Powder’s destructive area blast. Free vials destroyed by ordinary explosions do not activate.
+Strength: Rock Breaker clears ordinary rocks within 200 pixels, preserving deposits and gem-bearing rocks.
+Gold Rush: Golden Touch permanently adds 25% value to gold nuggets within 200 pixels for this level. A gold ring marks affected nuggets; repeated bursts do not stack.
+Streak: Streak Spark immediately adds two catch-streak steps.
+Luck: Lucky Find reveals one loose diamond or ruby, with equal odds, near the shattered vial. Catch it to earn its value.
+Momentum: Aftershock doubles launch and retract speed for six seconds. Repeated bursts refresh the duration; pausing freezes it.
+Time: Time Warp lifts nearby gold, loose gems, bags and chests up to 120 pixels within a 200-pixel radius. Obstacles can limit the rise; rocks and TNT stay put. Treasure keeps its value and still needs catching.
+
+Mine vial spawns
+All three mines use one independent count roll per eligible vial type: 25% for zero, 50% for one, 20% for two and 5% for three. This replaces previous vial counts and bonus rolls. Momentum is included in every mine. Gem Hollow excludes Gold Rush because it has no gold; Gold Basin excludes Luck. Catching Luck activates it immediately for 20/25/30 seconds at Vial Belt tiers 1/2/3 (20 without the belt), refreshing its duration if already active. Catching Momentum immediately adds five charges. Mystery-bag vials behave the same way. Life vials never spawn loose in the mine. All mine vials preserve Strength charges and qualify for perfect-haul speed. Placement favors 15% surface, 70% middle and 15% deep. Retries preserve the seeded layout.`],
     ['Safety Grip & Blast Powder', `Safety Grip • Three tiers: $1,500 / $3,000 / $4,500, lasting for the run
-Starts ON and remembers your choice between levels and retries. Choose before launching: it cannot toggle until the claw returns to idle.
+Starts ON and remembers your choice between levels and retries. While ON, launch speed is reduced by 25% / 20% / 15% at tiers 1 / 2 / 3; hauling speed is unchanged. OFF restores normal launch speed but TNT explodes on contact. Aftershock doubles the resulting launch speed, retaining the Safety Grip penalty. Choose before launching: it cannot toggle until the claw returns to idle.
 
 Catching a TNT barrel or TNT rat holds the claw still while disarming: 3.5 seconds at tier 1, 3 seconds at tier 2, or 2.5 seconds at tier 3. A countdown shows progress; the level timer keeps running. Afterward, haul it to the surface for +1 dynamite, no money. TNT remains neutral to streaks. You can sacrifice the held TNT with dynamite instead, but receive no recovered stick. Free TNT can still explode in nearby blasts.
 
 Blast Powder • three tiers
-Starts ON when purchased and remembers your choice. It affects thrown dynamite, with the setting and tier locked in at throw time. Tier 1 creates a blast 2.5 times the held object's radius; caught TNT gets a 187.5-pixel blast. Tiers 2 and 3 increase these radii by 20% and 40% over tier 1. Contact TNT and chain reactions retain their normal 125-pixel radius.
+Starts ON when purchased and remembers your choice. It affects thrown dynamite, with the setting and tier locked in at throw time. Tier 1 creates a blast 2.5 times the held object's radius; caught TNT gets a 202.5-pixel blast. Tiers 2 and 3 increase these radii by 20% and 40% over tier 1. Contact TNT and chain reactions retain their normal 135-pixel radius. Caught vials instead trigger their own special shatter effects; Blast Powder does not increase their radius, strength or duration.
 
 Both tools can be ON together. Safety Grip lets you catch TNT; then choose between delivering it for a stick and spending dynamite to create a larger Blast Powder explosion.`],
     ['Results, retries & rewards', `The final haul counts

@@ -11,12 +11,15 @@ import { rollTreasureReward, treasureRewardLabel, TreasureReward } from '../stat
 import { GameObjects, Scene } from 'phaser';
 import { LEVELS, LevelConfig } from '../state/Levels';
 
-export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tntRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest';
+export type OreKind = 'small' | 'medium' | 'large' | 'giant' | 'rock' | 'mediumRock' | 'heavyRock' | 'largeRock' | 'diamond' | 'ruby' | 'moneyBag' | 'rat' | 'diamondRat' | 'rubyRat' | 'tntRat' | 'tnt' | 'strengthPotion' | 'goldRush' | 'timeVial' | 'streakVial' | 'mysteryBag' | 'treasureChest' | 'luck' | 'momentum';
+export const isMineVial = (kind: OreKind): boolean => ['strengthPotion', 'goldRush', 'timeVial', 'streakVial', 'luck', 'momentum'].includes(kind);
 const TYPES = {
+    luck: { radius: 30, value: 0, weight: 0.2, color: 0x9e5dc3 },
+    momentum: { radius: 30, value: 0, weight: 0.2, color: 0x39c9b3 },
     ruby: { radius: 15, value: 650, weight: 0.4, color: 0xe83864 },
     treasureChest: { radius: 36, value: 0, weight: 4.8, color: 0xb77736 },
     goldRush: { radius: 30, value: 0, weight: 0.2, color: 0xffc52e },
-    streakVial: { radius: 30, value: 0, weight: 0.2, color: 0xa75ae0 },
+    streakVial: { radius: 30, value: 0, weight: 0.2, color: 0xf07835 },
     timeVial: { radius: 30, value: 0, weight: 0.2, color: 0x66d9fa },
     mysteryBag: { radius: 30, value: 0, weight: 1.5, color: 0x837097 },
     strengthPotion: { radius: 30, value: 0, weight: 0.2, color: 0x80d65b },
@@ -40,6 +43,7 @@ const TYPES = {
 export class Collectable {
     readonly radius: number;
     readonly value: number;
+    goldenTouch = false;
     private readonly baseWeight: number;
     mountedGem?: Collectable;
     private supportingRock?: Collectable;
@@ -53,6 +57,7 @@ export class Collectable {
     readonly graphic: GameObjects.Graphics;
     available = true;
     private chestOpened = false;
+    get isChestOpened(): boolean { return this.chestOpened; }
     treasureReward?: TreasureReward;
     depositIntegrity?: DepositIntegrity;
     private combinedGemRock = false;
@@ -97,7 +102,7 @@ export class Collectable {
             drawTimeVial(g, r / 19);
             return;
         }
-        if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'streakVial') {
+        if (kind === 'strengthPotion' || kind === 'goldRush' || kind === 'streakVial' || kind === 'luck' || kind === 'momentum') {
             drawMineVial(g, kind, r / 19);
             return;
         }
@@ -463,7 +468,7 @@ export class Collectable {
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
         if (this.kind === 'diamondRat') return TYPES.rat.value + Math.round(TYPES.diamond.value * diamondMultiplier);
         if (this.kind === 'rubyRat') return TYPES.rat.value + Math.round(TYPES.ruby.value * diamondMultiplier);
-        return Math.round(this.value * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
+        return Math.round(this.value * (this.goldenTouch ? 1.25 : 1) * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
     }
 
     update(seconds: number, objects: Collectable[]): void {
@@ -527,6 +532,8 @@ export class Collectable {
 /** Valuable catches require a longer trip; mystery bags keep an unknown payout. */
 export function spawnDepthRange(kind: OreKind, minimumDepth: number): [number, number] {
     switch (kind) {
+        case 'luck':
+        case 'momentum':
         case 'strengthPotion':
         case 'goldRush':
         case 'streakVial':
@@ -671,15 +678,9 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
             counts[kind] = (counts[kind] ?? 0) + 1;
             return caps[kind] === undefined || counts[kind]! <= caps[kind]!;
         });
-        // Minimum supplies plus independent bonus rolls, fixed for this seeded layout.
+        // TNT retains its progression and independent seeded bonus.
         const extraTnt = random() < 0.4 ? 1 : 0;
-        const timeVials = Math.max(0, (level.timeVials ?? 2) - 1) + (random() < 0.5 ? 1 : 0) + (random() < 0.2 ? 1 : 0);
-        const strengthVials = Math.max(0, (level.strengthVials ?? 2) - 1) + (random() < 0.4 ? 1 : 0);
-        const goldRushVials = Math.max(0, (level.goldRushVials ?? 2) - 1) + (random() < 0.4 ? 1 : 0);
-        kinds.splice(0, kinds.length, ...focused, ...Array<OreKind>(extraTnt).fill('tnt'),
-            ...Array<OreKind>(timeVials).fill('timeVial'),
-            ...Array<OreKind>(strengthVials).fill('strengthPotion'),
-            ...Array<OreKind>(goldRushVials).fill('goldRush'));
+        kinds.splice(0, kinds.length, ...focused, ...Array<OreKind>(extraTnt).fill('tnt'));
     }
     if (level.mine === 'gemHollow') {
         // Keep the precision route free of nuggets, including width/density filler.
@@ -688,6 +689,22 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
         // Roll before placement retries so the count stays fixed for this layout.
         const cashBags = Number(random() < 0.75) + Number(random() < 0.75);
         kinds.splice(0, kinds.length, ...gemsAndSupplies, ...Array<OreKind>(cashBags).fill('moneyBag'));
+    }
+    // All mines use one independent count roll per eligible vial type.
+    // Replace base/width/density additions before placement retries so neither
+    // viewport size nor a crowded layout can change the rolled supply counts.
+    for (const vial of ['strengthPotion', 'goldRush', 'timeVial', 'streakVial', 'luck', 'momentum'] as const) {
+        for (let index = kinds.length - 1; index >= 0; index--) {
+            if (kinds[index] === vial) kinds.splice(index, 1);
+        }
+        if (vial === 'goldRush' && level.mine === 'gemHollow') continue;
+        if (level.mine === 'goldBasin' && vial === 'luck') continue;
+        const vialRoll = random();
+        // Exact per-type distribution: 25% none, 50% one, 20% two, 5% three.
+        if (vialRoll >= 0.25) {
+            const count = vialRoll < 0.75 ? 1 : vialRoll < 0.95 ? 2 : 3;
+            kinds.push(...Array<OreKind>(count).fill(vial));
+        }
     }
     // Replace ordinary rats only, preserving gem carriers and total population.
     // Roll once before layout retries so crowded layouts cannot reroll the count.
@@ -793,7 +810,7 @@ export function generateCollectables(scene: Scene, level: LevelConfig = LEVELS[0
                 const requiredHosts = (quarryRocks?.mounted ?? 0) + (quarryRocks?.combined ?? 0);
                 minY = reservedRockGems.length < requiredHosts ? Math.max(minY, 620) : level.minimumDepth;
             }
-            if (['strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(kind)) {
+            if (isMineVial(kind)) {
                 // Favor the middle; keep the chosen band through position retries.
                 const depthRoll = random();
                 [minY, maxY] = depthRoll < 0.15 ? [350, 440]

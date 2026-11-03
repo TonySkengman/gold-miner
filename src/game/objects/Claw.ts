@@ -1,16 +1,17 @@
-import { safetyGripDisarmSeconds } from '../state/Upgrades';
+import { safetyGripDisarmSeconds, safetyGripLaunchMultiplier } from '../state/Upgrades';
 import { releaseGemDeposit } from './GemDeposits';
 import { catchFeedbackY, clawCollisionRadius } from './Aiming';
 import { soundEffects } from '../audio/SoundEffects';
 import { detonateArea, dynamiteBlastRadius, detonateBarrel, showBarrelExplosion, TNT_BLAST_RADIUS } from './Explosions';
 import { WORLD } from '../state/World';
 import { GameObjects, Scene } from 'phaser';
-import { Collectable } from './Collectable';
+import { Collectable, isMineVial } from './Collectable';
 import { treasureRewardValue } from '../state/TreasureRewards';
 
 type ClawMode = 'idle' | 'extending' | 'retracting';
 
 export class Claw {
+    aftershockSeconds = 0;
     powderRadiusScale = 0;
     safetyGrip = false;
     safetyGripTier = 0;
@@ -35,7 +36,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private get origin(): { x: number; y: number } { return { x: WORLD.centerX, y: WORLD.pivotY }; }
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly lightweightGrip = false, private readonly onCatch: (object: Collectable, perfect: boolean) => number = () => 1, private readonly onMiss: () => void = () => {}) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly lightweightGrip = false, private readonly onCatch: (object: Collectable, perfect: boolean) => number = () => 1, private readonly onMiss: () => void = () => {}, private readonly onShatter: (vial: Collectable) => void = () => {}) {
         this.graphic = scene.add.graphics().setData('responsiveIgnore', true).setDepth(5);
         this.draw();
     }
@@ -55,7 +56,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite && this.disarmRemaining <= 0
-            ? 275.4 * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
+            ? 275.4 * (this.aftershockSeconds > 0 ? 2 : 1) * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
     resize(oldWidth: number): void {
@@ -102,7 +103,9 @@ export class Claw {
         this.dynamite = null;
         const blasted = this.caught;
         blasted.destroy();
-        const areaBlast = this.thrownPowderScale > 0 || blasted.isExplosive;
+        const vial = isMineVial(blasted.kind);
+        const areaBlast = !vial && (this.thrownPowderScale > 0 || blasted.isExplosive);
+        if (vial) this.onShatter(blasted);
         if (areaBlast) {
             const radius = this.thrownPowderScale > 0
                 ? (blasted.isExplosive ? TNT_BLAST_RADIUS * 1.5 : dynamiteBlastRadius(blasted.radius)) * this.thrownPowderScale
@@ -116,7 +119,7 @@ export class Claw {
         this.caught = null;
         this.perfectHaul = false;
         this.perfectBonus = 0;
-        if (areaBlast) return;
+        if (areaBlast || vial) return;
         soundEffects.play('explosion');
         // A short, simple burst marks the hit. Destroyed ore awards no money.
         const burst = this.scene.add.graphics().setPosition(x, y).setDepth(6);
@@ -126,6 +129,7 @@ export class Claw {
     }
 
     update(seconds: number, objects: Collectable[]): void {
+        this.aftershockSeconds = Math.max(0, this.aftershockSeconds - seconds);
         if (this.mode === 'idle') {
             this.angle += this.swingDirection * seconds * 1.2705;
             if (this.angle > WORLD.maxAngle || this.angle < -WORLD.maxAngle) {
@@ -135,7 +139,7 @@ export class Claw {
         } else if (this.mode === 'extending') {
             const oldLength = this.length;
             const edgeRange = Math.min(WORLD.clawRange, (WORLD.floorY - this.origin.y) / Math.cos(this.angle), WORLD.sideReach / Math.max(0.001, Math.abs(Math.sin(this.angle))));
-            this.length = Math.min(edgeRange, this.length + 352 * seconds);
+            this.length = Math.min(edgeRange, this.length + 352 * (this.safetyGrip ? safetyGripLaunchMultiplier(this.safetyGripTier) : 1) * (this.aftershockSeconds > 0 ? 2 : 1) * seconds);
             // Swept segment collision prevents tunnelling even on slow frames.
             let first: Collectable | null = null;
             let hitLength = this.length;
@@ -189,7 +193,7 @@ export class Claw {
                     - (first.y - this.origin.y) * Math.sin(this.angle));
                 const eligible = ['small', 'medium', 'large', 'giant', 'diamond', 'ruby',
                     'moneyBag', 'diamondRat', 'rubyRat', 'mysteryBag', 'treasureChest',
-                    'strengthPotion', 'goldRush', 'timeVial', 'streakVial'].includes(first.kind);
+                    'strengthPotion', 'goldRush', 'timeVial', 'streakVial', 'luck', 'momentum'].includes(first.kind);
                 const perfect = eligible && across <= Math.min(10, first.radius * 0.3);
                 this.caughtValue = Math.round(first.collectionValue(this.diamondMultiplier) * this.onCatch(first, perfect));
                 this.perfectBonus = perfect ? Math.ceil(this.caughtValue * 35 / 1000) * 10 : 0;

@@ -1,4 +1,4 @@
-import { timeVialSeconds } from './Upgrades';
+import { timeVialSeconds, luckVialDuration } from './Upgrades';
 
 export type MysteryReward = { kind: 'money'; amount: number } | { kind: 'strength' | 'goldRush' | 'streakVial' | 'extraTime' | 'life' | 'luck' | 'momentum' };
 
@@ -8,7 +8,7 @@ export function mysteryRewardLabel(reward: MysteryReward, vialBelt = 0): string 
     if (reward.kind === 'money') return `$${reward.amount}`;
     const labels = { strength: 'STRENGTH x2', goldRush: 'GOLD RUSH',
         streakVial: 'STREAK VIAL', extraTime: `+${timeVialSeconds(vialBelt)} SECONDS`, life: '+1 LIFE',
-        luck: 'LUCK VIAL (STORED)', momentum: 'MOMENTUM VIAL (STORED)' };
+        luck: `LUCK ${luckVialDuration(vialBelt)}s`, momentum: 'MOMENTUM +5 CHARGES' };
     return labels[reward.kind];
 }
 

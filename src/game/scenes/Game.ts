@@ -1,3 +1,4 @@
+import { shatterVial } from '../objects/VialShatter';
 import { rollTreasureReward } from '../state/TreasureRewards';
 import { showGameGuide } from '../ui/GameGuide';
 import type { ToolToggles } from '../state/Upgrades';
@@ -16,7 +17,7 @@ import { LAYOUTS } from '../state/Layouts';
 import { MinerAnimator } from '../art/MinerAnimator';
 import { addSoundButton, soundEffects } from '../audio/SoundEffects';
 import { WORLD } from '../state/World';
-import { blastPowderScale, cashBagValue, LevelBonuses, Upgrades } from '../state/Upgrades';
+import { blastPowderScale, cashBagValue, safetyGripLaunchMultiplier, LevelBonuses, Upgrades } from '../state/Upgrades';
 import { Scene, GameObjects } from 'phaser';
 import { Claw } from '../objects/Claw';
 import { Collectable, generateCollectables } from '../objects/Collectable';
@@ -45,6 +46,9 @@ export class Game extends Scene {
     private goldRushText: GameObjects.Text;
     private buffIcons: GameObjects.Graphics[] = [];
     private momentumText?: GameObjects.Text;
+    private luckText: GameObjects.Text;
+    private refreshLuckRewards: () => void = () => {};
+    private aftershockText: GameObjects.Text;
     private passiveBuffTexts: GameObjects.Text[] = [];
     private mineClock: MineClock;
     private livesIcons: GameObjects.Graphics;
@@ -62,7 +66,6 @@ export class Game extends Scene {
         this.toolToggles = { ...data.toolToggles };
         this.autoFinishLevel = this.toolToggles.autoFinishLevel ?? false;
         this.levelSeed = data.levelSeed ?? newLevelSeed();
-        const rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
         this.mysteryRewards = new Map();
         this.displayedLives = -1;
         this.ended = false;
@@ -75,29 +78,46 @@ export class Game extends Scene {
         this.miner = new MinerAnimator(this);
         this.mineClock = new MineClock(this, this.round.remaining);
         this.objects = generateCollectables(this, this.round.config, seededRandom(this.levelSeed));
-        const chestRandom = seededRandom(this.levelSeed ^ 0x27d4eb2d);
-        const reservedUpgrades = { ...this.round.upgrades };
-        const cashRandom = seededRandom(this.levelSeed ^ 0x165667b1);
         const cashRewards = new Map<Collectable, number>();
-        for (const object of this.objects) {
-            if (object.kind === 'treasureChest') {
-                object.treasureReward = rollTreasureReward(chestRandom, reservedUpgrades, this.round.bonuses.luck);
+        let previousLuck: boolean | undefined;
+        this.refreshLuckRewards = () => {
+            if (previousLuck === this.round.luckActive) return;
+            previousLuck = this.round.luckActive;
+            const luck = Number(this.round.luckActive);
+            const chestRandom = seededRandom(this.levelSeed ^ 0x27d4eb2d);
+            const cashRandom = seededRandom(this.levelSeed ^ 0x165667b1);
+            const rewardRandom = seededRandom(this.levelSeed ^ 0x51ed270b);
+            const reservedUpgrades = { ...this.round.upgrades };
+            // Opened or latched chests keep their revealed rewards when Luck changes.
+            for (const object of this.objects) {
                 const reward = object.treasureReward;
-                if (reward.kind !== 'money' && reward.kind !== 'dynamite') reservedUpgrades[reward.kind]++;
+                if (reward && (object.isChestOpened || !object.available)
+                    && reward.kind !== 'money' && reward.kind !== 'dynamite') reservedUpgrades[reward.kind]++;
             }
-            if (this.round.bonuses.prospectorsLens && object.kind === 'treasureChest') {
-                object.revealTreasureReward(this);
+            for (const object of this.objects) {
+                if (object.kind === 'treasureChest') {
+                    const reward = rollTreasureReward(chestRandom, reservedUpgrades, luck);
+                    if (!object.available || object.isChestOpened) continue;
+                    object.treasureReward = reward;
+                    if (reward.kind !== 'money' && reward.kind !== 'dynamite') reservedUpgrades[reward.kind]++;
+                    if (this.round.bonuses.prospectorsLens) object.revealTreasureReward(this);
+                }
+                if (object.kind === 'moneyBag') {
+                    const amount = cashBagValue(object.value, luck, cashRandom);
+                    if (!object.available) continue;
+                    cashRewards.set(object, amount);
+                    if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, { kind: 'money', amount });
+                }
+                if (object.kind === 'mysteryBag') {
+                    const reward = rollMysteryReward(rewardRandom, luck);
+                    if (!object.available) continue;
+                    this.mysteryRewards.set(object, reward);
+                    if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, reward, this.round.upgrades.vialBelt);
+                }
             }
-            if (object.kind === 'moneyBag') {
-                const amount = cashBagValue(object.value, this.round.bonuses.luck, cashRandom);
-                cashRewards.set(object, amount);
-                if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, { kind: 'money', amount });
-            }
-            if (object.kind !== 'mysteryBag') continue;
-            const reward = rollMysteryReward(rewardRandom, this.round.bonuses.luck);
-            this.mysteryRewards.set(object, reward);
-            if (this.round.bonuses.prospectorsLens) object.revealMysteryReward(this, reward, this.round.upgrades.vialBelt);
-        }
+        };
+        this.refreshLuckRewards();
+        const shatterRandom = seededRandom(this.levelSeed ^ 0x4b19a73d);
         const streakBonuses = new WeakMap<Collectable, number>();
         this.claw = new Claw(this, (value, object, perfectBonus) => {
             const streakBonus = streakBonuses.get(object) ?? 0;
@@ -113,6 +133,10 @@ export class Game extends Scene {
             if (object.kind === 'treasureChest' && object.treasureReward) {
                 showValue(0, this.round.applyTreasureReward(object.treasureReward));
                 this.miner.reactTo(object.kind);
+                return;
+            }
+            if (object.kind === 'luck' || object.kind === 'momentum') {
+                showValue(0, this.round.applyMysteryReward({ kind: object.kind }));
                 return;
             }
             if (object.kind === 'streakVial') {
@@ -163,7 +187,8 @@ export class Game extends Scene {
             streakBonuses.set(object, bonus);
             if (bonus > 0) this.showStreakCatch(object, bonus);
             return this.round.consumeCatch(object.kind);
-        }, () => this.round.missShot());
+        }, () => this.round.missShot(), vial => shatterVial(this, vial, this.objects, this.round,
+            () => { this.claw.aftershockSeconds = 6; }, shatterRandom));
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(WORLD.centerX, 44, WORLD.width, 88, 0x483126).setData('responsiveFullWidth', true);
         const moneyX = 166;
@@ -264,7 +289,7 @@ export class Game extends Scene {
             safetyIndicator.setVisible(this.claw.safetyGrip);
             safetyText
             .setText(this.round.upgrades.safetyGrip > 0
-                ? `${this.claw.safetyGrip ? 'ON' : 'OFF'} — click / [→]` : 'NOT OWNED — buy in shop')
+                ? `${this.claw.safetyGrip ? `ON −${Math.round((1 - safetyGripLaunchMultiplier(this.claw.safetyGripTier)) * 100)}% launch` : 'OFF'} — [→]` : 'NOT OWNED — buy in shop')
             .setBackgroundColor(this.claw.safetyGrip ? '#547f3b' : '#70452a');
         };
         const toggleSafetyGrip = () => {
@@ -290,33 +315,36 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, fontStyle: 'bold', color: '#ffe06a',
             backgroundColor: '#483126', padding: { x: 10, y: 6 }
         }).setVisible(false);
-        if (this.round.bonuses.luck) this.passiveBuffTexts.push(this.add.text(32, 251, 'LUCK: richer bags • better chests', {
+        this.luckText = this.add.text(32, 251, '', {
             fontFamily: 'Arial', fontSize: 17, color: '#ecc4ff', backgroundColor: '#42304b',
             padding: { x: 8, y: 5 }
-        }));
-        if (this.round.bonuses.momentum > 0) {
-            this.momentumText = this.add.text(32, 251, 'MOMENTUM: 5 charges', {
-                fontFamily: 'Arial', fontSize: 17, color: '#9cf2e7', backgroundColor: '#253e42', padding: { x: 8, y: 5 }
-            });
-            this.passiveBuffTexts.push(this.momentumText);
-        }
+        }).setVisible(false);
+        this.passiveBuffTexts.push(this.luckText);
+        this.momentumText = this.add.text(32, 251, '', {
+            fontFamily: 'Arial', fontSize: 17, color: '#9cf2e7', backgroundColor: '#253e42', padding: { x: 8, y: 5 }
+        }).setVisible(false);
+        this.passiveBuffTexts.push(this.momentumText);
         if (this.round.bonuses.lightweightGrip) this.passiveBuffTexts.push(this.add.text(32, 251, 'LIGHTWEIGHT GRIP: rock weight -40%', {
             fontFamily: 'Arial', fontSize: 17, color: '#ffe5ac', backgroundColor: '#483126',
             padding: { x: 8, y: 5 }
         }));
         this.streakVialText = this.add.text(32, 251, 'STREAK VIAL: bonuses x1.5', {
-            fontFamily: 'Arial', fontSize: 17, color: '#e7c5ff', backgroundColor: '#42304b',
+            fontFamily: 'Arial', fontSize: 17, color: '#ffd2a6', backgroundColor: '#563323',
             padding: { x: 8, y: 5 }
         }).setVisible(false);
         this.passiveBuffTexts.push(this.streakVialText);
+        this.aftershockText = this.add.text(32, 251, '', {
+            fontFamily: 'Arial', fontSize: 17, color: '#9cf2e7', backgroundColor: '#253e42',
+            padding: { x: 8, y: 5 }
+        }).setVisible(false);
+        this.passiveBuffTexts.push(this.aftershockText);
         // Compact buff rows stay above the mine floor.
         [this.strengthText, this.goldRushText, ...this.passiveBuffTexts]
             .forEach(text => text.setFontSize(14).setPadding(8, 4).setWordWrapWidth(270));
         const buffKinds: BuffKind[] = ['strength', 'goldRush'];
-        if (this.round.bonuses.luck) buffKinds.push('luck');
-        if (this.round.bonuses.momentum > 0) buffKinds.push('momentum');
+        buffKinds.push('luck', 'momentum');
         if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
-        buffKinds.push('streakVial');
+        buffKinds.push('streakVial', 'momentum');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
         // Keep equipment and buffs together to the left of the clock, including on resize.
         const leftHudItems = this.children.list.slice(leftHudStart) as (GameObjects.GameObject & GameObjects.Components.Transform)[];
@@ -472,6 +500,7 @@ export class Game extends Scene {
             const step = Math.min(pending, 1 / 120,
                 this.round.remaining > 0 ? this.round.remaining : Infinity);
             for (const object of this.objects) object.update(step, this.objects);
+            this.refreshLuckRewards();
             this.claw.update(step, this.objects);
             this.miner.update(step, this.claw.retrievalSpeed, this.claw.isHauling, this.claw.haulingWeight);
             this.round.update(step);
@@ -596,7 +625,12 @@ export class Game extends Scene {
         this.goldRushText.setText(`GOLD RUSH +50%  ${this.round.goldRushCatches} gold nuggets`);
         this.streakVialText.setVisible(this.round.streakVialActive);
         this.streakVialText.setText(`STREAK BONUSES x${this.round.streakMultiplier}  ${Math.ceil(this.round.streakVialSeconds)}s`);
+        this.luckText.setVisible(this.round.luckActive);
+        this.luckText.setText(`LUCK: richer loot  ${Math.ceil(this.round.luckSeconds)}s`);
+        this.momentumText?.setVisible(this.round.momentumChargesRemaining > 0);
         this.momentumText?.setText(`MOMENTUM: ${this.round.momentumChargesRemaining} charges`);
+        this.aftershockText.setVisible(this.claw.aftershockSeconds > 0);
+        this.aftershockText.setText(`AFTERSHOCK x2 SPEED  ${Math.ceil(this.claw.aftershockSeconds)}s`);
         let buffY = 0;
         const buffTexts = [this.strengthText, this.goldRushText, ...this.passiveBuffTexts];
         for (const [index, text] of buffTexts.entries()) {

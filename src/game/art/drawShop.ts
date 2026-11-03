@@ -81,7 +81,7 @@ export function drawShopProduct(scene: Scene, x: number, y: number, kind: ShopIt
         g.fillStyle(0x4a2e20).fillRoundedRect(-65, -9, 130, 44, 9);
         g.fillStyle(0x95603b).lineStyle(3, 0x573623);
         g.fillRoundedRect(-65, -16, 130, 40, 7).strokeRoundedRect(-65, -16, 130, 40, 7);
-        for (const [index, color] of [0x8bd665, 0xffd65a, 0xa75ae0].entries()) {
+        for (const [index, color] of [0x8bd665, 0xffd65a, 0xf07835].entries()) {
             const x = (index - 1) * 39;
             g.fillStyle(0xe4f1ed).lineStyle(2, 0x42565a);
             g.fillRoundedRect(x - 13, -35, 26, 47, 7).strokeRoundedRect(x - 13, -35, 26, 47, 7);
@@ -294,21 +294,28 @@ export function drawMineVial(g: GameObjects.Graphics, kind: 'strengthPotion' | '
     g.beginPath().moveTo(-6, -13).lineTo(-6, -5).lineTo(-14, 3)
         .lineTo(-14, 13).lineTo(-8, 17).lineTo(8, 17).lineTo(14, 13)
         .lineTo(14, 3).lineTo(6, -5).lineTo(6, -13).closePath().fillPath().strokePath();
-    g.fillStyle(kind === 'goldRush' ? 0xffc52e : kind === 'streakVial' ? 0xa75ae0 : kind === 'luck' ? 0x9e5dc3 : kind === 'momentum' ? 0x39c9b3 : 0x80d65b).fillRoundedRect(-10, 3, 20, 11, 3);
-    g.fillStyle(kind === 'goldRush' ? 0xffee9a : kind === 'luck' ? 0xdba4ef : kind === 'momentum' ? 0xc3fff2 : 0xaff17d).fillRect(-8, 4, 4, 7);
+    g.fillStyle(kind === 'goldRush' ? 0xffc52e : kind === 'streakVial' ? 0xf07835 : kind === 'luck' ? 0x9e5dc3 : kind === 'momentum' ? 0x39c9b3 : 0x80d65b).fillRoundedRect(-10, 3, 20, 11, 3);
+    g.fillStyle(kind === 'goldRush' ? 0xffee9a : kind === 'streakVial' ? 0xffc18a : kind === 'luck' ? 0xdba4ef : kind === 'momentum' ? 0xc3fff2 : 0xaff17d).fillRect(-8, 4, 4, 7);
     g.fillStyle(0xad7c43).lineStyle(2, 0x694729)
         .fillRoundedRect(-7, -18, 14, 7, 2).strokeRoundedRect(-7, -18, 14, 7, 2);
     if (kind === 'streakVial') {
-        for (const x of [-5, 5]) {
-            g.fillStyle(0xffe68c).fillTriangle(x + 2, -1, x - 4, 7, x + 1, 7)
-                .fillTriangle(x - 1, 5, x + 4, 5, x - 2, 13);
+        // Rising bars communicate a growing streak without reusing lightning or clocks.
+        for (const [index, height] of [6, 10, 14].entries()) {
+            const x = -8 + index * 6;
+            g.fillStyle(0xfff1d2).lineStyle(1, 0x8b3c22)
+                .fillRoundedRect(x, 13 - height, 4, height, 1)
+                .strokeRoundedRect(x, 13 - height, 4, height, 1);
         }
     } else if (kind === 'momentum') {
-        // Clock and upward chevron connect precise catches with earned time.
-        g.fillStyle(0xe8ffff).fillCircle(0, 6, 6);
-        g.lineStyle(1.2, 0x176d66).strokeCircle(0, 6, 6)
-            .lineBetween(0, 6, 0, 2).lineBetween(0, 6, 3, 8);
-        g.lineStyle(1.5, 0xffe68c).lineBetween(-4, -2, 0, -6).lineBetween(0, -6, 4, -2);
+        // Forward chevrons distinguish Momentum from Time's clock at small sizes.
+        g.lineStyle(4.5, 0x176d66);
+        for (const x of [-3, 4]) {
+            g.beginPath().moveTo(x - 3, 0).lineTo(x + 2, 6).lineTo(x - 3, 12).strokePath();
+        }
+        g.lineStyle(2.5, 0xfff1af);
+        for (const x of [-3, 4]) {
+            g.beginPath().moveTo(x - 3, 0).lineTo(x + 2, 6).lineTo(x - 3, 12).strokePath();
+        }
     } else if (kind === 'luck') {
         g.fillStyle(0xffdf79).fillCircle(-2.5, 3, 3).fillCircle(2.5, 3, 3)
             .fillCircle(-2.5, 8, 3).fillCircle(2.5, 8, 3);
