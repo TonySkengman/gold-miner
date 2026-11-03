@@ -468,7 +468,7 @@ export class Collectable {
         if (this.kind === 'treasureChest') return this.chestOpened && this.treasureReward?.kind === 'money' ? this.treasureReward.amount : 0;
         if (this.kind === 'diamondRat') return TYPES.rat.value + Math.round(TYPES.diamond.value * diamondMultiplier);
         if (this.kind === 'rubyRat') return TYPES.rat.value + Math.round(TYPES.ruby.value * diamondMultiplier);
-        return Math.round(this.value * (this.goldenTouch ? 1.25 : 1) * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
+        return Math.round(this.value * (this.goldenTouch ? 1.5 : 1) * (this.kind === 'diamond' || this.kind === 'ruby' ? diamondMultiplier : 1));
     }
 
     update(seconds: number, objects: Collectable[]): void {

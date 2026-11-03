@@ -233,11 +233,11 @@ Spend one dynamite on a caught vial to replace its normal reward with the effect
 | Vial | Shatter effect |
 |---|---|
 | Strength | **Rock Breaker:** clears ordinary rocks within 200px, preserving deposits and gem-bearing rocks. |
-| Gold Rush | **Golden Touch:** nuggets within 200px gain +25% value for the rest of the level, marked with a gold ring. Repeated bursts do not stack. |
+| Gold Rush | **Golden Touch:** nuggets within 300px gain +50% value for the rest of the level, marked with a gold ring. Repeated bursts do not stack. |
 | Streak | **Streak Spark:** immediately adds two catch-streak steps. |
 | Luck | **Lucky Find:** reveals one diamond or ruby near the vial, with equal odds. Catch it to earn its value. |
 | Momentum | **Aftershock:** doubles launch and retract speed for six seconds. Repeated bursts refresh the duration; pausing freezes it. |
-| Time | **Time Warp:** lifts gold, loose gems, bags and chests within 200px by up to 120px. Obstacles limit the rise; rocks and TNT stay put. Treasure keeps its value and still needs catching. |
+| Time | **Second Chance:** Each shattered Time vial adds three recall charges for the current level. Press Down or click again during launch to spend one charge and recall the empty claw without breaking your streak. |
 
 #### Mine vial spawns
 

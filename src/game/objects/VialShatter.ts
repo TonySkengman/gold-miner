@@ -10,8 +10,8 @@ const gold = ['small', 'medium', 'large', 'giant'];
 
 /** A caught vial replaces the destructive powder blast with its own utility burst. */
 export function shatterVial(scene: Scene, vial: Collectable, objects: Collectable[], round: RoundState,
-    aftershock: () => void, random: () => number): void {
-    const radius = 200;
+    aftershock: () => void, random: () => number, secondChance: () => void): void {
+    const radius = vial.kind === 'goldRush' ? 300 : 200;
     const nearby = objects.filter(object => object.available
         && Math.hypot(object.x - vial.x, object.y - vial.y) <= radius);
     let color = 0x66d9fa;
@@ -41,7 +41,7 @@ export function shatterVial(scene: Scene, vial: Collectable, objects: Collectabl
             object.graphic.lineStyle(3, color, 0.85).strokeCircle(0, 0, object.radius + 4);
             count++;
         }
-        label = `GOLDEN TOUCH • ${count} NUGGETS +25%`;
+        label = `GOLDEN TOUCH • ${count} NUGGETS +50%`;
     } else if (vial.kind === 'streakVial') {
         color = 0xf07835;
         round.catchStreak += 2;
@@ -76,22 +76,8 @@ export function shatterVial(scene: Scene, vial: Collectable, objects: Collectabl
         label = `LUCKY FIND • ${kind.toUpperCase()} REVEALED`;
 
     } else if (vial.kind === 'timeVial') {
-        let count = 0;
-        for (const object of nearby.sort((a, b) => a.y - b.y)) {
-            if (object.isMountedGem || ![...gold, 'diamond', 'ruby', 'moneyBag', 'mysteryBag', 'treasureChest'].includes(object.kind)) continue;
-            // Move along the full path; stop before a rock or other object, keeping catches reachable.
-            const fromY = object.y;
-            for (let rise = 4; rise <= 120; rise += 4) {
-                const y = fromY - rise;
-                if (y - object.radius < WORLD.groundY + 30
-                    || Math.abs(Math.atan2(object.x - WORLD.centerX, y - WORLD.pivotY)) > WORLD.maxAngle
-                    || objects.some(other => other !== object && other.available
-                        && Math.hypot(object.x - other.x, y - other.y) < object.radius + other.radius + 4)) break;
-                object.moveTo(object.x, y);
-            }
-            if (object.y < fromY) count++;
-        }
-        label = `TIME WARP • ${count} TREASURES LIFTED`;
+        secondChance();
+        label = 'SECOND CHANCE • +3 RECALLS • PRESS ↓ AGAIN';
     }
     soundEffects.play('explosion');
     const burst = scene.add.graphics().setPosition(vial.x, vial.y).setDepth(8);

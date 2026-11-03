@@ -59,11 +59,11 @@ Luck updates uncollected bag payouts and unopened chest odds when it activates o
     ['Vial shattering & spawns', `Shattering caught vials
 Spend dynamite on a caught vial to replace its normal reward with a special effect. These effects do not scale with Vial Belt, do not award delivery or perfect-catch cash, and replace Blast Powder’s destructive area blast. Free vials destroyed by ordinary explosions do not activate.
 Strength: Rock Breaker clears ordinary rocks within 200 pixels, preserving deposits and gem-bearing rocks.
-Gold Rush: Golden Touch permanently adds 25% value to gold nuggets within 200 pixels for this level. A gold ring marks affected nuggets; repeated bursts do not stack.
+Gold Rush: Golden Touch permanently adds 50% value to gold nuggets within 300 pixels for this level. A gold ring marks affected nuggets; repeated bursts do not stack.
 Streak: Streak Spark immediately adds two catch-streak steps.
 Luck: Lucky Find reveals one loose diamond or ruby, with equal odds, near the shattered vial. Catch it to earn its value.
 Momentum: Aftershock doubles launch and retract speed for six seconds. Repeated bursts refresh the duration; pausing freezes it.
-Time: Time Warp lifts nearby gold, loose gems, bags and chests up to 120 pixels within a 200-pixel radius. Obstacles can limit the rise; rocks and TNT stay put. Treasure keeps its value and still needs catching.
+Time: Each shattered Time vial adds three recall charges for the current level. Press Down or click again during launch to spend one charge and recall the empty claw without breaking your streak.
 
 Mine vial spawns
 All three mines use one independent count roll per eligible vial type: 25% for zero, 50% for one, 20% for two and 5% for three. This replaces previous vial counts and bonus rolls. Momentum is included in every mine. Gem Hollow excludes Gold Rush because it has no gold; Gold Basin excludes Luck. Catching Luck activates it immediately for 20/25/30 seconds at Vial Belt tiers 1/2/3 (20 without the belt), refreshing its duration if already active. Catching Momentum immediately adds five charges. Mystery-bag vials behave the same way. Life vials never spawn loose in the mine. All mine vials preserve Strength charges and qualify for perfect-haul speed. Placement favors 15% surface, 70% middle and 15% deep. Retries preserve the seeded layout.`],

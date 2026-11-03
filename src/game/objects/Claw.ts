@@ -12,6 +12,7 @@ type ClawMode = 'idle' | 'extending' | 'retracting';
 
 export class Claw {
     aftershockSeconds = 0;
+    secondChanceCharges = 0;
     powderRadiusScale = 0;
     safetyGrip = false;
     safetyGripTier = 0;
@@ -73,6 +74,9 @@ export class Claw {
             this.distanceReturnMultiplier = 1;
             this.mode = 'extending';
             soundEffects.play('launch');
+        } else if (this.mode === 'extending' && this.secondChanceCharges > 0) {
+            this.secondChanceCharges--;
+            this.mode = 'retracting';
         }
     }
 

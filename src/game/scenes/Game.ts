@@ -48,6 +48,7 @@ export class Game extends Scene {
     private momentumText?: GameObjects.Text;
     private luckText: GameObjects.Text;
     private refreshLuckRewards: () => void = () => {};
+    private secondChanceText: GameObjects.Text;
     private aftershockText: GameObjects.Text;
     private passiveBuffTexts: GameObjects.Text[] = [];
     private mineClock: MineClock;
@@ -188,7 +189,8 @@ export class Game extends Scene {
             if (bonus > 0) this.showStreakCatch(object, bonus);
             return this.round.consumeCatch(object.kind);
         }, () => this.round.missShot(), vial => shatterVial(this, vial, this.objects, this.round,
-            () => { this.claw.aftershockSeconds = 6; }, shatterRandom));
+            () => { this.claw.aftershockSeconds = 6; }, shatterRandom,
+            () => { this.claw.secondChanceCharges += 3; }));
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(WORLD.centerX, 44, WORLD.width, 88, 0x483126).setData('responsiveFullWidth', true);
         const moneyX = 166;
@@ -337,14 +339,17 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 17, color: '#9cf2e7', backgroundColor: '#253e42',
             padding: { x: 8, y: 5 }
         }).setVisible(false);
-        this.passiveBuffTexts.push(this.aftershockText);
+        this.secondChanceText = this.add.text(32, 251, '', {
+            fontFamily: 'Arial', fontSize: 17, color: '#c3f1ff', backgroundColor: '#253e42'
+        }).setVisible(false);
+        this.passiveBuffTexts.push(this.aftershockText, this.secondChanceText);
         // Compact buff rows stay above the mine floor.
         [this.strengthText, this.goldRushText, ...this.passiveBuffTexts]
             .forEach(text => text.setFontSize(14).setPadding(8, 4).setWordWrapWidth(270));
         const buffKinds: BuffKind[] = ['strength', 'goldRush'];
         buffKinds.push('luck', 'momentum');
         if (this.round.bonuses.lightweightGrip) buffKinds.push('lightweightGrip');
-        buffKinds.push('streakVial', 'momentum');
+        buffKinds.push('streakVial', 'momentum', 'extraTime');
         this.buffIcons = buffKinds.map(kind => drawBuffIcon(this, kind).setVisible(false));
         // Keep equipment and buffs together to the left of the clock, including on resize.
         const leftHudItems = this.children.list.slice(leftHudStart) as (GameObjects.GameObject & GameObjects.Components.Transform)[];
@@ -631,6 +636,8 @@ export class Game extends Scene {
         this.momentumText?.setText(`MOMENTUM: ${this.round.momentumChargesRemaining} charges`);
         this.aftershockText.setVisible(this.claw.aftershockSeconds > 0);
         this.aftershockText.setText(`AFTERSHOCK x2 SPEED  ${Math.ceil(this.claw.aftershockSeconds)}s`);
+        this.secondChanceText.setVisible(this.claw.secondChanceCharges > 0);
+        this.secondChanceText.setText(`SECOND CHANCE: ↓ / click to recall  ${this.claw.secondChanceCharges} left`);
         let buffY = 0;
         const buffTexts = [this.strengthText, this.goldRushText, ...this.passiveBuffTexts];
         for (const [index, text] of buffTexts.entries()) {
