@@ -61,8 +61,8 @@ Spend dynamite on a caught vial to replace its normal reward with a special effe
 Strength: Rock Breaker clears ordinary rocks within 200 pixels, preserving deposits and gem-bearing rocks.
 Gold Rush: Golden Touch permanently adds 50% value to gold nuggets within 300 pixels for this level. A gold ring marks affected nuggets; repeated bursts do not stack.
 Streak: Streak Spark immediately adds two catch-streak steps.
-Luck: Lucky Find reveals one loose diamond or ruby, with equal odds, near the shattered vial. Catch it to earn its value.
-Momentum: Aftershock doubles launch and retract speed for six seconds. Repeated bursts refresh the duration; pausing freezes it.
+Luck: Lucky Find rolls two independent drops near the shattered vial: small rock, small gold, diamond or ruby. In that order, the odds are 50/35/12/3% near the surface, 30/30/25/15% in the middle and 15/20/35/30% deep down. Drops need an open spot and must be hauled back. Small gold from Lucky Find can appear in Gem Hollow.
+Momentum: Aftershock adds three charges. Each launch spends one charge and doubles speed for the full shot, including its return. Charges last until used or the level ends.
 Time: Each shattered Time vial adds three recall charges for the current level. Press Down or click again during launch to spend one charge and recall the empty claw without breaking your streak.
 
 Mine vial spawns

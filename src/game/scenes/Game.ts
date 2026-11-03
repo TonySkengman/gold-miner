@@ -189,7 +189,7 @@ export class Game extends Scene {
             if (bonus > 0) this.showStreakCatch(object, bonus);
             return this.round.consumeCatch(object.kind);
         }, () => this.round.missShot(), vial => shatterVial(this, vial, this.objects, this.round,
-            () => { this.claw.aftershockSeconds = 6; }, shatterRandom,
+            () => { this.claw.aftershockCharges += 3; }, shatterRandom,
             () => { this.claw.secondChanceCharges += 3; }));
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };
         this.add.rectangle(WORLD.centerX, 44, WORLD.width, 88, 0x483126).setData('responsiveFullWidth', true);
@@ -634,8 +634,8 @@ export class Game extends Scene {
         this.luckText.setText(`LUCK: richer loot  ${Math.ceil(this.round.luckSeconds)}s`);
         this.momentumText?.setVisible(this.round.momentumChargesRemaining > 0);
         this.momentumText?.setText(`MOMENTUM: ${this.round.momentumChargesRemaining} charges`);
-        this.aftershockText.setVisible(this.claw.aftershockSeconds > 0);
-        this.aftershockText.setText(`AFTERSHOCK x2 SPEED  ${Math.ceil(this.claw.aftershockSeconds)}s`);
+        this.aftershockText.setVisible(this.claw.aftershockCharges > 0);
+        this.aftershockText.setText(`AFTERSHOCK x2 SPEED  ${this.claw.aftershockCharges} shots left`);
         this.secondChanceText.setVisible(this.claw.secondChanceCharges > 0);
         this.secondChanceText.setText(`SECOND CHANCE: ↓ / click to recall  ${this.claw.secondChanceCharges} left`);
         let buffY = 0;

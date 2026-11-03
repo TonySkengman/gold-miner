@@ -49,31 +49,43 @@ export function shatterVial(scene: Scene, vial: Collectable, objects: Collectabl
     } else if (vial.kind === 'momentum') {
         color = 0x39c9b3;
         aftershock();
-        label = 'AFTERSHOCK • DOUBLE CLAW SPEED • 6s';
+        label = 'AFTERSHOCK • DOUBLE CLAW SPEED • +3 SHOTS';
     } else if (vial.kind === 'luck') {
         color = 0x9e5dc3;
-        const kind = random() < 0.5 ? 'diamond' : 'ruby';
-        const r = kind === 'diamond' ? 17 : 15;
-        let position: { x: number; y: number } | undefined;
-        // The destroyed vial leaves room; search close to it first.
-        for (let ring = 0; ring <= 20 && !position; ring++) {
-            for (let i = 0; i < 24; i++) {
-                const angle = i * Math.PI / 12;
-                const x = vial.x + Math.cos(angle) * ring * 24;
-                const y = vial.y + Math.sin(angle) * ring * 24;
-                if (x < r + 40 || x > WORLD.width - r - 40 || y < 320 || y + r > WORLD.floorY
-                    || Math.abs(Math.atan2(x - WORLD.centerX, y - WORLD.pivotY)) > WORLD.maxAngle) continue;
-                const obstacles = objects.filter(object => object.available);
-                if (obstacles.some(object => Math.hypot(x - object.x, y - object.y) < r + object.radius + 6)) continue;
-                if (findClearAim({ x, y, radius: r }, obstacles.filter(object => rocks.includes(object.kind))) === null) continue;
-                position = { x, y };
-                break;
+        const [rockChance, goldChance, diamondChance] = vial.y < 440 ? [50, 35, 12]
+            : vial.y < 700 ? [30, 30, 25] : [15, 20, 35];
+        const names = { rock: 'ROCK', small: 'SMALL GOLD', diamond: 'DIAMOND', ruby: 'RUBY' };
+        const kinds = Array.from({ length: 2 }, () => {
+            const roll = random() * 100;
+            return roll < rockChance ? 'rock' : roll < rockChance + goldChance ? 'small'
+                : roll < rockChance + goldChance + diamondChance ? 'diamond' : 'ruby';
+        });
+        const revealed: string[] = [];
+        for (const kind of kinds) {
+            const r = kind === 'rock' ? 30 : kind === 'diamond' ? 17 : 15;
+            const obstacles = objects.filter(object => object.available);
+            let position: { x: number; y: number } | undefined;
+            // The destroyed vial leaves room; search close to it first.
+            for (let ring = 0; ring <= 20 && !position; ring++) {
+                for (let i = 0; i < 24; i++) {
+                    const angle = i * Math.PI / 12;
+                    const x = vial.x + Math.cos(angle) * ring * 24;
+                    const y = vial.y + Math.sin(angle) * ring * 24;
+                    if (x < r + 40 || x > WORLD.width - r - 40 || y < 320 || y + r > WORLD.floorY
+                        || Math.abs(Math.atan2(x - WORLD.centerX, y - WORLD.pivotY)) > WORLD.maxAngle) continue;
+                    if (obstacles.some(object => Math.hypot(x - object.x, y - object.y) < r + object.radius + 6)) continue;
+                    if (findClearAim({ x, y, radius: r }, obstacles.filter(object => rocks.includes(object.kind))) === null) continue;
+                    position = { x, y };
+                    break;
+                }
             }
+            if (!position) continue;
+            const drop = new Collectable(scene, position.x, position.y, kind, 1, random);
+            objects.push(drop);
+            if (round.bonuses.prospectorsLens) drop.revealMysteryReward(scene, { kind: 'money', amount: drop.collectionValue(1 + round.upgrades.diamonds * 0.15) });
+            revealed.push(names[kind]);
         }
-        const drop = new Collectable(scene, position?.x ?? vial.x, position?.y ?? vial.y, kind, 1, random);
-        objects.push(drop);
-        if (round.bonuses.prospectorsLens) drop.revealMysteryReward(scene, { kind: 'money', amount: drop.collectionValue(1 + round.upgrades.diamonds * 0.15) });
-        label = `LUCKY FIND • ${kind.toUpperCase()} REVEALED`;
+        label = `LUCKY FIND • ${revealed.length ? revealed.join(' + ') : 'NO ROOM FOR DROPS'}`;
 
     } else if (vial.kind === 'timeVial') {
         secondChance();

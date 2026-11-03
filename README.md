@@ -235,9 +235,19 @@ Spend one dynamite on a caught vial to replace its normal reward with the effect
 | Strength | **Rock Breaker:** clears ordinary rocks within 200px, preserving deposits and gem-bearing rocks. |
 | Gold Rush | **Golden Touch:** nuggets within 300px gain +50% value for the rest of the level, marked with a gold ring. Repeated bursts do not stack. |
 | Streak | **Streak Spark:** immediately adds two catch-streak steps. |
-| Luck | **Lucky Find:** reveals one diamond or ruby near the vial, with equal odds. Catch it to earn its value. |
-| Momentum | **Aftershock:** doubles launch and retract speed for six seconds. Repeated bursts refresh the duration; pausing freezes it. |
+| Luck | **Lucky Find:** rolls two independent drops near the vial. Each can be a small rock, small gold nugget, diamond or ruby. Deeper shatters favor gems. |
+| Momentum | **Aftershock:** adds three charges. Each launch spends one charge and doubles speed for the full shot, including its return. Charges last until used or the level ends. |
 | Time | **Second Chance:** Each shattered Time vial adds three recall charges for the current level. Press Down or click again during launch to spend one charge and recall the empty claw without breaking your streak. |
+
+Lucky Find uses the vial’s depth when dynamite hits. Each drop rolls separately, so duplicates and mixed pairs are possible.
+
+| Shatter depth | Small rock | Small gold | Diamond | Ruby |
+|---|---:|---:|---:|---:|
+| Shallow (above 440 px) | 50% | 35% | 12% | 3% |
+| Middle (440–699 px) | 30% | 30% | 25% | 15% |
+| Deep (700 px or deeper) | 15% | 20% | 35% | 30% |
+
+Drops need an open spot and must be hauled back. Small gold from Lucky Find can appear in Gem Hollow.
 
 #### Mine vial spawns
 

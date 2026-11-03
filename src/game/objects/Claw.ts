@@ -11,7 +11,8 @@ import { treasureRewardValue } from '../state/TreasureRewards';
 type ClawMode = 'idle' | 'extending' | 'retracting';
 
 export class Claw {
-    aftershockSeconds = 0;
+    aftershockCharges = 0;
+    private aftershockShot = false;
     secondChanceCharges = 0;
     powderRadiusScale = 0;
     safetyGrip = false;
@@ -57,7 +58,7 @@ export class Claw {
 
     get retrievalSpeed(): number {
         return this.mode === 'retracting' && !this.dynamite && this.disarmRemaining <= 0
-            ? 275.4 * (this.aftershockSeconds > 0 ? 2 : 1) * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
+            ? 275.4 * (this.aftershockShot ? 2 : 1) * this.retrievalMultiplier * this.distanceReturnMultiplier * (this.caught ? this.haulingStrength : 1) * (this.caught && this.perfectHaul ? 1.35 : 1) / (1 + (this.caught?.haulingWeight(this.lightweightGrip) ?? 0)) : 0;
     }
 
     resize(oldWidth: number): void {
@@ -72,6 +73,8 @@ export class Claw {
     launch(): void {
         if (this.mode === 'idle') {
             this.distanceReturnMultiplier = 1;
+            this.aftershockShot = this.aftershockCharges > 0;
+            if (this.aftershockShot) this.aftershockCharges--;
             this.mode = 'extending';
             soundEffects.play('launch');
         } else if (this.mode === 'extending' && this.secondChanceCharges > 0) {
@@ -133,7 +136,6 @@ export class Claw {
     }
 
     update(seconds: number, objects: Collectable[]): void {
-        this.aftershockSeconds = Math.max(0, this.aftershockSeconds - seconds);
         if (this.mode === 'idle') {
             this.angle += this.swingDirection * seconds * 1.2705;
             if (this.angle > WORLD.maxAngle || this.angle < -WORLD.maxAngle) {
@@ -143,7 +145,7 @@ export class Claw {
         } else if (this.mode === 'extending') {
             const oldLength = this.length;
             const edgeRange = Math.min(WORLD.clawRange, (WORLD.floorY - this.origin.y) / Math.cos(this.angle), WORLD.sideReach / Math.max(0.001, Math.abs(Math.sin(this.angle))));
-            this.length = Math.min(edgeRange, this.length + 352 * (this.safetyGrip ? safetyGripLaunchMultiplier(this.safetyGripTier) : 1) * (this.aftershockSeconds > 0 ? 2 : 1) * seconds);
+            this.length = Math.min(edgeRange, this.length + 352 * (this.safetyGrip ? safetyGripLaunchMultiplier(this.safetyGripTier) : 1) * (this.aftershockShot ? 2 : 1) * seconds);
             // Swept segment collision prevents tunnelling even on slow frames.
             let first: Collectable | null = null;
             let hitLength = this.length;
@@ -248,6 +250,7 @@ export class Claw {
                     this.caught = null;
                     this.perfectHaul = false;
                 }
+                this.aftershockShot = false;
                 this.mode = 'idle';
             }
         }
