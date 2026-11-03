@@ -188,7 +188,7 @@ export class Game extends Scene {
             streakBonuses.set(object, bonus);
             if (bonus > 0) this.showStreakCatch(object, bonus);
             return this.round.consumeCatch(object.kind);
-        }, () => this.round.missShot(), vial => shatterVial(this, vial, this.objects, this.round,
+        }, () => this.round.missShot(), (vial, remainingHaul) => shatterVial(this, vial, this.objects, this.round, remainingHaul,
             () => { this.claw.aftershockCharges += 3; }, shatterRandom,
             () => { this.claw.secondChanceCharges += 3; }));
         const style = { fontFamily: 'Arial', fontSize: 26, fontStyle: 'bold', color: '#fff3cc' };

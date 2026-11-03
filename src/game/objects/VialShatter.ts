@@ -9,7 +9,7 @@ const rocks = ['rock', 'mediumRock', 'heavyRock', 'largeRock'];
 const gold = ['small', 'medium', 'large', 'giant'];
 
 /** A caught vial replaces the destructive powder blast with its own utility burst. */
-export function shatterVial(scene: Scene, vial: Collectable, objects: Collectable[], round: RoundState,
+export function shatterVial(scene: Scene, vial: Collectable, objects: Collectable[], round: RoundState, remainingHaul: number,
     aftershock: () => void, random: () => number, secondChance: () => void): void {
     const radius = vial.kind === 'goldRush' ? 300 : 200;
     const nearby = objects.filter(object => object.available
@@ -52,8 +52,8 @@ export function shatterVial(scene: Scene, vial: Collectable, objects: Collectabl
         label = 'AFTERSHOCK • DOUBLE CLAW SPEED • +3 SHOTS';
     } else if (vial.kind === 'luck') {
         color = 0x9e5dc3;
-        const [rockChance, goldChance, diamondChance] = vial.y < 440 ? [50, 35, 12]
-            : vial.y < 700 ? [30, 30, 25] : [15, 20, 35];
+        const [rockChance, goldChance, diamondChance] = remainingHaul < 200 ? [50, 35, 12]
+            : remainingHaul < 460 ? [30, 30, 25] : [15, 20, 35];
         const names = { rock: 'ROCK', small: 'SMALL GOLD', diamond: 'DIAMOND', ruby: 'RUBY' };
         const kinds = Array.from({ length: 2 }, () => {
             const roll = random() * 100;

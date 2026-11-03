@@ -40,7 +40,7 @@ export class Claw {
     private readonly graphic: GameObjects.Graphics;
     private get origin(): { x: number; y: number } { return { x: WORLD.centerX, y: WORLD.pivotY }; }
 
-    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly lightweightGrip = false, private readonly onCatch: (object: Collectable, perfect: boolean) => number = () => 1, private readonly onMiss: () => void = () => {}, private readonly onShatter: (vial: Collectable) => void = () => {}) {
+    constructor(private readonly scene: Scene, private readonly onCollect: (value: number, object: Collectable, perfectBonus: number) => void, private readonly retrievalMultiplier = 1, private readonly diamondMultiplier = 1, private readonly strengthBoost: () => number = () => 1, private readonly lightweightGrip = false, private readonly onCatch: (object: Collectable, perfect: boolean) => number = () => 1, private readonly onMiss: () => void = () => {}, private readonly onShatter: (vial: Collectable, remainingHaul: number) => void = () => {}) {
         this.graphic = scene.add.graphics().setData('responsiveIgnore', true).setDepth(5);
         this.draw();
     }
@@ -115,7 +115,7 @@ export class Claw {
         blasted.destroy();
         const vial = isMineVial(blasted.kind);
         const areaBlast = !vial && (this.thrownPowderScale > 0 || blasted.isExplosive);
-        if (vial) this.onShatter(blasted);
+        if (vial) this.onShatter(blasted, Math.max(0, this.length - 30));
         if (areaBlast) {
             const radius = this.thrownPowderScale > 0
                 ? (blasted.isExplosive ? TNT_BLAST_RADIUS * 1.5 : dynamiteBlastRadius(blasted.radius)) * this.thrownPowderScale
