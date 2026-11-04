@@ -11,7 +11,7 @@ import { emptyBonuses, isPermanentUpgrade, itemSoldOut, emptyUpgrades, purchaseU
 export class UpgradeShop extends Scene {
     constructor() { super('UpgradeShop'); }
 
-    create(data: { toolToggles?: ToolToggles; lives: number; level: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses; levelSeed?: number; failed?: boolean; returningFromBriefing?: boolean; mine?: MineKind; result?: Result }): void {
+    create(data: { toolToggles?: ToolToggles; lives: number; level: number; accumulatedGold?: number; money: number; upgrades?: Upgrades; dynamite: number; bonuses?: LevelBonuses; levelSeed?: number; failed?: boolean; returningFromBriefing?: boolean; mine?: MineKind; result?: Result }): void {
         let bonuses = { ...emptyBonuses(), ...data.bonuses };
         let money = data.money;
         let lives = data.lives;
@@ -237,6 +237,7 @@ export class UpgradeShop extends Scene {
             }
             this.scene.start('LevelBriefing', {
                 toolToggles: data.toolToggles,
+                accumulatedGold: data.accumulatedGold,
                 lives, mine: data.mine, level: data.level, money, upgrades, dynamite, bonuses, levelSeed: data.levelSeed
             });
             });

@@ -63,7 +63,7 @@ export class Game extends Scene {
         return WORLD.centerX + Math.min(230, 150 + Math.max(0, (WORLD.width - 1024) / 2));
     }
 
-    create(data: { toolToggles?: ToolToggles; level?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number; mine?: MineKind } = {}): void {
+    create(data: { toolToggles?: ToolToggles; level?: number; accumulatedGold?: number; money?: number; upgrades?: Upgrades; dynamite?: number; bonuses?: LevelBonuses; levelSeed?: number; lives?: number; mine?: MineKind } = {}): void {
         this.toolToggles = { ...data.toolToggles };
         this.autoFinishLevel = this.toolToggles.autoFinishLevel ?? false;
         this.levelSeed = data.levelSeed ?? newLevelSeed();
@@ -74,7 +74,7 @@ export class Game extends Scene {
         this.passiveBuffTexts = [];
         this.momentumText = undefined;
         this.buffIcons = [];
-        this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses, data.lives, data.mine);
+        this.round = new RoundState(data.level, data.money, data.upgrades, data.dynamite, data.bonuses, data.lives, data.mine, data.accumulatedGold);
         drawEnvironment(this, this.round.config.layout, this.round.mine);
         this.miner = new MinerAnimator(this);
         this.mineClock = new MineClock(this, this.round.remaining);
@@ -225,7 +225,7 @@ export class Game extends Scene {
             .setData('responsiveAnchor', 'center').setDepth(8).setVisible(false);
         const leftHudStart = this.children.length;
         this.dynamiteInventory = new DynamiteInventory(this, 32, 100, 146);
-        let blastEnabled = this.round.upgrades.blastPowder > 0 && (this.toolToggles.blastPowder ?? true);
+        let blastEnabled = this.round.upgrades.blastPowder > 0 && (this.toolToggles.blastPowder ?? false);
         this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
         const blastPanel = this.add.rectangle(32, 158, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
@@ -276,7 +276,7 @@ export class Game extends Scene {
             toggleBlastPowder();
         });
         this.claw.safetyGripTier = this.round.upgrades.safetyGrip;
-        this.claw.safetyGrip = this.round.upgrades.safetyGrip > 0 && (this.toolToggles.safetyGrip ?? true);
+        this.claw.safetyGrip = this.round.upgrades.safetyGrip > 0 && (this.toolToggles.safetyGrip ?? false);
         const safetyPanel = this.add.rectangle(32, 202, 300, 44, 0xffedbb).setOrigin(0)
             .setInteractive({ useHandCursor: true });
         this.add.rectangle(42, 202, 280, 1, 0xc29659).setOrigin(0);
@@ -567,6 +567,7 @@ export class Game extends Scene {
             lives, mine: this.round.mine, levelSeed: this.levelSeed, bonuses: this.round.bonuses,
             dynamite: this.round.dynamite, startingDynamite: this.round.startingDynamite,
             upgrades: this.round.nextUpgrades,
+            accumulatedGold: this.round.accumulatedGold,
             money: this.round.retainedMoney, startingMoney: this.round.startingMoney,
             score: this.round.score, target: this.round.target, won: this.round.won,
             level: this.round.level, finalLevel: this.round.finalLevel
@@ -584,6 +585,7 @@ export class Game extends Scene {
             bonuses: this.round.won ? this.round.nextBonuses : this.round.bonuses,
             dynamite: this.round.won ? this.round.dynamite : this.round.startingDynamite,
             level: this.round.won && !this.round.finalLevel ? this.round.level + 1 : this.round.level,
+            accumulatedGold: this.round.accumulatedGold,
             money: this.round.retainedMoney,
             upgrades: this.round.nextUpgrades,
             result

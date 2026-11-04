@@ -16,6 +16,7 @@ export class Claw {
     private aftershockShot = false;
     secondChanceCharges = 0;
     powderRadiusScale = 0;
+    private powderEffectSeconds = 0;
     safetyGrip = false;
     safetyGripTier = 0;
     private mode: ClawMode = 'idle';
@@ -139,6 +140,7 @@ export class Claw {
     }
 
     update(seconds: number, objects: Collectable[]): void {
+        this.powderEffectSeconds = this.powderRadiusScale > 0 ? this.powderEffectSeconds + seconds : 0;
         if (this.mode === 'idle') {
             this.angle += this.swingDirection * seconds * 1.2705;
             if (this.angle > WORLD.maxAngle || this.angle < -WORLD.maxAngle) {
@@ -316,5 +318,29 @@ export class Claw {
         this.graphic.fillStyle(0x3d494f).fillCircle(x, y, 8);
         this.graphic.fillStyle(this.safetyGrip ? 0x547f3b : 0x94a8b0).fillCircle(x, y, 5);
         this.graphic.fillStyle(0xe2e9e7).fillCircle(x - 1, y - 1, 2);
+        if (this.powderRadiusScale > 0) {
+            // A lit collar at the cable connection follows the claw's angle.
+            const left = point(-6, -7);
+            const right = point(6, -7);
+            const pulse = (1 - Math.cos(this.powderEffectSeconds * Math.PI * 2 / 1.8)) / 2;
+            this.graphic.lineStyle(16 + pulse * 4, 0xff8c24, 0.16 + pulse * 0.14).lineBetween(left.x, left.y, right.x, right.y);
+            this.graphic.lineStyle(10 + pulse * 2, 0xff8c24, 0.3 + pulse * 0.2).lineBetween(left.x, left.y, right.x, right.y);
+            this.graphic.lineStyle(6, 0xf58a23).lineBetween(left.x, left.y, right.x, right.y);
+            this.graphic.lineStyle(2, 0xffdc83).lineBetween(left.x, left.y, right.x, right.y);
+            // Two brief sparks per cycle stay above the jaws and fade locally.
+            for (let i = 0; i < 2; i++) {
+                const age = (this.powderEffectSeconds + i * 0.18) % 1.4;
+                if (age >= 0.38) continue;
+                const progress = age / 0.38;
+                const side = i === 0 ? -1 : 1;
+                const spark = point(side * (7 + progress * 10), -8 - progress * 12);
+                const tail = point(side * (6 + progress * 8), -6 - progress * 10);
+                this.graphic.lineStyle(2, 0xffb64b, 1 - progress)
+                    .lineBetween(tail.x, tail.y, spark.x, spark.y);
+                this.graphic.fillStyle(0xffedb0, 1 - progress).fillCircle(spark.x, spark.y, 1.5);
+            }
+
+        }
+
     }
 }

@@ -12,7 +12,7 @@ After every completed return, the claw resumes swinging 25° from its launch ang
 Heavy objects reel in more slowly. Perfect catches and Strength speed up hauling. Long corner shots receive return-speed compensation beyond a full straight-down return, making distant treasure worth considering.`],
     ['Controls', `↓ or click the mine — launch the claw while it is idle.
 ↑ — spend one dynamite stick to destroy the caught object.
-← or click Blast Powder — toggle its area blast when owned, including during hauling.
+← or click Blast Powder — toggle its area blast when owned, including during hauling. A pulsing orange band with small, fading sparks at the claw’s cable connection shows when it is ON.
 → or click Safety Grip — toggle safe TNT collection when owned, only while the claw is idle.
 P / Esc — pause or resume. The game also pauses when it loses focus.
 Sound ON/OFF — toggle sound effects.
@@ -70,12 +70,12 @@ Time: Each shattered Time vial adds three recall charges for the current level. 
 Mine vial spawns
 All three mines use one independent count roll per eligible vial type: 25% for zero, 50% for one, 20% for two and 5% for three. This replaces previous vial counts and bonus rolls. Momentum is included in every mine. Gem Hollow excludes Gold Rush because it has no gold; Gold Basin excludes Luck. Catching Luck activates it immediately for 20/25/30 seconds at Vial Belt tiers 1/2/3 (20 without the belt), refreshing its duration if already active. Catching Momentum immediately adds five charges. Mystery-bag vials behave the same way. Life vials never spawn loose in the mine. All mine vials preserve Strength charges and qualify for perfect-haul speed. Placement favors 15% surface, 70% middle and 15% deep. Retries preserve the seeded layout.`],
     ['Safety Grip & Blast Powder', `Safety Grip • Three tiers: $1,500 / $3,000 / $4,500, lasting for the run
-Starts ON and remembers your choice between levels and retries. While ON, launch speed is reduced by 25% / 20% / 15% at tiers 1 / 2 / 3; hauling speed is unchanged. OFF restores normal launch speed but TNT explodes on contact. Aftershock doubles the resulting launch speed, retaining the Safety Grip penalty. Choose before launching: it cannot toggle until the claw returns to idle.
+Starts OFF and remembers your choice between levels and retries. While ON, launch speed is reduced by 25% / 20% / 15% at tiers 1 / 2 / 3; hauling speed is unchanged. OFF restores normal launch speed but TNT explodes on contact. Aftershock doubles the resulting launch speed, retaining the Safety Grip penalty. Choose before launching: it cannot toggle until the claw returns to idle.
 
 Catching a TNT barrel or TNT rat holds the claw still while disarming: 3.5 seconds at tier 1, 3 seconds at tier 2, or 2.5 seconds at tier 3. A countdown shows progress; the level timer keeps running. Afterward, haul it to the surface for +1 dynamite, no money. TNT remains neutral to streaks. You can sacrifice the held TNT with dynamite instead, but receive no recovered stick. Free TNT can still explode in nearby blasts.
 
 Blast Powder • three tiers
-Starts ON when purchased and remembers your choice. It affects thrown dynamite, with the setting and tier locked in at throw time. Tier 1 creates a blast 2.5 times the held object's radius; caught TNT gets a 202.5-pixel blast. Tiers 2 and 3 increase these radii by 20% and 40% over tier 1. Contact TNT and chain reactions retain their normal 135-pixel radius. Caught vials instead trigger their own special shatter effects; Blast Powder does not increase their radius, strength or duration.
+Starts OFF when purchased and remembers your choice. It affects thrown dynamite, with the setting and tier locked in at throw time. Tier 1 creates a blast 2.5 times the held object's radius; caught TNT gets a 202.5-pixel blast. Tiers 2 and 3 increase these radii by 20% and 40% over tier 1. Contact TNT and chain reactions retain their normal 135-pixel radius. Caught vials instead trigger their own special shatter effects; Blast Powder does not increase their radius, strength or duration.
 
 Both tools can be ON together. Safety Grip lets you catch TNT; then choose between delivering it for a stick and spending dynamite to create a larger Blast Powder explosion.`],
     ['Results, retries & rewards', `The final haul counts
@@ -87,7 +87,7 @@ Milestones
 Passing and failing
 Every attempt opens the shop unless you fail on your last life. Passing advances to the next level. Failing costs one life; you keep the starting balance plus 50% of that attempt's new earnings, including bonus cash. A retry restores the original layout, rat movement settings and starting supplies. Mystery rewards keep their seeded rolls. Chest upgrades are rolled against your current tiers, so newly maxed upgrades cannot drop. Collected permanent tiers carry into retries. Shop purchases can help with the retry.
 
-Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials cost $5,000 in the shop and restore one life, up to five; they can also appear in mystery bags. Clearing level 30 opens the shop before the final results. Forfeit Run in the shop or End Run in the pause menu or pre-level briefing asks for confirmation before ending your run.`]
+Losing your last life ends the run immediately and shows Game Over, without a shop visit. Buy extra lives before your final failure. Life vials cost $5,000 in the shop and restore one life, up to five; they can also appear in mystery bags. Clearing level 30 opens the shop before the final results. Game Over also shows the level reached. Victory and Game Over results show total gold accumulated across all attempts in the run, including cash bonuses, before shop spending and failure penalties. Forfeit Run in the shop or End Run in the pause menu or pre-level briefing asks for confirmation before ending your run.`]
 ];
 
 /** Native modal keeps long instructions scrollable and keyboard accessible at any viewport size. */

@@ -19,6 +19,7 @@ interface BriefingData {
     lives?: number;
     level?: number;
     money?: number;
+    accumulatedGold?: number;
     upgrades?: Upgrades;
     dynamite?: number;
     bonuses?: LevelBonuses;
@@ -53,8 +54,8 @@ export class LevelBriefing extends Scene {
         const prepared: { kind: ShopItemKind; name: string; detail: string }[] = [];
         const dynamite = data.dynamite ?? 3;
         if (dynamite > 0) prepared.push({ kind: 'dynamite', name: 'Dynamite', detail: `${dynamite} sticks available` });
-        if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ${data.toolToggles?.blastPowder === false ? 'OFF' : 'ON'}\n← / click: toggle` });
-        if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: `${data.toolToggles?.safetyGrip === false ? 'OFF' : `ON • −${Math.round((1 - safetyGripLaunchMultiplier(data.upgrades!.safetyGrip)) * 100)}% launch`}\n→ before launch` });
+        if ((data.upgrades?.blastPowder ?? 0) > 0) prepared.push({ kind: 'blastPowder', name: 'Blast Powder', detail: `Tier ${data.upgrades!.blastPowder} • ${data.toolToggles?.blastPowder === true ? 'ON' : 'OFF'}\n← / click: toggle` });
+        if ((data.upgrades?.safetyGrip ?? 0) > 0) prepared.push({ kind: 'safetyGrip', name: 'Safety Grip', detail: `${data.toolToggles?.safetyGrip === true ? `ON • −${Math.round((1 - safetyGripLaunchMultiplier(data.upgrades!.safetyGrip)) * 100)}% launch` : 'OFF'}\n→ before launch` });
         if (bonuses.luck > 0) prepared.push({ kind: 'luck', name: 'Luck vial', detail: `Richer bags & chests\n${luckVialDuration(data.upgrades?.vialBelt ?? 0)} seconds` });
         if (bonuses.momentum > 0) prepared.push({ kind: 'momentum', name: 'Momentum vial', detail: `+${momentumSecondsPerCatch(data.upgrades?.vialBelt ?? 0)}s per perfect\n5 charges` });
         if (bonuses.extraTime > 0) prepared.push({ kind: 'extraTime', name: 'Time vial', detail: `+${timeVialSeconds(data.upgrades?.vialBelt ?? 0)} seconds` });

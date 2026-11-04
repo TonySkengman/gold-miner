@@ -70,7 +70,7 @@ export class RoundState {
     readonly level: number;
     readonly config: LevelConfig;
 
-    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses(), lives = 3, readonly mine: MineKind = 'quarry') {
+    constructor(level = 1, readonly startingMoney = 0, upgrades: Upgrades = emptyUpgrades(), readonly startingDynamite = 3, bonuses: LevelBonuses = emptyBonuses(), lives = 3, readonly mine: MineKind = 'quarry', readonly startingAccumulatedGold = 0) {
         this.lives = this.startingLives = Math.max(1, Math.min(5, Math.floor(lives)));
         this.level = Number.isInteger(level) ? Math.max(1, Math.min(LEVELS.length, level)) : 1;
         this.bonuses = { ...emptyBonuses(), ...bonuses };
@@ -169,6 +169,9 @@ export class RoundState {
     }
 
     get strengthMultiplier(): number { return this.strengthCatches > 0 ? 2 : 1; }
+
+    /** Gross run earnings, unaffected by purchases or failure penalties. */
+    get accumulatedGold(): number { return this.startingAccumulatedGold + this.score + this.bonusMoney; }
 
     get money(): number { return this.startingMoney + this.score + this.bonusMoney; }
 
