@@ -19,7 +19,7 @@ Sound ON/OFF — toggle sound effects.
 
 Finish Level ends the attempt immediately. Below the target, this costs a life. Auto Finish Level starts OFF; enabling it ends the level once the target is reached. Leave it OFF to keep mining for money and milestone rewards.`],
     ['Modes & levels', `Treasure Hollow • Standard mode
-A varied mix of gold, gems, bags, chests and special rocks. Build streaks across different treasures. Special treasure becomes more common as you progress. Guaranteed loose diamonds: 2 on levels 1–12, 3 on 13–24, 4 on 25–30. Guaranteed loose rubies: 1 on levels 1–9, 2 on 10–21, 3 on 22–30. Bonus rolls can add more; rock gems and gem rats are separate.
+A varied mix of gold, gems, bags, chests and special rocks. Build streaks across different treasures. Targets rise from $850 on level 1 to $9,350 on level 30, with a gradual increase over the original curve (about 5% early on and 30% by level 30) to challenge upgraded builds. Special treasure becomes more common as you progress. Guaranteed loose diamonds: 2 on levels 1–12, 3 on 13–24, 4 on 25–30. Guaranteed loose rubies: 1 on levels 1–9, 2 on 10–21, 3 on 22–30. Bonus rolls can add more; rock gems and gem rats are separate.
 
 Gold Basin • Heavy gold
 More large and giant nuggets, fewer ordinary rocks, a 60-second timer, and Strength, Gold Rush, Time, Streak and Momentum vials. Plan long hauls and collect extra time. Mystery bags, chests and loose rubies do not appear.

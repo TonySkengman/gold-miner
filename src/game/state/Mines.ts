@@ -20,7 +20,13 @@ export function mineConfig(level: number, mine: MineKind = 'quarry'): LevelConfi
         tnt: Math.min(5, 3 + Math.floor((level - 1) / 6))
     } : mine === 'gemHollow' ? { tnt: Math.min(3, base.tnt) } : {};
     const previousTarget = Math.round(base.target * MINES[mine].targetMultiplier / 50) * 50;
-    const routeTarget = mine === 'quarry' ? previousTarget : Math.round(previousTarget * 1.35 / 50) * 50;
+    // Ease in the extra pressure, then ask more of upgraded late-run builds.
+    // Apply only here so the shared base targets for the other mines stay intact.
+    const treasureProgress = (level - 1) / (LEVELS.length - 1);
+    const treasureMultiplier = 1.05 + 0.25 * Math.pow(treasureProgress, 1.5);
+    const routeTarget = mine === 'quarry'
+        ? Math.round(previousTarget * treasureMultiplier / 50) * 50
+        : Math.round(previousTarget * 1.35 / 50) * 50;
     const target = mine === 'goldBasin' ? Math.round(routeTarget * 0.9 / 50) * 50 : routeTarget;
     return { ...base, ...rocks, layout: mine === 'goldBasin' ? 'goldPocket' : base.layout, mine, target };
 }
