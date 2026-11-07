@@ -19,7 +19,7 @@ export class MainMenu extends Scene {
         this.add.text(WORLD.centerX, 385, `${LEVELS.length} caves. One fortune to make.`, { fontFamily: 'Arial', fontSize: 25, color: '#fff3cc' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 450, 'THE BASICS', { fontFamily: 'Arial', fontSize: 25, fontStyle: 'bold', color: '#ffda69' }).setOrigin(0.5);
         this.add.text(WORLD.centerX, 590,
-            '↓ / CLICK    Launch the claw\n↑    Throw dynamite at a caught object\n← / →    Toggle Blast Powder / Safety Grip\nP / ESC    Pause or resume\n\nReach the target before time runs out.\nStart with 3 lives. Each failed level costs one.\nExplore the full guide for treasure, tools and upgrades.',
+            '↓ / LEFT CLICK    Launch the claw\n↑ / RIGHT CLICK    Throw dynamite at a caught object\n← / →    Toggle Blast Powder / Safety Grip\nP / ESC    Pause or resume\n\nReach the target before time runs out.\nStart with 3 lives. Each failed level costs one.\nExplore the full guide for treasure, tools and upgrades.',
             { fontFamily: 'Arial', fontSize: 20, color: '#fff3cc', align: 'center', lineSpacing: 5 }
         ).setOrigin(0.5);
         const guideButton = menuButton(this, WORLD.centerX, 780, 'GAME GUIDE', () => showGameGuide(this));

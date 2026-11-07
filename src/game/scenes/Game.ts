@@ -271,7 +271,8 @@ export class Game extends Scene {
             this.claw.powderRadiusScale = blastEnabled ? blastPowderScale(this.round.upgrades.blastPowder) : 0;
             refreshBlastToggle();
         };
-        blastPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+        blastPanel.on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             toggleBlastPowder();
         });
@@ -305,7 +306,8 @@ export class Game extends Scene {
             refreshSafetyGrip();
         };
         refreshSafetyGrip();
-        safetyPanel.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+        safetyPanel.on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             toggleSafetyGrip();
         });
@@ -375,7 +377,8 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
             padding: { x: 12, y: 8 }
         }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setDepth(20).setInteractive({ useHandCursor: true });
-        pauseButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+        pauseButton.on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             pause();
         });
@@ -384,7 +387,8 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, color: '#ffffff', backgroundColor: '#70452a',
             padding: { x: 12, y: 8 }
         }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setDepth(20).setInteractive({ useHandCursor: true });
-        menuButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+        menuButton.on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             pause(true);
         });
@@ -395,7 +399,8 @@ export class Game extends Scene {
             fontFamily: 'Arial', fontSize: 18, color: '#fff3cc', backgroundColor: '#70452a',
             padding: { x: 12, y: 8 }
         }).setOrigin(1, 0).setData('responsiveAnchor', 'right').setDepth(20).setInteractive({ useHandCursor: true });
-        guideButton.on('pointerdown', (_pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+        guideButton.on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             if (this.ended || this.pausing || this.scene.isPaused()) return;
             this.pausing = true;
@@ -416,8 +421,9 @@ export class Game extends Scene {
         finishButton.on('pointerover', () => finishButton.setBackgroundColor('#659b47'));
         finishButton.on('pointerout', () => finishButton.setBackgroundColor('#547f3b'));
         finishButton.on('pointerdown', (
-            _pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData
+            pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData
         ) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             this.finishLevel();
         });
@@ -430,8 +436,9 @@ export class Game extends Scene {
             .setBackgroundColor(this.autoFinishLevel ? '#547f3b' : '#70452a');
         updateAutoFinishButton();
         autoFinishButton.on('pointerdown', (
-            _pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData
+            pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData
         ) => {
+            if (pointer.button !== 0 && !pointer.wasTouch) return;
             event.stopPropagation();
             if (this.ended) return;
             this.autoFinishLevel = !this.autoFinishLevel;
@@ -439,17 +446,22 @@ export class Game extends Scene {
             updateAutoFinishButton();
         });
         this.add.rectangle(WORLD.centerX, WORLD.footerY, WORLD.width, 46, 0x483126).setData('responsiveFullWidth', true);
-        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / CLICK: Launch claw   •   ↑: Dynamite   •   ←: Blast Powder   •   →: Safety Grip', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
+        this.add.text(WORLD.centerX, WORLD.footerY, '↓ / LEFT CLICK: Launch claw   •   ↑ / RIGHT CLICK: Dynamite   •   ←: Blast Powder   •   →: Safety Grip', { fontFamily: 'Arial', fontSize: 18, color: '#fff3cc' }).setOrigin(0.5);
         const launch = () => { soundEffects.unlock(); if (!this.ended && !this.round.finished) this.claw.launch(); };
         const keyboard = this.input.keyboard;
         const onKey = (event: KeyboardEvent) => { if (!event.repeat) launch(); };
-        const onDynamite = (event: KeyboardEvent) => {
+        const throwDynamite = () => {
             soundEffects.unlock();
-            if (event.repeat || this.ended || this.round.finished || this.round.dynamite <= 0) return;
+            if (this.ended || this.round.finished || this.round.dynamite <= 0) return;
             if (this.claw.throwDynamite()) {
                 this.round.dynamite--;
                 this.updateHud();
             }
+        };
+        const onDynamiteKey = (event: KeyboardEvent) => { if (!event.repeat) throwDynamite(); };
+        const onPointerDown = (pointer: Phaser.Input.Pointer) => {
+            if (pointer.wasTouch || pointer.button === 0) launch();
+            else if (pointer.button === 2) throwDynamite();
         };
         const onSafetyGrip = (event: KeyboardEvent) => { if (!event.repeat) toggleSafetyGrip(); };
         const onPauseKey = (event: KeyboardEvent) => { if (!event.repeat) pause(); };
@@ -464,11 +476,11 @@ export class Game extends Scene {
         const onResume = () => { this.pausing = false; };
         this.events.on('resume', onResume);
         keyboard?.on('keydown-DOWN', onKey);
-        keyboard?.on('keydown-UP', onDynamite);
-        this.input.on('pointerdown', launch);
+        keyboard?.on('keydown-UP', onDynamiteKey);
+        this.input.on('pointerdown', onPointerDown);
         this.events.once('shutdown', () => {
             keyboard?.off('keydown-DOWN', onKey);
-            keyboard?.off('keydown-UP', onDynamite);
+            keyboard?.off('keydown-UP', onDynamiteKey);
             keyboard?.off('keydown-LEFT', onBlastPowder);
             keyboard?.off('keydown-RIGHT', onSafetyGrip);
             keyboard?.off('keydown-P', onPauseKey);
@@ -476,7 +488,7 @@ export class Game extends Scene {
             keyboard?.removeCapture(['DOWN', 'UP', 'LEFT', 'RIGHT', 'P', 'ESC']);
             this.game.events.off('blur', onBlur);
             this.events.off('resume', onResume);
-            this.input.off('pointerdown', launch);
+            this.input.off('pointerdown', onPointerDown);
         });
         this.depositHint = this.add.text(WORLD.centerX, 320, '', {
             fontFamily: 'Arial', fontSize: 19, fontStyle: 'bold', color: '#9ef5ff',
@@ -603,10 +615,10 @@ export class Game extends Scene {
         if (deposit) {
             this.depositHint.setText(this.round.dynamite > 0
                 ? (deposit.depositIntegrity?.stage === 2
-                    ? 'BREAKING APART! Hidden treasure is crumbling!\n↑ Blast now to save the remaining treasure!'
+                    ? 'BREAKING APART! Hidden treasure is crumbling!\n↑ / Right-click now to save the remaining treasure!'
                     : deposit.depositIntegrity?.stage === 1
-                        ? 'CRACKING! Gold is falling out!\n↑ Blast now to preserve the treasure.'
-                        : 'INTACT — full reward\n↑ Blast now, or haul closer and risk losing treasure.')
+                        ? 'CRACKING! Gold is falling out!\n↑ / Right-click now to preserve the treasure.'
+                        : 'INTACT — full reward\n↑ / Right-click now, or haul closer and risk losing treasure.')
                 : 'Hidden treasure inside!\nNo dynamite left.');
             this.depositHint.setColor(deposit.depositIntegrity?.stage === 2 ? '#ff9390'
                 : deposit.depositIntegrity?.stage === 1 ? '#ffe06a' : '#9ef5ff');
@@ -639,7 +651,7 @@ export class Game extends Scene {
         this.aftershockText.setVisible(this.claw.aftershockCharges > 0);
         this.aftershockText.setText(`AFTERSHOCK x2 SPEED  ${this.claw.aftershockCharges} shots left`);
         this.secondChanceText.setVisible(this.claw.secondChanceCharges > 0);
-        this.secondChanceText.setText(`SECOND CHANCE: ↓ / click to recall  ${this.claw.secondChanceCharges} left`);
+        this.secondChanceText.setText(`SECOND CHANCE: ↓ / left-click to recall  ${this.claw.secondChanceCharges} left`);
         let buffY = 0;
         const buffTexts = [this.strengthText, this.goldRushText, ...this.passiveBuffTexts];
         for (const [index, text] of buffTexts.entries()) {

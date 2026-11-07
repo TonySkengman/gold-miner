@@ -10,8 +10,8 @@ All mines start with 60 seconds. Every level needs fresh earnings: money saved f
 After every completed return, the claw resumes swinging 25° from its launch angle. It keeps its swing direction if that step fits within the swing limits. Otherwise it shifts 25° the other way and reverses direction. You can launch again immediately.
 
 Heavy objects reel in more slowly. Perfect catches and Strength speed up hauling. Long corner shots receive return-speed compensation beyond a full straight-down return, making distant treasure worth considering.`],
-    ['Controls', `↓ or click the mine — launch the claw while it is idle.
-↑ — spend one dynamite stick to destroy the caught object.
+    ['Controls', `↓ or left-click the mine — launch the claw while it is idle.
+↑ or right-click the mine — spend one dynamite stick to destroy the caught object.
 ← or click Blast Powder — toggle its area blast when owned, including during hauling. A pulsing orange band with small, fading sparks at the claw’s cable connection shows when it is ON.
 → or click Safety Grip — toggle safe TNT collection when owned, only while the claw is idle.
 P / Esc — pause or resume. The game also pauses when it loses focus.
@@ -40,14 +40,14 @@ TNT barrels and TNT rats — explode on contact unless Safety Grip is ON. Blasts
 
 Rocks with a visible diamond or ruby offer a precision shot: catch just the gem, or grab the heavy host rock with it. A combined rock has both crystal studs and a visible gem. Blasting it releases the remaining hidden treasure and guarantees its visible gem, unless you already extracted that gem.
 
-Up Arrow destroys your caught object and spends one dynamite stick. You lose that object's delivery payout and perfect/streak cash bonus. Without Blast Powder, only the held object is destroyed; caught TNT still explodes. Caught vials instead trigger their special shatter effect, with no destructive powder blast. Blasted deposits release loot after the explosion so their newly released treasure survives.
+Press Up Arrow or right-click to destroy your caught object and spend one dynamite stick. You lose that object's delivery payout and perfect/streak cash bonus. Without Blast Powder, only the held object is destroyed; caught TNT still explodes. Caught vials instead trigger their special shatter effect, with no destructive powder blast. Blasted deposits release loot after the explosion so their newly released treasure survives.
 
 Free TNT and chain reactions always use their normal blast radius. Place explosions carefully: they can open a deposit but also destroy nearby valuables.`],
     ['Perfect catches & streaks', `Perfect catches
 Aim through an object's centre for 35% faster reeling throughout the haul. Cash treasure also earns a 35% perfect bonus, rounded up to the next $10, on delivery. Vials and non-cash rewards receive the reel boost without a perfect cash bonus. Rocks, empty rats, TNT and chest-opening hits do not qualify. Dynamiting the catch forfeits the delivery bonus.
 
 Catch streaks
-Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step uses the selected mine's earnings target: 0.5% in Gold Basin, 1.5% in Treasure Hollow, or 3% in Gem Hollow, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
+Gold, gems, gem rats, bags and collectible chests advance the streak immediately on latch. Each streak step uses the selected mine's earnings target: 0.5% in Gold Basin, 1% in Treasure Hollow, or 2% in Gem Hollow, rounded to the nearest $5. Catch 3 pays one step, catch 4 pays two, catch 5 pays three, and each further qualifying catch adds another step. Delivery pays the bonus; it counts toward the target.
 
 Empty shots, empty rats and ordinary rocks reset the streak. Whole rocks with an embedded gem advance it; gem-studded deposits without a visible gem are neutral. Once you extract a visible gem, its ordinary host rock breaks the streak. Vials, opening chests and TNT are neutral. Dynamiting a qualifying catch preserves its streak progress but loses its payout. Each level and retry starts at zero.`],
     ['Vials & temporary effects', `Strength — x2 retrieval speed for two catches, plus Vial Belt. Mine vials add catches; they do not increase the multiplier. Catching any mine vial does not consume a Strength charge.
@@ -65,7 +65,7 @@ Gold Rush: Golden Touch permanently adds 50% value to gold nuggets within 300 pi
 Streak: Streak Spark immediately adds two catch-streak steps.
 Luck: Lucky Find rolls two independent drops near the shattered vial: small rock, small gold, diamond or ruby. In that order, the odds are 50/35/12/3% with under 200 pixels left to reel in, 30/30/25/15% with 200 to under 460 pixels left, and 15/20/35/30% with 460 pixels or more left. Distance is measured along the claw’s line when dynamite hits. Drops need an open spot and must be hauled back. Small gold from Lucky Find can appear in Gem Hollow.
 Momentum: Aftershock adds three charges. Each launch spends one charge and doubles speed for the full shot, including its return. Charges last until used or the level ends.
-Time: Each shattered Time vial adds three recall charges for the current level. Press Down or click again during launch to spend one charge and recall the empty claw without breaking your streak.
+Time: Each shattered Time vial adds three recall charges for the current level. Press Down or left-click again during launch to spend one charge and recall the empty claw without breaking your streak.
 
 Mine vial spawns
 All three mines use one independent count roll per eligible vial type: 25% for zero, 50% for one, 20% for two and 5% for three. This replaces previous vial counts and bonus rolls. Momentum is included in every mine. Gem Hollow excludes Gold Rush because it has no gold; Gold Basin excludes Luck. Catching Luck activates it immediately for 20/25/30 seconds at Vial Belt tiers 1/2/3 (20 without the belt), refreshing its duration if already active. Catching Momentum immediately adds five charges. Mystery-bag vials behave the same way. Life vials never spawn loose in the mine. All mine vials preserve Strength charges and qualify for perfect-haul speed. Placement favors 15% surface, 70% middle and 15% deep. Retries preserve the seeded layout.`],

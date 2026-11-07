@@ -18,6 +18,7 @@ const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
     width: window.innerWidth,
     height: window.innerHeight,
+    disableContextMenu: true,
     parent: 'game-container',
     backgroundColor: '#483126',
     scale: { mode: Scale.RESIZE, autoCenter: Scale.CENTER_BOTH },

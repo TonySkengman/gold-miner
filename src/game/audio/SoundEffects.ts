@@ -100,7 +100,8 @@ export function addSoundButton(scene: Scene, x: number, y: number) {
     }).setDepth(20).setInteractive({ useHandCursor: true });
     const refresh = () => button.setText(soundEffects.muted ? 'Sound: OFF' : 'Sound: ON');
     refresh();
-    button.on('pointerdown', (_pointer: unknown, _x: number, _y: number, event: Types.Input.EventData) => {
+    button.on('pointerdown', (pointer: Phaser.Input.Pointer, _x: number, _y: number, event: Types.Input.EventData) => {
+        if (pointer.button !== 0 && !pointer.wasTouch) return;
         event.stopPropagation();
         soundEffects.unlock();
         soundEffects.toggleMute();
