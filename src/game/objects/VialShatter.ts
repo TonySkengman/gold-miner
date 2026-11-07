@@ -82,7 +82,7 @@ export function shatterVial(scene: Scene, vial: Collectable, objects: Collectabl
             if (!position) continue;
             const drop = new Collectable(scene, position.x, position.y, kind, 1, random);
             objects.push(drop);
-            if (round.bonuses.prospectorsLens) drop.revealMysteryReward(scene, { kind: 'money', amount: drop.collectionValue(1 + round.upgrades.diamonds * 0.15) });
+            if (round.bonuses.prospectorsLens) drop.revealMysteryReward(scene, { kind: 'money', amount: drop.collectionValue(round.gemPolishMultiplier) });
             revealed.push(names[kind]);
         }
         label = `LUCKY FIND • ${revealed.length ? revealed.join(' + ') : 'NO ROOM FOR DROPS'}`;

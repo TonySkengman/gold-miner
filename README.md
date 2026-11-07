@@ -75,14 +75,14 @@ Each reward can be earned once per level. The HUD shows progress toward the next
 | Item | Effect | Price |
 | --- | --- | --- |
 | Stronger winch | +10% retrieval speed per tier | $1,000 / $2,000 / $3,000 |
-| Gem polish | +15% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
-| Gold polish | +15% gold nugget value per tier; stacks with Gold Rush | $1,250 / $2,500 / $3,750 |
+| Gem polish | +10% diamond and ruby value per tier | $1,250 / $2,500 / $3,750 |
+| Gold polish | +10% gold nugget value per tier; stacks with Gold Rush | $1,250 / $2,500 / $3,750 |
 | Safety Grip | Safe TNT barrel/rat collection; −25% / −20% / −15% launch speed while ON; disarm in 3.5 / 3 / 2.5 seconds by tier; +1 dynamite per delivery; starts OFF and remembers your choice, lasts for the run | $1,500 / $3,000 / $4,500 |
 | Blast Powder | Tier 1 unlocks size-based thrown-dynamite blasts and +50% radius when dynamiting caught TNT; tiers 2/3 add +20%/+40% radius over tier 1; lasts for the run | $1,500 / $3,000 / $4,500 |
 | Strength vial | Start the next round with x2 retrieval speed for 2 catches, plus Vial Belt | $1,000 |
 | Gold Rush vial | Start the next round with +50% gold value for 2 gold catches, plus Vial Belt | $1,000 |
 | Dynamite | One additional stick | $750 |
-| Momentum vial | Five starting charges; caught vials add five more; each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 without the belt) | $1,250 |
+| Momentum vial | Five starting charges; caught vials add five more; each perfect catch instantly adds 3/4/5 seconds at Vial Belt tiers 1/2/3 (3 without the belt) | $1,000 |
 | Luck vial | Active for 20/25/30 seconds by Vial Belt tier (20 without the belt); cash bags roll $300–$400 and mystery cash rolls $500–$650; chest odds: 50% upgrade / 25% cash / 25% dynamite | $1,000 |
 | Time vial | Adds 10/15/20 seconds at Vial Belt tiers 1/2/3 (10 without the belt) at round start | $1,000 |
 | Lightweight Grip | Rock hauling weight reduced by 40% for one round | $250 |
@@ -105,7 +105,7 @@ Blast Powder is a permanent upgrade for the current run, with three tiers. It st
 
 Caught vials always trigger their special shatter effect; Blast Powder adds no destructive blast and does not increase the effect’s radius, strength or duration. For other caught objects, Blast Powder ON makes thrown dynamite destroy the caught item and blast nearby free objects. At tier 1, the blast radius is **2.5 times the caught item’s radius**: small gold produces a 37.5-pixel blast, medium gold 80 pixels, large gold 120 pixels, and giant gold 180 pixels. TNT contact detonations and secondary chain reactions always use the normal 135-pixel radius, regardless of Blast Powder. Throwing dynamite at a caught TNT barrel or TNT rat with Blast Powder ON creates a larger 202.5-pixel blast at tier 1. Tiers 2 and 3 multiply thrown-dynamite radii by 1.2 and 1.4 relative to tier 1 (giant-gold blasts: 180/216/252 pixels; directly dynamited TNT: 202.5/243/283.5 pixels). This enhanced TNT blast requires catching it safely with Safety Grip first. Explosion visuals match their damage radius. Destroyed objects award no money; blasted gem deposits release their remaining treasure after the explosions so the released loot survives. With Blast Powder OFF or unowned, thrown dynamite destroys only the caught item, and TNT uses its normal radius.
 
-Gold Polish lasts for the run and adds 15% gold nugget value per tier, up to 45%. It applies to all four nugget sizes, including nuggets released from deposits, and multiplies with Gold Rush. At tier 3, a $200 large nugget pays $290 normally or $435 with Gold Rush, before perfect-catch and streak bonuses. Perfect-catch cash bonuses use the boosted nugget value; Gold Polish does not increase gems, bags, chests, or streak bonuses.
+Gold Polish lasts for the run and adds 10% gold nugget value per tier, up to 30%. It applies to all four nugget sizes, including nuggets released from deposits, and multiplies with Gold Rush. At tier 3, a $200 large nugget pays $260 normally or $390 with Gold Rush, before perfect-catch and streak bonuses. Perfect-catch cash bonuses use the boosted nugget value; Gold Polish does not increase gems, bags, chests, or streak bonuses.
 
 ## Development
 

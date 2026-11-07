@@ -154,7 +154,7 @@ export class RoundState {
         }
         if (goldMultiplier > 1) this.goldRushCatches--;
         const gold = ['small', 'medium', 'large', 'giant'].includes(kind);
-        return goldMultiplier * (gold ? 1 + this.upgrades.gold * 0.15 : 1);
+        return goldMultiplier * (gold ? 1 + this.upgrades.gold * 0.1 : 1);
     }
 
     addTime(): number {
@@ -167,6 +167,8 @@ export class RoundState {
         const gold = kind === 'small' || kind === 'medium' || kind === 'large' || kind === 'giant';
         return this.goldRushCatches > 0 && gold ? Math.round(value * 1.5) : value;
     }
+
+    get gemPolishMultiplier(): number { return 1 + this.upgrades.diamonds * 0.1; }
 
     get strengthMultiplier(): number { return this.strengthCatches > 0 ? 2 : 1; }
 

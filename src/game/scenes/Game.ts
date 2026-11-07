@@ -167,7 +167,7 @@ export class Game extends Scene {
             this.round.score += earned;
             this.miner.reactTo(object.kind);
             showValue(earned);
-        }, 1 + this.round.upgrades.strength * 0.1, 1 + this.round.upgrades.diamonds * 0.15,
+        }, 1 + this.round.upgrades.strength * 0.1, this.round.gemPolishMultiplier,
         () => this.round.strengthMultiplier, this.round.bonuses.lightweightGrip > 0,
         (object, perfect) => {
             const momentumSeconds = this.round.catchMomentum(perfect);
